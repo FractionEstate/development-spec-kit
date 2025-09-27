@@ -124,7 +124,7 @@ Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.c
 | Agent                                                     | Support | Notes                                             |
 |-----------------------------------------------------------|---------|---------------------------------------------------|
 | [Claude Code](https://www.anthropic.com/claude-code)      | ✅ |                                                   |
-| [GitHub Copilot](https://code.visualstudio.com/)          | ✅ | **Enhanced** - Optimized for VSCode Chat integration     |
+| [GitHub Copilot](https://code.visualstudio.com/)          | ✅ | **Enhanced** - Optimized for VSCode Chat with MCP integration |
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | ✅ |                                                   |
 | [Cursor](https://cursor.sh/)                              | ✅ |                                                   |
 | [Qwen Code](https://github.com/QwenLM/qwen-code)          | ✅ |                                                   |
@@ -210,23 +210,30 @@ When you select GitHub Copilot (`--ai copilot`), you get additional optimization
 - ✅ **Task Integration** - Run SDD commands directly from VSCode
 - ✅ **File Organization** - Smart nesting and associations for spec files
 - ✅ **Extensions** - Recommended VSCode extensions for best experience
+- ✅ **MCP Integration** - Model Context Protocol for advanced context sharing
+- ✅ **Reference Links** - Comprehensive documentation and resource links
+- ✅ **Context Analytics** - Enhanced workspace intelligence and semantic search
 
 **Usage Example:**
 ```bash
 # Initialize with Copilot optimizations
 specify init my-project --ai copilot
 
-# Then in VSCode, use enhanced chat patterns:
-# @workspace I'm working on user authentication in the specify phase.
-# Based on our constitution.md security principles, help me create
-# a comprehensive specification for secure login functionality.
+# Then in VSCode, use enhanced chat patterns with MCP-style context:
+# @workspace [SDD-PHASE:specify] [SDD-CONTEXT:constitution]
+# Working on user authentication specification.
+# Context: constitution.md security principles, similar auth patterns
+# Help me create comprehensive specification with proper security controls.
 ```
 
 **Key Files Added:**
-- `.vscode/settings.json` - Copilot-optimized workspace settings
+- `.vscode/settings.json` - Copilot-optimized workspace settings with MCP integration
 - `.vscode/tasks.json` - Integrated SDD workflow tasks
-- `.vscode/spec-driven-dev.code-snippets` - Quick templates
+- `.vscode/spec-driven-dev.code-snippets` - Quick templates including MCP context patterns
 - `.github/copilot-instructions.md` - Comprehensive chat guidance
+- `.github/copilot-context.md` - Model Context Protocol integration guide
+- `.github/copilot-references.md` - Extensive documentation and reference links
+- `.github/copilot-mcp-config.json` - MCP configuration for advanced context sharing
 - Enhanced command prompts in `.github/prompts/`
 
 # Check system requirements

@@ -6,6 +6,11 @@
         "davidanson.vscode-markdownlint",
         "yzhang.markdown-all-in-one",
         "ms-vscode.powershell",
-        "ms-vscode.vscode-typescript-next"
+        "ms-vscode.vscode-typescript-next",
+        "redhat.vscode-yaml",
+        "ms-vscode.references-view",
+        "ms-vscode.search-result",
+        "gruntfuggly.todo-tree",
+        "streetsidesoftware.code-spell-checker"
     ]
 }

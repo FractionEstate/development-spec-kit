@@ -189,3 +189,13 @@ The project uses file nesting in VS Code:
 - Consider constitution performance standards
 
 Remember: GitHub Copilot Chat works best when provided with clear context about the current development phase, relevant files, and specific questions. Always reference the SDD workflow and project structure for optimal assistance.
+
+## 🔗 Additional Resources
+
+For enhanced Copilot integration and context sharing:
+- **[Enhanced Context Guide](./copilot-context.md)** - Model Context Protocol integration and advanced context patterns
+- **[Reference Links](./copilot-references.md)** - Comprehensive documentation and resource links
+- **[VSCode Snippets](../.vscode/spec-driven-dev.code-snippets)** - Quick templates including MCP-style context requests
+- **[Project Documentation](../README-copilot.md)** - Copilot-specific usage guide for this project
+
+Use these resources to maximize the effectiveness of your GitHub Copilot interactions in Spec-Driven Development projects.

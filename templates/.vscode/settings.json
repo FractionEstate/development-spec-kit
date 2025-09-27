@@ -56,5 +56,49 @@
   // Language-specific Copilot optimizations
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.chat.localeOverride": "en",
-  "github.copilot.chat.welcomeMessage": "disabled"
+  "github.copilot.chat.welcomeMessage": "disabled",
+  
+  // Advanced Copilot Context Protocol (MCP-style) settings
+  "github.copilot.advanced.length": 500,
+  "github.copilot.advanced.listCount": 10,
+  "github.copilot.advanced.inlineSuggestCount": 3,
+  "github.copilot.advanced.debug.overrideEngine": "",
+  "github.copilot.advanced.debug.testOverrideProxyUrl": "",
+  "github.copilot.advanced.debug.filterLogCategories": [],
+  
+  // Enhanced context sharing and workspace intelligence
+  "github.copilot.chat.experimental.codeGeneration.instructions": "Always consider the Spec-Driven Development context including constitution.md, current spec.md, plan.md, and tasks.md when generating code or providing suggestions.",
+  "github.copilot.chat.experimental.temporalContext": true,
+  "github.copilot.chat.experimental.semanticSearch": true,
+  
+  // Markdown and documentation enhancements
+  "markdown.extension.toc.levels": "1..6",
+  "markdown.extension.tableFormatter.enabled": true,
+  "markdown.extension.completion.respectVscodeSearchExclude": true,
+  
+  // Additional workspace context for better AI understanding
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.hg/store/**": true
+  },
+  
+  // Enhanced search and reference capabilities
+  "search.smartCase": true,
+  "search.globalFindClipboard": false,
+  "search.followSymlinks": true,
+  
+  // Project-specific AI context hints
+  "files.associations": {
+    "*.spec.md": "markdown",
+    "spec.md": "markdown", 
+    "plan.md": "markdown",
+    "tasks.md": "markdown",
+    "constitution.md": "markdown",
+    "data-model.md": "markdown",
+    "quickstart.md": "markdown",
+    "research.md": "markdown",
+    "*.copilot.md": "markdown"
+  }
 }
