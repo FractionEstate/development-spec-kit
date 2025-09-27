@@ -124,7 +124,7 @@ Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.c
 | Agent                                                     | Support | Notes                                             |
 |-----------------------------------------------------------|---------|---------------------------------------------------|
 | [Claude Code](https://www.anthropic.com/claude-code)      | ✅ |                                                   |
-| [GitHub Copilot](https://code.visualstudio.com/)          | ✅ |                                                   |
+| [GitHub Copilot](https://code.visualstudio.com/)          | ✅ | **Enhanced** - Optimized for VSCode Chat integration     |
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | ✅ |                                                   |
 | [Cursor](https://cursor.sh/)                              | ✅ |                                                   |
 | [Qwen Code](https://github.com/QwenLM/qwen-code)          | ✅ |                                                   |
@@ -197,6 +197,41 @@ specify init my-project --ai claude --debug
 
 # Use GitHub token for API requests (helpful for corporate environments)
 specify init my-project --ai claude --github-token ghp_your_token_here
+```
+
+### 🤖 GitHub Copilot Enhanced Experience
+
+When you select GitHub Copilot (`--ai copilot`), you get additional optimizations for VSCode Chat:
+
+**Enhanced Features:**
+- ✅ **VSCode Workspace Settings** - Optimized Copilot settings for all file types
+- ✅ **Chat-optimized Prompts** - Better @workspace conversation patterns  
+- ✅ **Code Snippets** - Quick templates for specs, plans, and chat contexts
+- ✅ **Task Integration** - Run SDD commands directly from VSCode
+- ✅ **File Organization** - Smart nesting and associations for spec files
+- ✅ **Extensions** - Recommended VSCode extensions for best experience
+- ✅ **Reference Links** - Comprehensive documentation and resource links
+- ✅ **Context Optimization** - Enhanced workspace intelligence for better suggestions
+
+**Usage Example:**
+```bash
+# Initialize with Copilot optimizations
+specify init my-project --ai copilot
+
+# Then in VSCode, use enhanced chat patterns:
+# @workspace Working on user authentication specification.
+# Context: constitution.md security principles, similar auth patterns
+# Help me create comprehensive specification with proper security controls.
+```
+
+**Key Files Added:**
+- `.vscode/settings.json` - Copilot-optimized workspace settings
+- `.vscode/tasks.json` - Integrated SDD workflow tasks
+- `.vscode/spec-driven-dev.code-snippets` - Quick templates and context patterns
+- `.github/copilot-instructions.md` - Comprehensive chat guidance
+- `.github/copilot-context.md` - Enhanced context sharing guide
+- `.github/copilot-references.md` - Extensive documentation and reference links
+- Enhanced command prompts in `.github/prompts/`
 
 # Check system requirements
 specify check

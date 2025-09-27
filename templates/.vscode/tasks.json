@@ -1,0 +1,143 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Specify: Create Feature",
+            "type": "shell",
+            "command": "/specify",
+            "args": ["${input:featureDescription}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Create a new feature specification using /specify command"
+        },
+        {
+            "label": "Plan: Generate Implementation Plan", 
+            "type": "shell",
+            "command": "/plan",
+            "args": ["${input:planDetails}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Generate technical implementation plan using /plan command"
+        },
+        {
+            "label": "Tasks: Generate Task Breakdown",
+            "type": "shell", 
+            "command": "/tasks",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Generate actionable task list using /tasks command"
+        },
+        {
+            "label": "Implement: Execute Implementation",
+            "type": "shell",
+            "command": "/implement", 
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Execute implementation plan using /implement command"
+        },
+        {
+            "label": "Constitution: Set Project Principles",
+            "type": "shell",
+            "command": "/constitution",
+            "args": ["${input:constitutionPrinciples}"],
+            "group": "build", 
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Define project governing principles using /constitution command"
+        },
+        {
+            "label": "Clarify: Resolve Ambiguities",
+            "type": "shell",
+            "command": "/clarify",
+            "args": ["${input:clarificationRequest}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always", 
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Clarify ambiguous requirements using /clarify command"
+        },
+        {
+            "label": "Analyze: Cross-Artifact Analysis",
+            "type": "shell",
+            "command": "/analyze",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared", 
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "detail": "Generate consistency and alignment report using /analyze command"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "featureDescription",
+            "description": "Describe the feature you want to build",
+            "type": "promptString"
+        },
+        {
+            "id": "planDetails", 
+            "description": "Provide technical implementation details",
+            "type": "promptString"
+        },
+        {
+            "id": "constitutionPrinciples",
+            "description": "Define project principles and guidelines", 
+            "type": "promptString"
+        },
+        {
+            "id": "clarificationRequest",
+            "description": "What needs clarification?",
+            "type": "promptString"
+        }
+    ]
+}

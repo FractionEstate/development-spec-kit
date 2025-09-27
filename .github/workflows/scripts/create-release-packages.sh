@@ -113,6 +113,12 @@ build_variant() {
   fi
   
   [[ -d templates ]] && { mkdir -p "$SPEC_DIR/templates"; find templates -type f -not -path "templates/commands/*" -exec cp --parents {} "$SPEC_DIR"/ \; ; echo "Copied templates -> .specify/templates"; }
+  
+  # Copy VSCode configuration for Copilot projects
+  if [[ "$agent" == "copilot" && -d templates/.vscode ]]; then
+    cp -r templates/.vscode "$base_dir/"
+    echo "Copied .vscode configuration for Copilot optimization"
+  fi
   # Inject variant into plan-template.md within .specify/templates if present
   local plan_tpl="$base_dir/.specify/templates/plan-template.md"
   if [[ -f "$plan_tpl" ]]; then
@@ -146,7 +152,11 @@ build_variant() {
       [[ -f agent_templates/gemini/GEMINI.md ]] && cp agent_templates/gemini/GEMINI.md "$base_dir/GEMINI.md" ;;
     copilot)
       mkdir -p "$base_dir/.github/prompts"
-      generate_commands copilot prompt.md "\$ARGUMENTS" "$base_dir/.github/prompts" "$script" ;;
+      generate_commands copilot prompt.md "\$ARGUMENTS" "$base_dir/.github/prompts" "$script" 
+      # Copy enhanced Copilot instructions and context files for VSCode Chat optimization
+      [[ -f templates/.github/copilot-instructions.md ]] && cp templates/.github/copilot-instructions.md "$base_dir/.github/copilot-instructions.md"
+      [[ -f templates/.github/copilot-context.md ]] && cp templates/.github/copilot-context.md "$base_dir/.github/copilot-context.md"
+      [[ -f templates/.github/copilot-references.md ]] && cp templates/.github/copilot-references.md "$base_dir/.github/copilot-references.md" ;;
     cursor)
       mkdir -p "$base_dir/.cursor/commands"
       generate_commands cursor md "\$ARGUMENTS" "$base_dir/.cursor/commands" "$script" ;;
