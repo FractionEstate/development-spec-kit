@@ -1,0 +1,60 @@
+{
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  "github.copilot.advanced.completions.enabled": true,
+  "github.copilot.advanced.suggestions.completions.enabled": true,
+  "github.copilot.chat.enabled": true,
+  "github.copilot.chat.experimental.gptMode": true,
+  "github.copilot.chat.advanced.conversationMode": "enhanced",
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggestOnTriggerCharacters": true,
+  
+  // Spec-Driven Development specific settings
+  "files.associations": {
+    "*.spec.md": "markdown",
+    "spec.md": "markdown",
+    "plan.md": "markdown",
+    "tasks.md": "markdown",
+    "constitution.md": "markdown",
+    "data-model.md": "markdown",
+    "quickstart.md": "markdown",
+    "research.md": "markdown"
+  },
+  
+  // Enhanced markdown support for spec files
+  "markdown.preview.breaks": true,
+  "markdown.preview.linkify": true,
+  "markdown.suggest.paths.enabled": true,
+  
+  // File explorer organization
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "spec.md": "plan.md, tasks.md, data-model.md, quickstart.md, research.md",
+    "constitution.md": "memory/*"
+  },
+  
+  // Search configuration for spec files
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+  "search.useIgnoreFiles": true,
+  
+  // Terminal integration
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  
+  // Language-specific Copilot optimizations
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.chat.localeOverride": "en",
+  "github.copilot.chat.welcomeMessage": "disabled"
+}

@@ -1,0 +1,77 @@
+{
+    "folders": [
+        {
+            "name": "Project Root",
+            "path": "."
+        },
+        {
+            "name": "Specifications",
+            "path": "./specs"
+        },
+        {
+            "name": "Memory & Constitution",
+            "path": "./memory"
+        }
+    ],
+    "settings": {
+        "github.copilot.enable": {
+            "*": true,
+            "yaml": true,
+            "plaintext": true,
+            "markdown": true
+        },
+        "github.copilot.chat.enabled": true,
+        "github.copilot.chat.experimental.gptMode": true,
+        "files.associations": {
+            "*.spec.md": "markdown",
+            "spec.md": "markdown",
+            "plan.md": "markdown",
+            "tasks.md": "markdown",
+            "constitution.md": "markdown",
+            "data-model.md": "markdown",
+            "quickstart.md": "markdown",
+            "research.md": "markdown"
+        },
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.expand": false,
+        "explorer.fileNesting.patterns": {
+            "spec.md": "plan.md, tasks.md, data-model.md, quickstart.md, research.md",
+            "constitution.md": "memory/*"
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "github.copilot",
+            "github.copilot-chat",
+            "davidanson.vscode-markdownlint",
+            "yzhang.markdown-all-in-one"
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "SDD: Create Feature Specification",
+                "type": "shell",
+                "command": "echo",
+                "args": ["Use /specify command in Copilot Chat"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always"
+                }
+            },
+            {
+                "label": "SDD: Generate Implementation Plan",
+                "type": "shell", 
+                "command": "echo",
+                "args": ["Use /plan command in Copilot Chat"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always"
+                }
+            }
+        ]
+    }
+}
