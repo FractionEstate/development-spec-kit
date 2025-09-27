@@ -192,10 +192,10 @@ Remember: GitHub Copilot Chat works best when provided with clear context about 
 
 ## 🔗 Additional Resources
 
-For enhanced Copilot integration and context sharing:
-- **[Enhanced Context Guide](./copilot-context.md)** - Model Context Protocol integration and advanced context patterns
+For enhanced Copilot integration:
+- **[Enhanced Context Guide](./copilot-context.md)** - Advanced context patterns and chat optimization
 - **[Reference Links](./copilot-references.md)** - Comprehensive documentation and resource links
-- **[VSCode Snippets](../.vscode/spec-driven-dev.code-snippets)** - Quick templates including MCP-style context requests
+- **[VSCode Snippets](../.vscode/spec-driven-dev.code-snippets)** - Quick templates for structured Copilot conversations
 - **[Project Documentation](../README-copilot.md)** - Copilot-specific usage guide for this project
 
 Use these resources to maximize the effectiveness of your GitHub Copilot interactions in Spec-Driven Development projects.

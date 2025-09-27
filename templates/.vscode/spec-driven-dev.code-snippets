@@ -120,67 +120,11 @@
         "description": "Structured request template for Copilot Chat in SDD projects"
     },
     
-    "MCP Context Request": {
-        "scope": "markdown",
-        "prefix": "mcp-context",
-        "body": [
-            "@workspace [SDD-PHASE:${1:specify/plan/implement}] [SDD-CONTEXT:${2:constitution/spec/plan/tasks}]",
-            "",
-            "**Project Context:**",
-            "- Type: Spec-Driven Development (SDD)",
-            "- Current Feature: ${3:feature-name}",
-            "- Active Files: ${4:list key files}",
-            "- Dependencies: ${5:related components/files}",
-            "",
-            "**Request:** ${6:specific help needed}",
-            "",
-            "**Context References:**",
-            "- 📋 Requirements: [spec.md requirements](./spec.md)",
-            "- 🏗️ Architecture: [plan.md decisions](./plan.md)",
-            "- ✅ Tasks: [tasks.md progress](./tasks.md)",
-            "- 📐 Principles: [constitution.md standards](./memory/constitution.md)",
-            "",
-            "Please provide guidance that aligns with our SDD methodology and project context."
-        ],
-        "description": "Enhanced Model Context Protocol-style request for Copilot Chat"
-    },
-    
-    "Reference Links Template": {
-        "scope": "markdown",
-        "prefix": "ref-links",
-        "body": [
-            "## 📚 References & Resources",
-            "",
-            "### Project Documentation",
-            "- [Spec-Driven Development Guide](./README-copilot.md)",
-            "- [GitHub Copilot Instructions](./.github/copilot-instructions.md)",
-            "- [Enhanced Context Guide](./.github/copilot-context.md)",
-            "- [Reference Links](./.github/copilot-references.md)",
-            "",
-            "### Technical Resources",
-            "- [GitHub Copilot Documentation](https://docs.github.com/en/copilot)",
-            "- [VSCode Chat Guide](https://code.visualstudio.com/docs/copilot/copilot-chat)",
-            "- [Model Context Protocol](https://spec.modelcontextprotocol.io/)",
-            "- [Workspace Context](https://code.visualstudio.com/docs/copilot/workspace-context)",
-            "",
-            "### Development Patterns",
-            "- [Specification Template](./spec-template.md)",
-            "- [Implementation Plan Template](./plan-template.md)", 
-            "- [Task Breakdown Template](./tasks-template.md)",
-            "- [VSCode Snippets](./.vscode/spec-driven-dev.code-snippets)",
-            "",
-            "### ${1:Additional Resources}",
-            "- ${2:Custom reference 1}",
-            "- ${3:Custom reference 2}"
-        ],
-        "description": "Comprehensive reference links template for documentation"
-    },
-    
     "Context-Aware Implementation": {
         "scope": "markdown",
         "prefix": "context-impl",
         "body": [
-            "@workspace [SDD-PHASE:implement] Implementing ${1:component-name} for ${2:feature-name}.",
+            "@workspace Implementing ${1:component-name} for ${2:feature-name}.",
             "",
             "**Implementation Context:**",
             "- 📋 Specification: [${3:requirement-section}](./spec.md#${4:section-anchor})",
@@ -203,5 +147,35 @@
             "- Integrates properly with existing components"
         ],
         "description": "Context-rich implementation request template"
+    },
+    
+    "Reference Links Template": {
+        "scope": "markdown",
+        "prefix": "ref-links",
+        "body": [
+            "## 📚 References & Resources",
+            "",
+            "### Project Documentation",
+            "- [Spec-Driven Development Guide](./README-copilot.md)",
+            "- [GitHub Copilot Instructions](./.github/copilot-instructions.md)",
+            "- [Enhanced Context Guide](./.github/copilot-context.md)",
+            "- [Reference Links](./.github/copilot-references.md)",
+            "",
+            "### Technical Resources",
+            "- [GitHub Copilot Documentation](https://docs.github.com/en/copilot)",
+            "- [VSCode Chat Guide](https://code.visualstudio.com/docs/copilot/copilot-chat)",
+            "- [Workspace Context](https://code.visualstudio.com/docs/copilot/workspace-context)",
+            "",
+            "### Development Patterns",
+            "- [Specification Template](./spec-template.md)",
+            "- [Implementation Plan Template](./plan-template.md)", 
+            "- [Task Breakdown Template](./tasks-template.md)",
+            "- [VSCode Snippets](./.vscode/spec-driven-dev.code-snippets)",
+            "",
+            "### ${1:Additional Resources}",
+            "- ${2:Custom reference 1}",
+            "- ${3:Custom reference 2}"
+        ],
+        "description": "Comprehensive reference links template for documentation"
     }
 }
