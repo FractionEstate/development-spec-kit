@@ -545,6 +545,137 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     return zip_path, metadata
 
 
+def copy_local_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None) -> Path:
+    """Copy local development templates to create a new project for testing.
+    Returns project_path. Uses tracker if provided (with keys: copy, agent-setup, cleanup)
+    """
+    # Find the development template directory
+    dev_templates_dir = Path(__file__).parent.parent.parent / "templates"
+    dev_memory_dir = Path(__file__).parent.parent.parent / "memory"
+    dev_scripts_dir = Path(__file__).parent.parent.parent / "scripts"
+
+    if not dev_templates_dir.exists():
+        raise RuntimeError(f"Local templates directory not found: {dev_templates_dir}")
+
+    if tracker:
+        tracker.start("copy", "copying local templates")
+
+    try:
+        # Ensure project directory exists
+        project_path.mkdir(parents=True, exist_ok=True)
+
+        # Copy all template files to project root
+        for item in dev_templates_dir.iterdir():
+            if item.name.startswith('.'):
+                continue  # Skip hidden files like .github, .vscode
+            dest = project_path / item.name
+            if item.is_dir():
+                shutil.copytree(item, dest, dirs_exist_ok=True)
+            else:
+                shutil.copy2(item, dest)
+
+        # Create .specify directory and copy development files
+        specify_dir = project_path / ".specify"
+        specify_dir.mkdir(exist_ok=True)
+
+        # Copy memory
+        if dev_memory_dir.exists():
+            shutil.copytree(dev_memory_dir, specify_dir / "memory", dirs_exist_ok=True)
+
+        # Copy scripts
+        if dev_scripts_dir.exists():
+            shutil.copytree(dev_scripts_dir, specify_dir / "scripts", dirs_exist_ok=True)
+
+        # Copy templates to .specify/templates
+        shutil.copytree(dev_templates_dir, specify_dir / "templates", dirs_exist_ok=True)
+
+        if tracker:
+            tracker.complete("copy", "local templates copied")
+            tracker.add("agent-setup", "Set up agent commands")
+
+        # Set up agent-specific commands
+        setup_agent_commands(project_path, ai_assistant, script_type, tracker)
+
+        if tracker:
+            tracker.complete("agent-setup", f"{ai_assistant} commands ready")
+
+    except Exception as e:
+        if tracker:
+            tracker.error("copy", str(e))
+        raise RuntimeError(f"Failed to copy local templates: {e}")
+
+    return project_path
+def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str, tracker: StepTracker | None = None):
+    """Set up agent-specific commands from templates."""
+    # This mimics the logic from the release package script
+    templates_dir = project_path / ".specify" / "templates" / "commands"
+
+    # Define agent-specific directory and format
+    agent_dirs = {
+        "claude": (".claude/commands", "md", "$ARGUMENTS"),
+        "gemini": (".gemini/commands", "toml", "{{args}}"),
+        "copilot": (".github/prompts", "md", "$ARGUMENTS"),
+        "cursor": (".cursor/commands", "md", "$ARGUMENTS"),
+        "qwen": (".qwen/commands", "toml", "{{args}}"),
+        "opencode": (".opencode/command", "md", "$ARGUMENTS"),
+        "windsurf": (".windsurf/workflows", "md", "$ARGUMENTS"),
+        "codex": (".codex/commands", "md", "$ARGUMENTS"),
+        "kilocode": (".kilocode/commands", "md", "$ARGUMENTS"),
+        "auggie": (".auggie/commands", "md", "$ARGUMENTS"),
+        "roo": (".roo/commands", "md", "$ARGUMENTS"),
+    }
+
+    if ai_assistant not in agent_dirs:
+        return
+
+    agent_dir, ext, arg_format = agent_dirs[ai_assistant]
+    output_dir = project_path / agent_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Process each command template
+    if templates_dir.exists():
+        for template_file in templates_dir.glob("*.md"):
+            command_name = template_file.stem
+            output_file = output_dir / f"{command_name}.{ext}"
+
+            content = template_file.read_text()
+
+            # Replace placeholders
+            content = content.replace("$ARGUMENTS", arg_format)
+            content = content.replace("{SCRIPT}", f".specify/scripts/{script_type}/{template_file.stem}.{script_type}")
+
+            # Convert to TOML format if needed
+            if ext == "toml":
+                # Extract description and convert to TOML
+                lines = content.split('\n')
+                description = ""
+                prompt_content = []
+                in_frontmatter = False
+                past_frontmatter = False
+
+                for line in lines:
+                    if line.strip() == "---":
+                        if not in_frontmatter and not past_frontmatter:
+                            in_frontmatter = True
+                        else:
+                            in_frontmatter = False
+                            past_frontmatter = True
+                        continue
+
+                    if in_frontmatter and line.startswith("description:"):
+                        description = line.split(":", 1)[1].strip().strip('"')
+                        continue
+
+                    if past_frontmatter:
+                        prompt_content.append(line)
+
+                prompt_text = '\n'.join(prompt_content).strip()
+                toml_content = f'description = "{description}"\n\nprompt = """\n{prompt_text}\n"""\n'
+                content = toml_content
+
+            output_file.write_text(content)
+
+
 def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Path:
     """Download the latest release and extract it to create a new project.
     Returns project_path. Uses tracker if provided (with keys: fetch, download, extract, cleanup)
@@ -759,6 +890,7 @@ def init(
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    local: bool = typer.Option(False, "--local", help="Use local templates from development environment (for testing)"),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -974,7 +1106,10 @@ def init(
             local_ssl_context = ssl_context if verify else False
             local_client = httpx.Client(verify=local_ssl_context)
 
-            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
+            if local:
+                copy_local_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker)
+            else:
+                download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
             # Ensure scripts are executable (POSIX)
             ensure_executable_scripts(project_path, tracker=tracker)
@@ -1028,7 +1163,7 @@ def init(
         "codex": ".codex/",
         "windsurf": ".windsurf/",
         "kilocode": ".kilocode/",
-        "auggie": ".augment/",
+        "auggie": ".auggie/",
         "copilot": ".github/",
         "roo": ".roo/"
     }
