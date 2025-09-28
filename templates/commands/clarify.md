@@ -1,9 +1,11 @@
 ---
 description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
-scripts:
-   sh: scripts/bash/check-prerequisites.sh --json --paths-only
-   ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --paths-only
+ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
+-->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
@@ -147,6 +149,7 @@ Execution steps:
    - Sections touched (list names).
    - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota or better suited for planning), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/plan` or run `/clarify` again later post-plan.
+   - Provide a ready-to-copy `@workspace` prompt tailored to the suggested next command.
    - Suggested next command.
 
 Behavior rules:

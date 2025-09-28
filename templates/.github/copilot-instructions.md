@@ -83,7 +83,7 @@ project-root/
    ```
    @workspace Working on [feature-name] in the [phase] phase
    Current files: spec.md, plan.md, tasks.md
-   
+
    Question: [Your specific question]
    ```
 
@@ -101,8 +101,8 @@ project-root/
 
 **For Specification Writing:**
 ```
-@workspace I'm working on the [feature] specification. 
-Current spec.md has [current state]. 
+@workspace I'm working on the [feature] specification.
+Current spec.md has [current state].
 Please help me [specific need] while following our constitution.md principles.
 ```
 
@@ -120,12 +120,25 @@ Based on our spec.md requirements and plan.md architecture,
 what could be causing [problem description]?
 ```
 
+## Prompt Quick Reference
+
+| Command | Purpose | Copilot Tips |
+|---------|---------|--------------|
+| `/specify` | Generate or update feature specification | Provide the raw user intent; review the output for `[NEEDS CLARIFICATION: ...]` markers and resolve via `/clarify` before planning. |
+| `/clarify` | Resolve ambiguities in the specification | Answer each clarification in plain language so subsequent commands can remove blockers. |
+| `/plan` | Produce technical architecture and supporting artifacts | Supply tech stack preferences in the command arguments and capture any residual risks in the summary for future phases. |
+| `/tasks` | Derive actionable implementation tasks | Look for `[P]` tasks to identify safe parallelization; use the provided @workspace examples to kick off coding sessions. |
+| `/implement` | Execute the plan with Copilot-driven coding | Update `tasks.md` as you work; reuse the summary’s @workspace prompts to maintain momentum. |
+| `/analyze` | Cross-check artifacts for consistency gaps | Run after `/tasks` or implementation cycles to spot misalignments before shipping. |
+
+Keep this table in view while working; it captures when to run each command and how to get the most from GitHub Copilot Chat at every stage.
+
 ## Integration Features
 
 ### Available VSCode Tasks
 Use Ctrl+Shift+P → "Tasks: Run Task" to access:
 - **Specify: Create Feature** - Launch `/specify` command
-- **Plan: Generate Implementation Plan** - Launch `/plan` command  
+- **Plan: Generate Implementation Plan** - Launch `/plan` command
 - **Tasks: Generate Task Breakdown** - Launch `/tasks` command
 - **Implement: Execute Implementation** - Launch `/implement` command
 - **Constitution: Set Project Principles** - Launch `/constitution` command
@@ -152,7 +165,7 @@ The project uses file nesting in VS Code:
 - Include appropriate logging and monitoring
 - Maintain clean, readable code structure
 
-### Documentation Quality  
+### Documentation Quality
 - Keep specifications current with implementation
 - Update plans when making architectural changes
 - Maintain task progress in `tasks.md`

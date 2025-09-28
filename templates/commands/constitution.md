@@ -58,6 +58,7 @@ Follow this execution flow:
 8. Output a final summary to the user with:
    - New version and bump rationale.
    - Any files flagged for manual follow-up.
+   - A ready-to-copy `@workspace` prompt aligned with the recommended follow-up command.
    - Suggested commit message (e.g., `docs: amend constitution to vX.Y.Z (principle additions + governance update)`).
 
 Formatting & Style Requirements:

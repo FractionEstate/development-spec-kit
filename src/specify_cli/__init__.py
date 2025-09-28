@@ -32,6 +32,7 @@ import tempfile
 import shutil
 import shlex
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -64,39 +65,158 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
     token = _github_token(cli_token)
     return {"Authorization": f"Bearer {token}"} if token else {}
 
+def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dict:
+    """Fetch available GitHub Models from the API with optional caching."""
+    cache_file = Path.home() / ".specify" / "models_cache.json"
+
+    # Check cache first (if enabled and recent)
+    if use_cache and cache_file.exists():
+        try:
+            cache_stat = cache_file.stat()
+            # Use cache if less than 1 hour old
+            import time
+            if time.time() - cache_stat.st_mtime < 3600:  # 1 hour
+                with open(cache_file, 'r') as f:
+                    cached_data = json.load(f)
+                    if cached_data.get("models"):
+                        return cached_data["models"]
+        except Exception:
+            pass  # Ignore cache errors, continue with API fetch
+
+    try:
+        with httpx.Client(verify=ssl_context, timeout=10.0) as client:
+            # Try the GitHub Models marketplace API first
+            try:
+                response = client.get(
+                    "https://api.github.com/marketplace_listing/plans",
+                    headers=_github_auth_headers(github_token)
+                )
+                if response.status_code == 200:
+                    # This would be for GitHub Marketplace, but models are likely different API
+                    pass
+            except Exception:
+                pass
+
+            # Try Azure AI Models API
+            response = client.get(
+                "https://models.inference.ai.azure.com/models",
+                headers=_github_auth_headers(github_token)
+            )
+            if response.status_code == 200:
+                models_data = response.json()
+
+                # Combine API results with known GitHub Models
+                api_models = {}
+
+                # Parse the models response and create a clean mapping
+                if isinstance(models_data, dict) and "data" in models_data:
+                    for model in models_data["data"]:
+                        model_id = model.get("id", "")
+                        model_name = model.get("name", model_id)
+                        if model_id:
+                            # Simplify model IDs for better usability
+                            simple_id = model_id.split("/")[-2] if "/" in model_id else model_id
+                            api_models[simple_id] = model_name
+                elif isinstance(models_data, list):
+                    # Handle direct list format
+                    for model in models_data:
+                        model_id = model.get("id", "")
+                        model_name = model.get("name", model_id)
+                        if model_id:
+                            simple_id = model_id.split("/")[-2] if "/" in model_id else model_id
+                            api_models[simple_id] = model_name
+
+                # Merge with fallback known models (fallback takes precedence for known models)
+                fallback_models = get_fallback_github_models()
+                combined_models = {**api_models, **fallback_models}
+
+                # Save to cache for future use
+                if use_cache:
+                    try:
+                        cache_file.parent.mkdir(parents=True, exist_ok=True)
+                        import time
+                        cache_data = {
+                            "models": combined_models,
+                            "timestamp": time.time(),
+                            "source": "api_with_fallback"
+                        }
+                        with open(cache_file, 'w') as f:
+                            json.dump(cache_data, f, indent=2)
+                    except Exception:
+                        pass  # Ignore cache save errors
+
+                return combined_models
+            else:
+                # Fallback to known models if API fails
+                return get_fallback_github_models()
+    except Exception:
+        # Fallback to known models if any error occurs
+        return get_fallback_github_models()
+
+def get_fallback_github_models() -> dict:
+    """Return a fallback list of known GitHub Models when API is unavailable."""
+    return {
+        "gpt-4": "GPT-4",
+        "gpt-4-turbo": "GPT-4 Turbo",
+        "gpt-4.1": "GPT-4.1",
+        "gpt-4o": "GPT-4o",
+        "gpt-4o-mini": "GPT-4o Mini",
+        "gpt-5-mini": "GPT-5 Mini",
+        "gpt-5": "GPT-5",
+        "gpt-5-codex": "GPT-5 Codex",
+        "grok-code-fast-1": "Grok Code Fast 1",
+        "claude-3-5-sonnet": "Claude Sonnet 3.5",
+        "claude-3-7-sonnet": "Claude Sonnet 3.7",
+        "claude-4-sonnet": "Claude Sonnet 4",
+        "gemini-2.5-pro": "Gemini 2.5 Pro",
+        "o3-mini": "o3-mini",
+        "o4-mini": "o4-mini",
+        # Additional models from Azure/GitHub Models marketplace
+        "meta-llama-3-70b-instruct": "Meta Llama 3 70B Instruct",
+        "meta-llama-3-8b-instruct": "Meta Llama 3 8B Instruct",
+        "meta-llama-3.1-405b-instruct": "Meta Llama 3.1 405B Instruct",
+        "meta-llama-3.1-70b-instruct": "Meta Llama 3.1 70B Instruct",
+        "meta-llama-3.1-8b-instruct": "Meta Llama 3.1 8B Instruct",
+        "mistral-nemo": "Mistral Nemo",
+        "mistral-large-2407": "Mistral Large 2407",
+        "mistral-small": "Mistral Small",
+        "ai21-jamba-instruct": "AI21 Jamba Instruct",
+        "cohere-embed-v3-english": "Cohere Embed v3 English",
+        "cohere-embed-v3-multilingual": "Cohere Embed v3 Multilingual"
+    }
+
 # Constants
 AI_CHOICES = {
-    "copilot": "GitHub Copilot",
-    "claude": "Claude Code",
-    "gemini": "Gemini CLI",
-    "cursor": "Cursor",
-    "qwen": "Qwen Code",
-    "opencode": "opencode",
-    "codex": "Codex CLI",
-    "windsurf": "Windsurf",
-    "kilocode": "Kilo Code",
-    "auggie": "Auggie CLI",
-    "roo": "Roo Code",
+    "copilot": "GitHub Models",
 }
 # Add script type choices
 SCRIPT_TYPE_CHOICES = {"sh": "POSIX Shell (bash/zsh)", "ps": "PowerShell"}
 
-# Claude CLI local installation path after migrate-installer
-CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
+# Agent configurations for setup (directory, format, arg placeholder)
+agent_configs = {
+    "copilot": {"dir": ".github/prompts", "format": "md", "arg_placeholder": "$ARGUMENTS"},
+}
+
+
 
 # ASCII Art Banner
-BANNER = """
-███████╗██████╗ ███████╗ ██████╗██╗███████╗██╗   ██╗
-██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔════╝╚██╗ ██╔╝
-███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝
-╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝
-███████║██║     ███████╗╚██████╗██║██║        ██║
-╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝
+BANNER = r"""
++===============================================================+
+| _______ ______ _______ ______ _______ _______ _______ _______ |
+||    ___|   __ \   _   |      |_     _|_     _|       |    |  ||
+||    ___|      <       |   ---| |   |  _|   |_|   -   |       ||
+||___|   |___|__|___|___|______| |___| |_______|_______|__|____||
+|                                                               |
+| _______ _______ _______ _______ _______ _______               |
+||    ___|     __|_     _|   _   |_     _|    ___|              |
+||    ___|__     | |   | |       | |   | |    ___|              |
+||_______|_______| |___| |___|___| |___| |_______|              |
++===============================================================+
 """
 
 TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
 class StepTracker:
-    """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
+    """Track and render hierarchical steps without emojis in a clean tree format.
     Supports live auto-refresh via an attached refresh callback.
     """
     def __init__(self, title: str):
@@ -183,10 +303,18 @@ class StepTracker:
 
 
 
-MINI_BANNER = """
-╔═╗╔═╗╔═╗╔═╗╦╔═╗╦ ╦
-╚═╗╠═╝║╣ ║  ║╠╣ ╚╦╝
-╚═╝╩  ╚═╝╚═╝╩╚   ╩
+MINI_BANNER = r"""
++===============================================================+
+| _______ ______ _______ ______ _______ _______ _______ _______ |
+||    ___|   __ \   _   |      |_     _|_     _|       |    |  ||
+||    ___|      <       |   ---| |   |  _|   |_|   -   |       ||
+||___|   |___|__|___|___|______| |___| |_______|_______|__|____||
+|                                                               |
+| _______ _______ _______ _______ _______ _______               |
+||    ___|     __|_     _|   _   |_     _|    ___|              |
+||    ___|__     | |   | |       | |   | |    ___|              |
+||_______|_______| |___| |___|___| |___| |_______|              |
++===============================================================+
 """
 
 def get_key():
@@ -372,16 +500,6 @@ def check_tool_for_tracker(tool: str, tracker: StepTracker) -> bool:
 
 def check_tool(tool: str, install_hint: str) -> bool:
     """Check if a tool is installed."""
-
-    # Special handling for Claude CLI after `claude migrate-installer`
-    # See: https://github.com/github/spec-kit/issues/123
-    # The migrate-installer command REMOVES the original executable from PATH
-    # and creates an alias at ~/.claude/local/claude instead
-    # This path should be prioritized over other claude executables in PATH
-    if tool == "claude":
-        if CLAUDE_LOCAL_PATH.exists() and CLAUDE_LOCAL_PATH.is_file():
-            return True
-
     if shutil.which(tool):
         return True
     else:
@@ -545,7 +663,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     return zip_path, metadata
 
 
-def copy_local_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None) -> Path:
+def copy_local_template(project_path: Path, ai_assistant: str, script_type: str, selected_model: str = None, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None) -> Path:
     """Copy local development templates to create a new project for testing.
     Returns project_path. Uses tracker if provided (with keys: copy, agent-setup, cleanup)
     """
@@ -594,7 +712,7 @@ def copy_local_template(project_path: Path, ai_assistant: str, script_type: str,
             tracker.add("agent-setup", "Set up agent commands")
 
         # Set up agent-specific commands
-        setup_agent_commands(project_path, ai_assistant, script_type, tracker)
+        setup_agent_commands(project_path, ai_assistant, script_type, selected_model, tracker)
 
         if tracker:
             tracker.complete("agent-setup", f"{ai_assistant} commands ready")
@@ -605,73 +723,50 @@ def copy_local_template(project_path: Path, ai_assistant: str, script_type: str,
         raise RuntimeError(f"Failed to copy local templates: {e}")
 
     return project_path
-def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str, tracker: StepTracker | None = None):
-    """Set up agent-specific commands from templates."""
-    # This mimics the logic from the release package script
+def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str, selected_model: str = None, tracker: StepTracker | None = None):
+    """Set up GitHub Models-specific commands from templates."""
+    if ai_assistant not in agent_configs:
+        return  # Skip if no config defined
+
+    config = agent_configs[ai_assistant]
     templates_dir = project_path / ".specify" / "templates" / "commands"
-
-    # Define agent-specific directory and format
-    agent_dirs = {
-        "claude": (".claude/commands", "md", "$ARGUMENTS"),
-        "gemini": (".gemini/commands", "toml", "{{args}}"),
-        "copilot": (".github/prompts", "md", "$ARGUMENTS"),
-        "cursor": (".cursor/commands", "md", "$ARGUMENTS"),
-        "qwen": (".qwen/commands", "toml", "{{args}}"),
-        "opencode": (".opencode/command", "md", "$ARGUMENTS"),
-        "windsurf": (".windsurf/workflows", "md", "$ARGUMENTS"),
-        "codex": (".codex/commands", "md", "$ARGUMENTS"),
-        "kilocode": (".kilocode/commands", "md", "$ARGUMENTS"),
-        "auggie": (".auggie/commands", "md", "$ARGUMENTS"),
-        "roo": (".roo/commands", "md", "$ARGUMENTS"),
-    }
-
-    if ai_assistant not in agent_dirs:
-        return
-
-    agent_dir, ext, arg_format = agent_dirs[ai_assistant]
-    output_dir = project_path / agent_dir
+    output_dir = project_path / config["dir"]
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Store model configuration if provided
+    if selected_model and ai_assistant == "copilot":
+        config_dir = project_path / ".specify" / "config"
+        config_dir.mkdir(parents=True, exist_ok=True)
+
+        config_data = {
+            "github_models": {
+                "selected_model": selected_model,
+                "last_updated": datetime.utcnow().isoformat()
+            }
+        }
+
+        config_file = config_dir / "models.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_data, f, indent=2)
 
     # Process each command template
     if templates_dir.exists():
         for template_file in templates_dir.glob("*.md"):
             command_name = template_file.stem
-            output_file = output_dir / f"{command_name}.{ext}"
-
             content = template_file.read_text()
 
             # Replace placeholders
-            content = content.replace("$ARGUMENTS", arg_format)
+            content = content.replace("$ARGUMENTS", config["arg_placeholder"])
             content = content.replace("{SCRIPT}", f".specify/scripts/{script_type}/{template_file.stem}.{script_type}")
 
-            # Convert to TOML format if needed
-            if ext == "toml":
-                # Extract description and convert to TOML
-                lines = content.split('\n')
-                description = ""
-                prompt_content = []
-                in_frontmatter = False
-                past_frontmatter = False
-
-                for line in lines:
-                    if line.strip() == "---":
-                        if not in_frontmatter and not past_frontmatter:
-                            in_frontmatter = True
-                        else:
-                            in_frontmatter = False
-                            past_frontmatter = True
-                        continue
-
-                    if in_frontmatter and line.startswith("description:"):
-                        description = line.split(":", 1)[1].strip().strip('"')
-                        continue
-
-                    if past_frontmatter:
-                        prompt_content.append(line)
-
-                prompt_text = '\n'.join(prompt_content).strip()
-                toml_content = f'description = "{description}"\n\nprompt = """\n{prompt_text}\n"""\n'
-                content = toml_content
+            if config["format"] == "toml":
+                # Wrap in TOML format
+                description = content.split('\n', 1)[0].strip('# ').strip()  # Extract description from first line
+                prompt_content = content.replace(f'# {description}', '', 1).strip()
+                content = f'description = "{description}"\n\nprompt = """\n{prompt_content}\n"""'
+                output_file = output_dir / f"{command_name}.toml"
+            else:
+                output_file = output_dir / f"{command_name}.md"
 
             output_file.write_text(content)
 
@@ -881,9 +976,10 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
 @app.command()
 def init(
     project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here, or use '.' for current directory)"),
-    ai_assistant: str = typer.Option(None, "--ai", help="AI assistant to use: claude, gemini, copilot, cursor, qwen, opencode, codex, windsurf, kilocode, or auggie"),
+    ai_assistant: str = typer.Option(None, "--ai", help="AI assistant identifier (GitHub Models uses 'copilot'; leave unset for default)"),
+    model: str = typer.Option(None, "--model", help="Specific GitHub Model to use (e.g., gpt-4o, claude-3-5-sonnet)"),
     script_type: str = typer.Option(None, "--script", help="Script type to use: sh or ps"),
-    ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="Skip checks for AI agent tools like Claude Code"),
+    ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="Skip checks for VS Code/GitHub Copilot tooling"),
     no_git: bool = typer.Option(False, "--no-git", help="Skip git repository initialization"),
     here: bool = typer.Option(False, "--here", help="Initialize project in the current directory instead of creating a new one"),
     force: bool = typer.Option(False, "--force", help="Force merge/overwrite when using --here (skip confirmation)"),
@@ -897,30 +993,20 @@ def init(
 
     This command will:
     1. Check that required tools are installed (git is optional)
-    2. Let you choose your AI assistant (Claude Code, Gemini CLI, GitHub Copilot, Cursor, Qwen Code, opencode, Codex CLI, Windsurf, Kilo Code, or Auggie CLI)
-    3. Download the appropriate template from GitHub
-    4. Extract the template to a new project directory or current directory
-    5. Initialize a fresh git repository (if not --no-git and no existing repo)
-    6. Optionally set up AI assistant commands
+    2. Set up your project with GitHub Models integration
+    3. Fetch available models and allow selection
+    4. Download the appropriate template from GitHub
+    5. Extract the template to a new project directory or current directory
+    6. Initialize a fresh git repository (if not --no-git and no existing repo)
+    7. Set up GitHub Models commands and prompts with model configuration
 
     Examples:
-        specify init my-project
-        specify init my-project --ai claude
-        specify init my-project --ai gemini
-        specify init my-project --ai copilot --no-git
-        specify init my-project --ai cursor
-        specify init my-project --ai qwen
-        specify init my-project --ai opencode
-        specify init my-project --ai codex
-        specify init my-project --ai windsurf
-        specify init my-project --ai auggie
-        specify init --ignore-agent-tools my-project
-        specify init . --ai claude         # Initialize in current directory
-        specify init .                     # Initialize in current directory (interactive AI selection)
-        specify init --here --ai claude    # Alternative syntax for current directory
-        specify init --here --ai codex
-        specify init --here
-        specify init --here --force  # Skip confirmation when current directory not empty
+        specify init my-project                          # Interactive GitHub Model selection
+        specify init my-project --model gpt-4o           # Initialize with specific model
+        specify init my-project --model gpt-4o --script ps  # Use PowerShell scripts
+        specify init my-project --no-git                 # Initialize without git repository
+        specify init .                                   # Initialize in current directory
+        specify init --here --force                      # Skip confirmation when current directory not empty
     """
     # Show banner first
     show_banner()
@@ -1003,42 +1089,46 @@ def init(
             raise typer.Exit(1)
         selected_ai = ai_assistant
     else:
-        # Use arrow-key selection interface
-        selected_ai = select_with_arrows(
-            AI_CHOICES,
-            "Choose your AI assistant:",
-            "copilot"
-        )
+        # Auto-select when only one assistant is available
+        if len(AI_CHOICES) == 1:
+            selected_ai = next(iter(AI_CHOICES.keys()))
+        else:
+            # Use arrow-key selection interface
+            selected_ai = select_with_arrows(
+                AI_CHOICES,
+                "Choose your GitHub Models assistant:",
+                "copilot"
+            )
 
-    # Check agent tools unless ignored
+    # Model selection (if using GitHub Models)
+    selected_model = None
+    if selected_ai == "copilot":
+        if model:
+            # Validate the provided model exists
+            available_models = fetch_github_models(github_token)
+            if model not in available_models:
+                console.print(f"[red]Error:[/red] Model '{model}' not found.")
+                console.print(f"[yellow]Available models:[/yellow] {', '.join(sorted(available_models.keys()))}")
+                console.print(f"[dim]Use 'specify list-models' to see all available models[/dim]")
+                raise typer.Exit(1)
+            selected_model = model
+        else:
+            # Fetch and select from available models
+            console.print("[cyan]Fetching available GitHub Models...[/cyan]")
+            available_models = fetch_github_models(github_token)
+            if available_models:
+                # Show interactive model selection
+                selected_model = select_with_arrows(
+                    available_models,
+                    "Choose a GitHub Model:",
+                    "gpt-4o" if "gpt-4o" in available_models else list(available_models.keys())[0]
+                )
+            else:
+                console.print("[yellow]Warning: Could not fetch models from API, using default configuration[/yellow]")
+
+    # GitHub Models (copilot) doesn't require CLI tools - no checks needed
     if not ignore_agent_tools:
         agent_tool_missing = False
-        install_url = ""
-        if selected_ai == "claude":
-            if not check_tool("claude", "https://docs.anthropic.com/en/docs/claude-code/setup"):
-                install_url = "https://docs.anthropic.com/en/docs/claude-code/setup"
-                agent_tool_missing = True
-        elif selected_ai == "gemini":
-            if not check_tool("gemini", "https://github.com/google-gemini/gemini-cli"):
-                install_url = "https://github.com/google-gemini/gemini-cli"
-                agent_tool_missing = True
-        elif selected_ai == "qwen":
-            if not check_tool("qwen", "https://github.com/QwenLM/qwen-code"):
-                install_url = "https://github.com/QwenLM/qwen-code"
-                agent_tool_missing = True
-        elif selected_ai == "opencode":
-            if not check_tool("opencode", "https://opencode.ai"):
-                install_url = "https://opencode.ai"
-                agent_tool_missing = True
-        elif selected_ai == "codex":
-            if not check_tool("codex", "https://github.com/openai/codex"):
-                install_url = "https://github.com/openai/codex"
-                agent_tool_missing = True
-        elif selected_ai == "auggie":
-            if not check_tool("auggie", "https://docs.augmentcode.com/cli/setup-auggie/install-auggie-cli"):
-                install_url = "https://docs.augmentcode.com/cli/setup-auggie/install-auggie-cli"
-                agent_tool_missing = True
-        # GitHub Copilot and Cursor checks are not needed as they're typically available in supported IDEs
 
         if agent_tool_missing:
             error_panel = Panel(
@@ -1070,6 +1160,8 @@ def init(
             selected_script = default_script
 
     console.print(f"[cyan]Selected AI assistant:[/cyan] {selected_ai}")
+    if selected_model:
+        console.print(f"[cyan]Selected model:[/cyan] {selected_model}")
     console.print(f"[cyan]Selected script type:[/cyan] {selected_script}")
 
     # Download and set up project
@@ -1107,7 +1199,7 @@ def init(
             local_client = httpx.Client(verify=local_ssl_context)
 
             if local:
-                copy_local_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker)
+                copy_local_template(project_path, selected_ai, selected_script, selected_model, here, verbose=False, tracker=tracker)
             else:
                 download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
@@ -1155,17 +1247,7 @@ def init(
 
     # Agent folder security notice
     agent_folder_map = {
-        "claude": ".claude/",
-        "gemini": ".gemini/",
-        "cursor": ".cursor/",
-        "qwen": ".qwen/",
-        "opencode": ".opencode/",
-        "codex": ".codex/",
-        "windsurf": ".windsurf/",
-        "kilocode": ".kilocode/",
-        "auggie": ".auggie/",
-        "copilot": ".github/",
-        "roo": ".roo/"
+        "copilot": ".github/"
     }
 
     if selected_ai in agent_folder_map:
@@ -1189,19 +1271,7 @@ def init(
         steps_lines.append("1. You're already in the project directory!")
         step_num = 2
 
-    # Add Codex-specific setup step if needed
-    if selected_ai == "codex":
-        codex_path = project_path / ".codex"
-        quoted_path = shlex.quote(str(codex_path))
-        if os.name == "nt":  # Windows
-            cmd = f"setx CODEX_HOME {quoted_path}"
-        else:  # Unix-like systems
-            cmd = f"export CODEX_HOME={quoted_path}"
-
-        steps_lines.append(f"{step_num}. Set [cyan]CODEX_HOME[/cyan] environment variable before running Codex: [cyan]{cmd}[/cyan]")
-        step_num += 1
-
-    steps_lines.append(f"{step_num}. Start using slash commands with your AI agent:")
+    steps_lines.append(f"{step_num}. Start using slash commands with GitHub Models:")
 
     steps_lines.append("   2.1 [cyan]/constitution[/] - Establish project principles")
     steps_lines.append("   2.2 [cyan]/specify[/] - Create baseline specification")
@@ -1223,16 +1293,7 @@ def init(
     console.print()
     console.print(enhancements_panel)
 
-    if selected_ai == "codex":
-        warning_text = """[bold yellow]Important Note:[/bold yellow]
 
-Custom prompts do not yet support arguments in Codex. You may need to manually specify additional project instructions directly in prompt files located in [cyan].codex/prompts/[/cyan].
-
-For more information, see: [cyan]https://github.com/openai/codex/issues/2890[/cyan]"""
-
-        warning_panel = Panel(warning_text, title="Slash Commands in Codex", border_style="yellow", padding=(1,2))
-        console.print()
-        console.print(warning_panel)
 
 @app.command()
 def check():
@@ -1243,30 +1304,19 @@ def check():
     tracker = StepTracker("Check Available Tools")
 
     tracker.add("git", "Git version control")
-    tracker.add("claude", "Claude Code CLI")
-    tracker.add("gemini", "Gemini CLI")
-    tracker.add("qwen", "Qwen Code CLI")
     tracker.add("code", "Visual Studio Code")
     tracker.add("code-insiders", "Visual Studio Code Insiders")
-    tracker.add("cursor-agent", "Cursor IDE agent")
-    tracker.add("windsurf", "Windsurf IDE")
-    tracker.add("kilocode", "Kilo Code IDE")
-    tracker.add("opencode", "opencode")
-    tracker.add("codex", "Codex CLI")
-    tracker.add("auggie", "Auggie CLI")
+
+    # Add agent checks
+    # GitHub Models is IDE-based (no CLI tool required)
+    tracker.add("copilot", f"{AI_CHOICES['copilot']} (IDE-based, optional)")
 
     git_ok = check_tool_for_tracker("git", tracker)
-    claude_ok = check_tool_for_tracker("claude", tracker)
-    gemini_ok = check_tool_for_tracker("gemini", tracker)
-    qwen_ok = check_tool_for_tracker("qwen", tracker)
     code_ok = check_tool_for_tracker("code", tracker)
     code_insiders_ok = check_tool_for_tracker("code-insiders", tracker)
-    cursor_ok = check_tool_for_tracker("cursor-agent", tracker)
-    windsurf_ok = check_tool_for_tracker("windsurf", tracker)
-    kilocode_ok = check_tool_for_tracker("kilocode", tracker)
-    opencode_ok = check_tool_for_tracker("opencode", tracker)
-    codex_ok = check_tool_for_tracker("codex", tracker)
-    auggie_ok = check_tool_for_tracker("auggie", tracker)
+
+    # GitHub Models doesn't need CLI tool check
+    tracker.complete("copilot", "IDE-based (no CLI check)")
 
     console.print(tracker.render())
 
@@ -1274,8 +1324,148 @@ def check():
 
     if not git_ok:
         console.print("[dim]Tip: Install git for repository management[/dim]")
-    if not (claude_ok or gemini_ok or cursor_ok or qwen_ok or windsurf_ok or kilocode_ok or opencode_ok or codex_ok or auggie_ok):
-        console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
+    if not (code_ok or code_insiders_ok):
+        console.print("[dim]Tip: Install VS Code for the best GitHub Models experience[/dim]")
+
+
+@app.command(name="list-models")
+def list_models(
+    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    verbose: bool = typer.Option(False, "--verbose", help="Show detailed model information"),
+    no_cache: bool = typer.Option(False, "--no-cache", help="Skip cache and fetch fresh data from API"),
+    clear_cache: bool = typer.Option(False, "--clear-cache", help="Clear the models cache and exit")
+):
+    """List available GitHub Models."""
+    show_banner()
+
+    # Handle cache clearing
+    if clear_cache:
+        cache_file = Path.home() / ".specify" / "models_cache.json"
+        if cache_file.exists():
+            cache_file.unlink()
+            console.print("[green]✓ Models cache cleared[/green]")
+        else:
+            console.print("[yellow]No cache file found[/yellow]")
+        return
+
+    console.print("[bold]Fetching available GitHub Models...[/bold]\n")
+
+    with console.status("[cyan]Contacting GitHub Models API...", spinner="dots"):
+        models = fetch_github_models(github_token, use_cache=not no_cache)
+
+    if not models:
+        console.print("[red]No models found or API unavailable[/red]")
+        raise typer.Exit(1)
+
+    console.print(f"[green]Found {len(models)} available models:[/green]\n")
+
+    # Create a table to display models
+    table = Table()
+    table.add_column("Model ID", style="cyan", min_width=20)
+    table.add_column("Model Name", style="white")
+
+    # Sort models by name for better readability
+    sorted_models = sorted(models.items(), key=lambda x: x[1])
+
+    for model_id, model_name in sorted_models:
+        table.add_row(model_id, model_name)
+
+    console.print(table)
+
+    if verbose:
+        console.print(f"\n[dim]API endpoint: https://models.inference.ai.azure.com/models[/dim]")
+        console.print(f"[dim]Auth: {'✓ Token provided' if _github_token(github_token) else '⚠ No token (may have limited access)'}[/dim]")
+
+
+@app.command()
+def status():
+    """Show current project configuration and status."""
+    show_banner()
+
+    current_dir = Path.cwd()
+    console.print(f"[bold]Project Status[/bold]\n")
+    console.print(f"[cyan]Current Directory:[/cyan] {current_dir}")
+
+    # Check if this is a Specify project
+    specify_dir = current_dir / ".specify"
+    github_dir = current_dir / ".github"
+    prompts_dir = github_dir / "prompts"
+    config_dir = specify_dir / "config"
+    models_config = config_dir / "models.json"
+
+    if not specify_dir.exists():
+        console.print("[red]⚠ Not a Specify project[/red] (no .specify directory found)")
+        console.print("[dim]Run 'specify init .' to initialize this directory as a Specify project[/dim]")
+        return
+
+    console.print("[green]✓ Specify project detected[/green]")
+
+    # Show AI configuration
+    if prompts_dir.exists():
+        prompt_files = list(prompts_dir.glob("*.md"))
+        console.print(f"[cyan]AI Assistant:[/cyan] GitHub Models ({len(prompt_files)} prompts configured)")
+
+        # Show selected model if configured
+        if models_config.exists():
+            try:
+                with open(models_config, 'r') as f:
+                    config_data = json.load(f)
+                selected_model = config_data.get("github_models", {}).get("selected_model")
+                last_updated = config_data.get("github_models", {}).get("last_updated", "unknown")
+                if selected_model:
+                    console.print(f"[cyan]Selected Model:[/cyan] {selected_model} [dim](configured {last_updated})[/dim]")
+            except Exception:
+                console.print("[yellow]⚠ Model configuration file exists but could not be read[/yellow]")
+        else:
+            console.print("[dim]No specific model configured (will use default)[/dim]")
+    else:
+        console.print("[yellow]⚠ No GitHub Models prompts found[/yellow]")
+
+    # Check for git repository
+    if is_git_repo(current_dir):
+        console.print("[green]✓ Git repository initialized[/green]")
+    else:
+        console.print("[dim]No git repository (use 'git init' to initialize)[/dim]")
+
+    # Show available commands
+    if prompts_dir.exists():
+        prompt_files = sorted(prompts_dir.glob("*.md"))
+        if prompt_files:
+            console.print(f"\n[bold]Available Commands ({len(prompt_files)}):[/bold]")
+            for prompt_file in prompt_files:
+                command_name = prompt_file.stem
+                console.print(f"  [cyan]/{command_name}[/cyan]")
+
+
+@app.command()
+def version():
+    """Show version information."""
+    show_banner()
+
+    # Try to get version from package metadata
+    try:
+        import importlib.metadata
+        pkg_version = importlib.metadata.version("specify-cli")
+    except Exception:
+        # Fallback version if package not installed
+        pkg_version = "development"
+
+    console.print(f"[bold]Specify CLI Version:[/bold] {pkg_version}")
+    console.print(f"[cyan]Python:[/cyan] {sys.version.split()[0]}")
+    console.print(f"[cyan]Platform:[/cyan] {sys.platform}")
+
+    # Show cache info if available
+    cache_file = Path.home() / ".specify" / "models_cache.json"
+    if cache_file.exists():
+        import time
+        cache_stat = cache_file.stat()
+        cache_age = time.time() - cache_stat.st_mtime
+        if cache_age < 3600:
+            console.print(f"[dim]Models cache: ✓ (fresh, {int(cache_age/60)} minutes old)[/dim]")
+        else:
+            console.print(f"[dim]Models cache: ⚠ (stale, {int(cache_age/3600)} hours old)[/dim]")
+    else:
+        console.print(f"[dim]Models cache: none[/dim]")
 
 
 def main():

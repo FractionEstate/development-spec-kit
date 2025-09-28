@@ -41,8 +41,8 @@
 ### Development Tools & Scripts
 - **[Bash Scripts](../../scripts/bash/)** - Unix/Linux automation scripts
 - **[PowerShell Scripts](../../scripts/powershell/)** - Windows automation scripts
-- **[Agent Templates](../agent-file-template.md)** - Multi-agent development support
-- **[Workflow Automation](./.github/workflows/)** - CI/CD integration patterns
+- **[Agent File Template](../agent-file-template.md)** - Regenerate Copilot-ready project context summaries
+- **[Workflow Automation](./workflows/)** - CI/CD integration patterns
 
 ## 🎯 Chat Optimization Techniques
 

@@ -1,9 +1,11 @@
 ---
 description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+-->
 
 # /implement - Execute Implementation Plan
 
@@ -28,9 +30,10 @@ Analyze the complete context:
 - `data-model.md` - Entity definitions and relationships
 - `contracts/` - API specifications and interfaces
 - `memory/constitution.md` - Quality standards and principles
+- `research.md` / `quickstart.md` - Operational insights that influence implementation
 
 ### Step 2: Execute by Phases
-Follow the structured approach with Copilot optimization:
+Follow the structured approach with Copilot optimization. Before starting a phase, confirm prerequisite tasks are unchecked and ready; after completing a task, update `tasks.md` immediately to maintain accurate checkboxes.
 
 #### Setup Phase - Foundation
 ```
@@ -41,7 +44,7 @@ Create the directory structure and configure [build-tool] with our dependencies.
 - Configure development tools and build systems
 - Set up version control and CI/CD pipelines
 
-#### Test Phase - TDD Approach  
+#### Test Phase - TDD Approach
 ```
 @workspace Writing tests for [component] based on our spec.md requirements.
 Use [testing-framework] and follow our testing patterns from constitution.md.
@@ -83,6 +86,7 @@ Ensure all spec.md acceptance criteria are met and constitution.md standards fol
 - **File Coordination**: Tasks on same files run sequentially
 - **Progress Tracking**: Mark completed tasks as [X] in tasks.md
 - **Error Handling**: Stop on failures, provide clear guidance
+- **Decision Logging**: Note any deviations in plan.md or tasks.md follow-up bullets so future runs stay aligned
 
 ### Step 4: Copilot Chat Patterns During Implementation
 
@@ -94,7 +98,7 @@ Follow our plan.md [pattern] and include error handling per constitution.md stan
 
 **For Problem Solving:**
 ```
-@workspace I'm having [issue] with [component]. 
+@workspace I'm having [issue] with [component].
 Based on our spec.md requirements and plan.md architecture, what's the solution?
 ```
 
@@ -103,6 +107,8 @@ Based on our spec.md requirements and plan.md architecture, what's the solution?
 @workspace Update tasks.md to mark [task-ids] as complete.
 What should be the next priority based on our dependencies?
 ```
+
+Include at least one context-rich `@workspace` example per phase in your final summary so developers can continue the flow seamlessly.
 
 ### Step 5: Quality Validation
 Ensure implementation meets:
@@ -113,13 +119,15 @@ Ensure implementation meets:
 - ✅ Documentation completeness
 
 ### Step 6: Completion Report
-Provide comprehensive summary:
-- 📈 Implementation progress and status
-- 🏗️ Components built and their relationships
-- 🧪 Testing status and coverage achieved
-- 📚 Documentation updated and validated
-- 🚀 Deployment readiness assessment
-- ➡️ Recommended next steps
+Provide a comprehensive Markdown summary that captures:
+- 📈 **Progress overview** – Completed phases, remaining unchecked tasks (reference task IDs)
+- 🏗️ **Components delivered** – Key modules/files created or updated and how they interact
+- 🧪 **Testing status** – Coverage achieved, failing tests, and required follow-up validation
+- 📚 **Documentation updates** – Files touched (e.g., quickstart, README snippets) and verification status
+- 🔄 **Follow-up items** – Bugs, TODOs, or clarifications recorded during implementation
+- � **@workspace starters** – Prompts teams can reuse for the next coding or validation session
+- 🚀 **Deployment readiness** – Environment notes or remaining release gates
+- ➡️ **Next steps** – Recommended commands or actions for the team or future Copilot sessions
 
 ## Advanced Chat Integration
 

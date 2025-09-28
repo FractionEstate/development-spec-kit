@@ -1,9 +1,11 @@
 ---
 description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json
-  ps: scripts/powershell/check-prerequisites.ps1 -Json
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json
+ps: scripts/powershell/check-prerequisites.ps1 -Json
+-->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
@@ -63,3 +65,5 @@ $ARGUMENTS
 Context for task generation: {ARGS}
 
 The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
+
+8. End your response with a Markdown summary that calls out the branch (if provided), the tasks file path, total task count, high-priority dependencies, unresolved inputs (if any), a ready-to-copy `@workspace` prompt for `/implement` (or `/clarify` if blockers remain), and the recommended next command.

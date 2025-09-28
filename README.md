@@ -1,11 +1,11 @@
 <div align="center">
     <img src="./media/logo_small.webp"/>
-    <h1>🌱 Spec Kit</h1>
-    <h3><em>Build high-quality software faster.</em></h3>
+    <h1>🚀 FractionEstate Development Spec Kit</h1>
+    <h3><em>GitHub Models & VS Code optimized Spec-Driven Development</em></h3>
 </div>
 
 <p align="center">
-    <strong>An effort to allow organizations to focus on product scenarios rather than writing undifferentiated code with the help of Spec-Driven Development.</strong>
+    <strong>A specialized toolkit for FractionEstate teams to implement Spec-Driven Development using GitHub Models and VS Code, focusing on high-quality software delivery through AI-native workflows.</strong>
 </p>
 
 [![Release](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml/badge.svg)](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml)
@@ -17,11 +17,11 @@
 - [🤔 What is Spec-Driven Development?](#-what-is-spec-driven-development)
 - [⚡ Get started](#-get-started)
 - [📽️ Video Overview](#️-video-overview)
-- [🤖 Supported AI Agents](#-supported-ai-agents)
+- [🤖 GitHub Models Integration](#-github-models-integration)
 - [🔧 Specify CLI Reference](#-specify-cli-reference)
 - [📚 Core philosophy](#-core-philosophy)
 - [🌟 Development phases](#-development-phases)
-- [🎯 Experimental goals](#-experimental-goals)
+- [🎯 FractionEstate Goals](#-fractionestate-goals)
 - [🔧 Prerequisites](#-prerequisites)
 - [📖 Learn more](#-learn-more)
 - [📋 Detailed process](#-detailed-process)
@@ -37,13 +37,9 @@ Spec-Driven Development **flips the script** on traditional software development
 
 ## ⚡ Get started
 
-### 1. Install Specify
+### 1. Install Specify CLI
 
-Choose your preferred installation method:
-
-#### Option 1: Persistent Installation (Recommended)
-
-Install once and use everywhere:
+Install the FractionEstate Development Spec Kit CLI:
 
 ```bash
 uv tool install specify-cli --from git+https://github.com/FractionEstate/development-spec-kit.git
@@ -56,13 +52,25 @@ specify init <PROJECT_NAME>
 specify check
 ```
 
-#### Option 2: One-time Usage
+### 2. Initialize Your Project with GitHub Models
 
-Run directly without installing:
+Create a new project optimized for GitHub Models and VS Code:
 
 ```bash
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <PROJECT_NAME>
+specify init my-project
 ```
+
+Optionally pin a specific GitHub Model during initialization:
+
+```bash
+specify init my-project --model gpt-4o
+```
+
+This creates a project with:
+- ✅ **VS Code Workspace Settings** - Optimized Copilot configuration
+- ✅ **GitHub Models Instructions** - Project-specific guidance
+- ✅ **Spec-Driven Workflows** - Structured development commands
+- ✅ **VS Code Tasks & Snippets** - Integrated development experience
 
 **Benefits of persistent installation:**
 
@@ -119,21 +127,31 @@ Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.c
 
 [![Spec Kit video header](/media/spec-kit-video-header.jpg)](https://www.youtube.com/watch?v=a9eR1xsfvHg&pp=0gcJCckJAYcqIYzv)
 
-## 🤖 Supported AI Agents
+## 🤖 GitHub Models Integration
 
-| Agent                                                     | Support | Notes                                             |
-|-----------------------------------------------------------|---------|---------------------------------------------------|
-| [Claude Code](https://www.anthropic.com/claude-code)      | ✅ |                                                   |
-| [GitHub Copilot](https://code.visualstudio.com/)          | ✅ | **Enhanced** - Optimized for VSCode Chat integration     |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | ✅ |                                                   |
-| [Cursor](https://cursor.sh/)                              | ✅ |                                                   |
-| [Qwen Code](https://github.com/QwenLM/qwen-code)          | ✅ |                                                   |
-| [opencode](https://opencode.ai/)                          | ✅ |                                                   |
-| [Windsurf](https://windsurf.com/)                         | ✅ |                                                   |
-| [Kilo Code](https://github.com/Kilo-Org/kilocode)         | ✅ |                                                   |
-| [Auggie CLI](https://docs.augmentcode.com/cli/overview)   | ✅ |                                                   |
-| [Roo Code](https://roocode.com/)                          | ✅ |                                                   |
-| [Codex CLI](https://github.com/openai/codex)              | ⚠️ | Codex [does not support](https://github.com/openai/codex/issues/2890) custom arguments for slash commands.  |
+The FractionEstate Development Spec Kit is optimized specifically for **GitHub Models** and **VS Code**, providing enhanced features for specification-driven development:
+
+### Enhanced Features for GitHub Models
+
+| Feature | Description |
+|---------|-------------|
+| **VS Code Workspace Settings** | Optimized Copilot settings for all file types and enhanced AI assistance |
+| **Chat-optimized Prompts** | Better @workspace conversation patterns for specification work |
+| **Code Snippets** | Quick templates for specs, plans, and chat contexts |
+| **Task Integration** | Run SDD commands directly from VS Code integrated terminal |
+| **File Organization** | Smart nesting and associations for specification files |
+| **Extensions** | Recommended VS Code extensions for optimal development experience |
+| **Reference Links** | Comprehensive documentation and resource links |
+| **Context Optimization** | Enhanced workspace intelligence for better AI suggestions |
+
+### Key Files for GitHub Models
+- `.vscode/settings.json` - Copilot-optimized workspace settings
+- `.vscode/tasks.json` - Integrated SDD workflow tasks
+- `.vscode/spec-driven-dev.code-snippets` - Quick templates and context patterns
+- `.github/copilot-instructions.md` - Comprehensive chat guidance
+- `.github/copilot-context.md` - Enhanced context sharing guide
+- `.github/copilot-references.md` - Extensive documentation and reference links
+- Enhanced command prompts in `.github/prompts/`
 
 ## 🔧 Specify CLI Reference
 
@@ -143,103 +161,60 @@ The `specify` command supports the following options:
 
 | Command     | Description                                                    |
 |-------------|----------------------------------------------------------------|
-| `init`      | Initialize a new Specify project from the latest template      |
-| `check`     | Check for installed tools (`git`, `claude`, `gemini`, `code`/`code-insiders`, `cursor-agent`, `windsurf`, `qwen`, `opencode`, `codex`) |
+| `init`      | Initialize a new Specify project optimized for GitHub Models  |
+| `check`     | Check for installed tools (`git`, `code`/`code-insiders`) |
 
 ### `specify init` Arguments & Options
 
 | Argument/Option        | Type     | Description                                                                  |
 |------------------------|----------|------------------------------------------------------------------------------|
 | `<project-name>`       | Argument | Name for your new project directory (optional if using `--here`, or use `.` for current directory) |
-| `--ai`                 | Option   | AI assistant to use: `claude`, `gemini`, `copilot`, `cursor`, `qwen`, `opencode`, `codex`, `windsurf`, `kilocode`, `auggie`, or `roo` |
+| `--ai`                 | Option   | Override the assistant profile (defaults to `copilot`; other values are legacy and not recommended) |
+| `--model`              | Option   | Preselect a GitHub Model (e.g., `gpt-4o`, `gpt-4o-mini`)                    |
 | `--script`             | Option   | Script variant to use: `sh` (bash/zsh) or `ps` (PowerShell)                 |
-| `--ignore-agent-tools` | Flag     | Skip checks for AI agent tools like Claude Code                             |
 | `--no-git`             | Flag     | Skip git repository initialization                                          |
 | `--here`               | Flag     | Initialize project in the current directory instead of creating a new one   |
 | `--force`              | Flag     | Force merge/overwrite when initializing in current directory (skip confirmation) |
 | `--skip-tls`           | Flag     | Skip SSL/TLS verification (not recommended)                                 |
 | `--debug`              | Flag     | Enable detailed debug output for troubleshooting                            |
 | `--github-token`       | Option   | GitHub token for API requests (or set GH_TOKEN/GITHUB_TOKEN env variable)  |
+| `--ignore-agent-tools` | Flag     | Skip VS Code/GitHub Copilot tooling checks (useful in CI)                   |
 
 ### Examples
 
 ```bash
-# Basic project initialization
+# Basic project initialization (defaults to GitHub Models)
 specify init my-project
 
-# Initialize with specific AI assistant
-specify init my-project --ai claude
-
-# Initialize with Cursor support
-specify init my-project --ai cursor
-
-# Initialize with Windsurf support
-specify init my-project --ai windsurf
+# Initialize with a specific GitHub Model
+specify init my-project --model gpt-4o
 
 # Initialize with PowerShell scripts (Windows/cross-platform)
-specify init my-project --ai copilot --script ps
+specify init my-project --model gpt-4o --script ps
 
 # Initialize in current directory
-specify init . --ai copilot
+specify init .
 # or use the --here flag
-specify init --here --ai copilot
+specify init --here
 
 # Force merge into current (non-empty) directory without confirmation
-specify init . --force --ai copilot
+specify init . --force
 # or
-specify init --here --force --ai copilot
+specify init --here --force
 
 # Skip git initialization
-specify init my-project --ai gemini --no-git
+specify init my-project --no-git
 
 # Enable debug output for troubleshooting
-specify init my-project --ai claude --debug
+specify init my-project --debug
 
 # Use GitHub token for API requests (helpful for corporate environments)
-specify init my-project --ai claude --github-token ghp_your_token_here
-```
-
-### 🤖 GitHub Copilot Enhanced Experience
-
-When you select GitHub Copilot (`--ai copilot`), you get additional optimizations for VSCode Chat:
-
-**Enhanced Features:**
-- ✅ **VSCode Workspace Settings** - Optimized Copilot settings for all file types
-- ✅ **Chat-optimized Prompts** - Better @workspace conversation patterns
-- ✅ **Code Snippets** - Quick templates for specs, plans, and chat contexts
-- ✅ **Task Integration** - Run SDD commands directly from VSCode
-- ✅ **File Organization** - Smart nesting and associations for spec files
-- ✅ **Extensions** - Recommended VSCode extensions for best experience
-- ✅ **Reference Links** - Comprehensive documentation and resource links
-- ✅ **Context Optimization** - Enhanced workspace intelligence for better suggestions
-
-**Usage Example:**
-```bash
-# Initialize with Copilot optimizations
-specify init my-project --ai copilot
-
-# Then in VSCode, use enhanced chat patterns:
-# @workspace Working on user authentication specification.
-# Context: constitution.md security principles, similar auth patterns
-# Help me create comprehensive specification with proper security controls.
-```
-
-**Key Files Added:**
-- `.vscode/settings.json` - Copilot-optimized workspace settings
-- `.vscode/tasks.json` - Integrated SDD workflow tasks
-- `.vscode/spec-driven-dev.code-snippets` - Quick templates and context patterns
-- `.github/copilot-instructions.md` - Comprehensive chat guidance
-- `.github/copilot-context.md` - Enhanced context sharing guide
-- `.github/copilot-references.md` - Extensive documentation and reference links
-- Enhanced command prompts in `.github/prompts/`
-
-# Check system requirements
-specify check
+specify init my-project --github-token ghp_your_token_here
 ```
 
 ### Available Slash Commands
 
-After running `specify init`, your AI coding agent will have access to these slash commands for structured development:
+After running `specify init`, you can use these commands with GitHub Models Chat for structured development:
 
 | Command         | Description                                                           |
 |-----------------|-----------------------------------------------------------------------|
@@ -274,43 +249,49 @@ Spec-Driven Development is a structured process that emphasizes:
 | **Creative Exploration** | Parallel implementations | <ul><li>Explore diverse solutions</li><li>Support multiple technology stacks & architectures</li><li>Experiment with UX patterns</li></ul> |
 | **Iterative Enhancement** ("Brownfield") | Brownfield modernization | <ul><li>Add features iteratively</li><li>Modernize legacy systems</li><li>Adapt processes</li></ul> |
 
-## 🎯 Experimental goals
+## 🎯 FractionEstate Goals
 
-Our research and experimentation focus on:
+This toolkit is designed to support FractionEstate's development objectives:
 
-### Technology independence
+### GitHub-Centric Development
 
-- Create applications using diverse technology stacks
-- Validate the hypothesis that Spec-Driven Development is a process not tied to specific technologies, programming languages, or frameworks
+- Leverage GitHub Models' advanced AI capabilities for specification-driven development
+- Integrate seamlessly with VS Code and GitHub's ecosystem
+- Utilize GitHub's project management and CI/CD features
 
-### Enterprise constraints
+### Real Estate Technology Focus
 
-- Demonstrate mission-critical application development
-- Incorporate organizational constraints (cloud providers, tech stacks, engineering practices)
-- Support enterprise design systems and compliance requirements
+- Build applications for real estate tokenization and fractional ownership
+- Support complex financial calculations and regulatory compliance
+- Enable scalable multi-tenant architecture for property management
 
-### User-centric development
+### Enterprise-Grade Quality
 
-- Build applications for different user cohorts and preferences
-- Support various development approaches (from vibe-coding to AI-native development)
+- Demonstrate mission-critical application development practices
+- Incorporate FractionEstate's technical standards and architectural patterns
+- Support regulatory compliance and security requirements for financial applications
 
-### Creative & iterative processes
+### Iterative & Collaborative Development
 
-- Validate the concept of parallel implementation exploration
-- Provide robust iterative feature development workflows
-- Extend processes to handle upgrades and modernization tasks
+- Enable rapid prototyping and iteration cycles
+- Support collaborative development with clear specifications
+- Provide robust workflows for feature development and system modernization
 
 ## 🔧 Prerequisites
 
 - **Linux/macOS** (or WSL2 on Windows)
-- AI coding agent: [Claude Code](https://www.anthropic.com/claude-code), [GitHub Copilot](https://code.visualstudio.com/), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [Cursor](https://cursor.sh/), [Qwen CLI](https://github.com/QwenLM/qwen-code), [opencode](https://opencode.ai/), [Codex CLI](https://github.com/openai/codex), or [Windsurf](https://windsurf.com/)
+- **[VS Code](https://code.visualstudio.com/)** with **[GitHub Copilot](https://github.com/features/copilot)** extension
 - [uv](https://docs.astral.sh/uv/) for package management
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
+- Active GitHub Copilot subscription (required for AI assistance)
 
-If you encounter issues with an agent, please open an issue so we can refine the integration.
-
-## 📖 Learn more
+### Recommended VS Code Extensions
+- GitHub Models
+- GitHub Models Chat
+- GitLens
+- Python
+- Markdown All in One## 📖 Learn more
 
 - **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
 - **[Detailed Walkthrough](#-detailed-process)** - Step-by-step implementation guide
@@ -342,42 +323,29 @@ specify init --here --force
 
 ![Specify CLI bootstrapping a new project in the terminal](./media/specify_cli.gif)
 
-You will be prompted to select the AI agent you are using. You can also proactively specify it directly in the terminal:
+The FractionEstate Development Spec Kit is optimized for GitHub Copilot. You can initialize with:
 
 ```bash
-specify init <project_name> --ai claude
-specify init <project_name> --ai gemini
-specify init <project_name> --ai copilot
-specify init <project_name> --ai cursor
-specify init <project_name> --ai qwen
-specify init <project_name> --ai opencode
-specify init <project_name> --ai codex
-specify init <project_name> --ai windsurf
-# Or in current directory:
-specify init . --ai claude
-specify init . --ai codex
+specify init <project_name>
+# Include a specific GitHub Model if you prefer:
+specify init <project_name> --model gpt-4o
+# Or initialize in the current directory:
+specify init .
 # or use --here flag
-specify init --here --ai claude
-specify init --here --ai codex
+specify init --here
 # Force merge into a non-empty current directory
-specify init . --force --ai claude
+specify init . --force
 # or
-specify init --here --force --ai claude
+specify init --here --force
 ```
 
-The CLI will check if you have Claude Code, Gemini CLI, Cursor CLI, Qwen CLI, opencode, or Codex CLI installed. If you do not, or you prefer to get the templates without checking for the right tools, use `--ignore-agent-tools` with your command:
-
-```bash
-specify init <project_name> --ai claude --ignore-agent-tools
-```
+The CLI will check if you have VS Code installed and will set up GitHub Copilot-optimized configurations.
 
 ### **STEP 1:** Establish project principles
 
-Go to the project folder and run your AI agent. In our example, we're using `claude`.
+Go to the project folder and open it in VS Code. Start a new GitHub Copilot Chat session.
 
-![Bootstrapping Claude Code environment](./media/bootstrap-claude-code.gif)
-
-You will know that things are configured correctly if you see the `/constitution`, `/specify`, `/plan`, `/tasks`, and `/implement` commands available.
+You will know that things are configured correctly if you see the spec-driven development prompts available in `.github/prompts/` and can use them in your Copilot Chat conversations.
 
 The first step should be establishing your project's governing principles using the `/constitution` command. This helps ensure consistent decision-making throughout all subsequent development phases:
 
@@ -385,7 +353,7 @@ The first step should be establishing your project's governing principles using 
 /constitution Create principles focused on code quality, testing standards, user experience consistency, and performance requirements. Include governance for how these principles should guide technical decisions and implementation choices.
 ```
 
-This step creates or updates the `.specify/memory/constitution.md` file with your project's foundational guidelines that the AI agent will reference during specification, planning, and implementation phases.
+This step creates or updates the `.specify/memory/constitution.md` file with your project's foundational guidelines that GitHub Copilot will reference during specification, planning, and implementation phases.
 
 ### **STEP 2:** Create project specifications
 
@@ -415,7 +383,7 @@ see yours. You can edit any comments that you make, but you can't edit comments 
 delete any comments that you made, but you can't delete comments anybody else made.
 ```
 
-After this prompt is entered, you should see Claude Code kick off the planning and spec drafting process. Claude Code will also trigger some of the built-in scripts to set up the repository.
+After this prompt is entered, you should see GitHub Copilot kick off the planning and spec drafting process. The system will also trigger some of the built-in scripts to set up the repository.
 
 Once this step is completed, you should have a new branch created (e.g., `001-create-taskify`), as well as a new specification in the `specs/001-create-taskify` directory.
 
@@ -432,7 +400,7 @@ At this stage, your project folder contents should resemble the following:
     │	 ├── common.sh
     │	 ├── create-new-feature.sh
     │	 ├── setup-plan.sh
-    │	 └── update-claude-md.sh
+    │	 └── update-agent-context.sh
     ├── specs
     │	 └── 001-create-taskify
     │	     └── spec.md
@@ -462,13 +430,13 @@ tasks for each one randomly distributed into different states of completion. Mak
 one task in each stage of completion.
 ```
 
-You should also ask Claude Code to validate the **Review & Acceptance Checklist**, checking off the things that are validated/pass the requirements, and leave the ones that are not unchecked. The following prompt can be used:
+You should also ask GitHub Copilot to validate the **Review & Acceptance Checklist**, checking off the things that are validated/pass the requirements, and leave the ones that are not unchecked. You can use this prompt in Copilot Chat:
 
 ```text
-Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not.
+@workspace Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not.
 ```
 
-It's important to use the interaction with Claude Code as an opportunity to clarify and ask questions around the specification - **do not treat its first attempt as final**.
+It's important to use the interaction with GitHub Copilot as an opportunity to clarify and ask questions around the specification - **do not treat its first attempt as final**.
 
 ### **STEP 4:** Generate a plan
 
@@ -484,7 +452,13 @@ The output of this step will include a number of implementation detail documents
 
 ```text
 .
-├── CLAUDE.md
+├── .github/
+│   ├── copilot-instructions.md
+│   └── prompts/
+├── .vscode/
+│   ├── settings.json
+│   ├── tasks.json
+│   └── spec-driven-dev.code-snippets
 ├── memory
 │	 └── constitution.md
 ├── scripts
@@ -492,7 +466,7 @@ The output of this step will include a number of implementation detail documents
 │	 ├── common.sh
 │	 ├── create-new-feature.sh
 │	 ├── setup-plan.sh
-│	 └── update-claude-md.sh
+│	 └── update-agent-context.sh
 ├── specs
 │	 └── 001-create-taskify
 │	     ├── contracts
@@ -504,15 +478,14 @@ The output of this step will include a number of implementation detail documents
 │	     ├── research.md
 │	     └── spec.md
 └── templates
-    ├── CLAUDE-template.md
     ├── plan-template.md
     ├── spec-template.md
     └── tasks-template.md
 ```
 
-Check the `research.md` document to ensure that the right tech stack is used, based on your instructions. You can ask Claude Code to refine it if any of the components stand out, or even have it check the locally-installed version of the platform/framework you want to use (e.g., .NET).
+Check the `research.md` document to ensure that the right tech stack is used, based on your instructions. You can ask GitHub Copilot to refine it if any of the components stand out, or even have it check the locally-installed version of the platform/framework you want to use (e.g., .NET).
 
-Additionally, you might want to ask Claude Code to research details about the chosen tech stack if it's something that is rapidly changing (e.g., .NET Aspire, JS frameworks), with a prompt like this:
+Additionally, you might want to ask GitHub Copilot to research details about the chosen tech stack if it's something that is rapidly changing (e.g., .NET Aspire, JS frameworks), with a prompt like this:
 
 ```text
 I want you to go through the implementation plan and implementation details, looking for areas that could
@@ -522,7 +495,7 @@ versions that we are going to be using in this Taskify application and spawn par
 any details using research from the web.
 ```
 
-During this process, you might find that Claude Code gets stuck researching the wrong thing - you can help nudge it in the right direction with a prompt like this:
+During this process, you might find that GitHub Copilot gets stuck researching the wrong thing - you can help nudge it in the right direction with a prompt like this:
 
 ```text
 I think we need to break this down into a series of steps. First, identify a list of tasks
@@ -535,11 +508,11 @@ That's way too untargeted research. The research needs to help you solve a speci
 ```
 
 >[!NOTE]
->Claude Code might be over-eager and add components that you did not ask for. Ask it to clarify the rationale and the source of the change.
+>GitHub Copilot might be over-eager and add components that you did not ask for. Ask it to clarify the rationale and the source of the change.
 
-### **STEP 5:** Have Claude Code validate the plan
+### **STEP 5:** Have GitHub Copilot validate the plan
 
-With the plan in place, you should have Claude Code run through it to make sure that there are no missing pieces. You can use a prompt like this:
+With the plan in place, you should have GitHub Copilot run through it to make sure that there are no missing pieces. You can use a prompt like this in Copilot Chat:
 
 ```text
 Now I want you to go and audit the implementation plan and the implementation detail files.
@@ -549,12 +522,12 @@ when I look at the core implementation, it would be useful to reference the appr
 details where it can find the information as it walks through each step in the core implementation or in the refinement.
 ```
 
-This helps refine the implementation plan and helps you avoid potential blind spots that Claude Code missed in its planning cycle. Once the initial refinement pass is complete, ask Claude Code to go through the checklist once more before you can get to the implementation.
+This helps refine the implementation plan and helps you avoid potential blind spots that GitHub Copilot missed in its planning cycle. Once the initial refinement pass is complete, ask GitHub Copilot to go through the checklist once more before you can get to the implementation.
 
-You can also ask Claude Code (if you have the [GitHub CLI](https://docs.github.com/en/github-cli/github-cli) installed) to go ahead and create a pull request from your current branch to `main` with a detailed description, to make sure that the effort is properly tracked.
+You can also ask GitHub Copilot (if you have the [GitHub CLI](https://docs.github.com/en/github-cli/github-cli) installed) to go ahead and create a pull request from your current branch to `main` with a detailed description, to make sure that the effort is properly tracked.
 
 >[!NOTE]
->Before you have the agent implement it, it's also worth prompting Claude Code to cross-check the details to see if there are any over-engineered pieces (remember - it can be over-eager). If over-engineered components or decisions exist, you can ask Claude Code to resolve them. Ensure that Claude Code follows the [constitution](base/memory/constitution.md) as the foundational piece that it must adhere to when establishing the plan.
+>Before you have GitHub Copilot implement it, it's also worth prompting it to cross-check the details to see if there are any over-engineered pieces (remember - it can be over-eager). If over-engineered components or decisions exist, you can ask GitHub Copilot to resolve them. Ensure that GitHub Copilot follows the [constitution](base/memory/constitution.md) as the foundational piece that it must adhere to when establishing the plan.
 
 ### STEP 6: Implementation
 
@@ -572,9 +545,9 @@ The `/implement` command will:
 - Provide progress updates and handle errors appropriately
 
 >[!IMPORTANT]
->The AI agent will execute local CLI commands (such as `dotnet`, `npm`, etc.) - make sure you have the required tools installed on your machine.
+>GitHub Copilot will execute local CLI commands (such as `dotnet`, `npm`, etc.) - make sure you have the required tools installed on your machine.
 
-Once the implementation is complete, test the application and resolve any runtime errors that may not be visible in CLI logs (e.g., browser console errors). You can copy and paste such errors back to your AI agent for resolution.
+Once the implementation is complete, test the application and resolve any runtime errors that may not be visible in CLI logs (e.g., browser console errors). You can copy and paste such errors back to GitHub Copilot Chat for resolution.
 
 </details>
 

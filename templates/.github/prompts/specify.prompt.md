@@ -1,9 +1,11 @@
 ---
 description: Create or update the feature specification from a natural language feature description.
-scripts:
-  sh: scripts/bash/create-new-feature.sh --json "{ARGS}"
-  ps: scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/create-new-feature.sh --json "{ARGS}"
+ps: scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
+-->
 
 # /specify - Create Feature Specification
 
@@ -35,7 +37,8 @@ Parse the JSON output for:
 1. Load `templates/spec-template.md` to understand the required structure
 2. Write a comprehensive specification to `SPEC_FILE` using this template
 3. Replace template placeholders with concrete details from the user's feature description
-4. Ensure all sections are properly filled out:
+4. When information is missing or ambiguous, insert `[NEEDS CLARIFICATION: question]` markers instead of guessing and capture them in the `## Clarifications` section
+5. Ensure all sections are properly filled out:
    - **Overview**: Clear description and business value
    - **User Stories**: Primary and additional user stories
    - **Functional Requirements**: Core requirements and edge cases
@@ -52,12 +55,21 @@ Ensure the specification is:
 - **Testable**: Criteria that can be validated
 - **Complete**: All necessary details for planning and implementation
 - **Consistent**: Aligned with project principles (check `memory/constitution.md` if it exists)
+- **Plan-ready**: Organized so the `/plan` workflow can translate requirements without re-deriving context
 
-### Step 4: Report Results
-Provide a summary including:
-- ✅ Branch name and spec file location
-- 📋 Brief overview of what was specified
-- ➡️ Recommended next step: `/clarify` if any ambiguities exist, otherwise `/plan`
+### Step 4: Provide Copilot-Ready Summary
+End your response with a labeled Markdown summary block containing:
+- ✅ **Spec location** – Absolute path to the generated `spec.md`
+- 📋 **Feature overview** – 1-2 sentences capturing user value and primary scope
+- ❓ **Outstanding clarifications** – Bullet list of remaining `[NEEDS CLARIFICATION]` markers (or `None` if clear)
+- 🧭 **Key decision notes** – Highlight any assumptions or dependencies future phases must honor
+- � **Next @workspace starter** – Ready-to-copy prompt that helps the user kick off `/clarify` or `/plan`
+- ➡️ **Recommended next command** – Usually `/clarify` when ambiguities remain, otherwise `/plan`
+
+Example starter:
+```
+@workspace Review specs/00X-feature/clarifications and help me answer the listed questions so we can proceed to /plan.
+```
 
 ## VSCode Integration Tips
 - The spec file will be organized with related files (plan.md, tasks.md) in the explorer

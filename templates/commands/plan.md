@@ -1,9 +1,11 @@
 ---
 description: Execute the implementation planning workflow using the plan template to generate design artifacts.
-scripts:
-  sh: scripts/bash/setup-plan.sh --json
-  ps: scripts/powershell/setup-plan.ps1 -Json
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/setup-plan.sh --json
+ps: scripts/powershell/setup-plan.ps1 -Json
+-->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
@@ -41,6 +43,11 @@ Given the implementation details provided as an argument, do this:
    - Ensure all required artifacts were generated
    - Confirm no ERROR states in execution
 
-6. Report results with branch name, file paths, and generated artifacts.
+6. Report results using a Markdown summary that:
+   - States the branch and overall plan status (Phase 0-2)
+   - Enumerates generated artifacts with absolute paths and short purposes
+   - Highlights key architectural decisions and outstanding risks or clarifications
+   - Includes a ready-to-copy `@workspace` prompt tailored for `/tasks` (or `/clarify` if blockers remain)
+   - Recommends the next command to run
 
 Use absolute paths with the repository root for all file operations to avoid path issues.

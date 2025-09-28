@@ -2,15 +2,14 @@
 set -euo pipefail
 
 # create-release-packages.sh (workflow-local)
-# Build Spec Kit template release archives for each supported AI assistant and script type.
+# Build Spec Kit release archives for the GitHub Copilot workflow templates.
 # Usage: .github/workflows/scripts/create-release-packages.sh <version>
 #   Version argument should include leading 'v'.
 #   Optionally set AGENTS and/or SCRIPTS env vars to limit what gets built.
-#     AGENTS  : space or comma separated subset of: claude gemini copilot cursor qwen opencode windsurf codex (default: all)
+#     AGENTS  : space or comma separated subset of: copilot (default: copilot)
 #     SCRIPTS : space or comma separated subset of: sh ps (default: both)
 #   Examples:
-#     AGENTS=claude SCRIPTS=sh $0 v0.2.0
-#     AGENTS="copilot,gemini" $0 v0.2.0
+#     AGENTS=copilot SCRIPTS=sh $0 v0.2.0
 #     SCRIPTS=ps $0 v0.2.0
 
 if [[ $# -ne 1 ]]; then
@@ -37,6 +36,25 @@ rewrite_paths() {
     -e 's@(/?)templates/@.specify/templates/@g'
 }
 
+extract_script_command() {
+  local variant=$1
+  awk -v sv="$variant" '
+    BEGIN { in_block=0 }
+    /^<!--[[:space:]]*prompt-scripts/ { in_block=1; next }
+    in_block {
+      if ($0 ~ /-->[[:space:]]*$/) { in_block=0; exit }
+      if ($0 ~ "^[[:space:]]*" sv ":[[:space:]]*") {
+        line=$0
+        sub(/^[[:space:]]*/, "", line)
+        sub(sv ":[[:space:]]*", "", line)
+        print line
+        exit
+      }
+      next
+    }
+  '
+}
+
 generate_commands() {
   local agent=$1 ext=$2 arg_format=$3 output_dir=$4 script_variant=$5
   mkdir -p "$output_dir"
@@ -44,34 +62,35 @@ generate_commands() {
     [[ -f "$template" ]] || continue
     local name description script_command body
     name=$(basename "$template" .md)
-    
+
     # Normalize line endings
     file_content=$(tr -d '\r' < "$template")
-    
-    # Extract description and script command from YAML frontmatter
+
+  # Extract description from YAML frontmatter
     description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
-    script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
-    
+  script_command=$(printf '%s\n' "$file_content" | extract_script_command "$script_variant")
+
     if [[ -z $script_command ]]; then
       echo "Warning: no script command found for $script_variant in $template" >&2
       script_command="(Missing script command for $script_variant)"
     fi
-    
+
     # Replace {SCRIPT} placeholder with the script command
     body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
-    
-    # Remove the scripts: section from frontmatter while preserving YAML structure
+
+    # Remove the prompt-scripts comment block from the distributed prompt
     body=$(printf '%s\n' "$body" | awk '
-      /^---$/ { print; if (++dash_count == 1) in_frontmatter=1; else in_frontmatter=0; next }
-      in_frontmatter && /^scripts:$/ { skip_scripts=1; next }
-      in_frontmatter && /^[a-zA-Z].*:/ && skip_scripts { skip_scripts=0 }
-      in_frontmatter && skip_scripts && /^[[:space:]]/ { next }
+      /^<!--[[:space:]]*prompt-scripts/ { in_comment=1; next }
+      in_comment {
+        if ($0 ~ /-->[[:space:]]*$/) { in_comment=0 }
+        next
+      }
       { print }
     ')
-    
+
     # Apply other substitutions
     body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
-    
+
     case $ext in
       toml)
         { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/$name.$ext" ;;
@@ -88,13 +107,13 @@ build_variant() {
   local base_dir="$GENRELEASES_DIR/sdd-${agent}-package-${script}"
   echo "Building $agent ($script) package..."
   mkdir -p "$base_dir"
-  
+
   # Copy base structure but filter scripts by variant
   SPEC_DIR="$base_dir/.specify"
   mkdir -p "$SPEC_DIR"
-  
+
   [[ -d memory ]] && { cp -r memory "$SPEC_DIR/"; echo "Copied memory -> .specify"; }
-  
+
   # Only copy the relevant script variant directory
   if [[ -d scripts ]]; then
     mkdir -p "$SPEC_DIR/scripts"
@@ -111,9 +130,9 @@ build_variant() {
         ;;
     esac
   fi
-  
+
   [[ -d templates ]] && { mkdir -p "$SPEC_DIR/templates"; find templates -type f -not -path "templates/commands/*" -exec cp --parents {} "$SPEC_DIR"/ \; ; echo "Copied templates -> .specify/templates"; }
-  
+
   # Copy VSCode configuration for Copilot projects
   if [[ "$agent" == "copilot" && -d templates/.vscode ]]; then
     cp -r templates/.vscode "$base_dir/"
@@ -124,7 +143,7 @@ build_variant() {
   if [[ -f "$plan_tpl" ]]; then
     plan_norm=$(tr -d '\r' < "$plan_tpl")
     # Extract script command from YAML frontmatter
-    script_command=$(printf '%s\n' "$plan_norm" | awk -v sv="$script" '/^[[:space:]]*'"$script"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script"':[[:space:]]*/, ""); print; exit}')
+  script_command=$(printf '%s\n' "$plan_norm" | extract_script_command "$script")
     if [[ -n $script_command ]]; then
       # Always prefix with .specify/ for plan usage
       script_command=".specify/$script_command"
@@ -138,57 +157,28 @@ build_variant() {
     fi
   fi
   # NOTE: We substitute {ARGS} internally. Outward tokens differ intentionally:
-  #   * Markdown/prompt (claude, copilot, cursor, opencode): $ARGUMENTS
-  #   * TOML (gemini, qwen): {{args}}
+  #   * Markdown/prompt (copilot): $ARGUMENTS
+  #   * TOML variants are no longer produced in the GitHub Models-only workflow.
   # This keeps formats readable without extra abstraction.
 
   case $agent in
-    claude)
-      mkdir -p "$base_dir/.claude/commands"
-      generate_commands claude md "\$ARGUMENTS" "$base_dir/.claude/commands" "$script" ;;
-    gemini)
-      mkdir -p "$base_dir/.gemini/commands"
-      generate_commands gemini toml "{{args}}" "$base_dir/.gemini/commands" "$script"
-      [[ -f agent_templates/gemini/GEMINI.md ]] && cp agent_templates/gemini/GEMINI.md "$base_dir/GEMINI.md" ;;
     copilot)
       mkdir -p "$base_dir/.github/prompts"
-      generate_commands copilot prompt.md "\$ARGUMENTS" "$base_dir/.github/prompts" "$script" 
+      generate_commands copilot prompt.md "\$ARGUMENTS" "$base_dir/.github/prompts" "$script"
       # Copy enhanced Copilot instructions and context files for VSCode Chat optimization
       [[ -f templates/.github/copilot-instructions.md ]] && cp templates/.github/copilot-instructions.md "$base_dir/.github/copilot-instructions.md"
       [[ -f templates/.github/copilot-context.md ]] && cp templates/.github/copilot-context.md "$base_dir/.github/copilot-context.md"
       [[ -f templates/.github/copilot-references.md ]] && cp templates/.github/copilot-references.md "$base_dir/.github/copilot-references.md" ;;
-    cursor)
-      mkdir -p "$base_dir/.cursor/commands"
-      generate_commands cursor md "\$ARGUMENTS" "$base_dir/.cursor/commands" "$script" ;;
-    qwen)
-      mkdir -p "$base_dir/.qwen/commands"
-      generate_commands qwen toml "{{args}}" "$base_dir/.qwen/commands" "$script"
-      [[ -f agent_templates/qwen/QWEN.md ]] && cp agent_templates/qwen/QWEN.md "$base_dir/QWEN.md" ;;
-    opencode)
-      mkdir -p "$base_dir/.opencode/command"
-      generate_commands opencode md "\$ARGUMENTS" "$base_dir/.opencode/command" "$script" ;;
-    windsurf)
-      mkdir -p "$base_dir/.windsurf/workflows"
-      generate_commands windsurf md "\$ARGUMENTS" "$base_dir/.windsurf/workflows" "$script" ;;
-    codex)
-      mkdir -p "$base_dir/.codex/prompts"
-      generate_commands codex md "\$ARGUMENTS" "$base_dir/.codex/prompts" "$script" ;;
-    kilocode)
-      mkdir -p "$base_dir/.kilocode/workflows"
-      generate_commands kilocode md "\$ARGUMENTS" "$base_dir/.kilocode/workflows" "$script" ;;
-    auggie)
-      mkdir -p "$base_dir/.augment/commands"
-      generate_commands auggie md "\$ARGUMENTS" "$base_dir/.augment/commands" "$script" ;;
-    roo)
-      mkdir -p "$base_dir/.roo/commands"
-      generate_commands roo md "\$ARGUMENTS" "$base_dir/.roo/commands" "$script" ;;
+    *)
+      echo "Error: Unsupported agent '$agent'. Only 'copilot' is supported." >&2
+      exit 1 ;;
   esac
   ( cd "$base_dir" && zip -r "../spec-kit-template-${agent}-${script}-${NEW_VERSION}.zip" . )
   echo "Created $GENRELEASES_DIR/spec-kit-template-${agent}-${script}-${NEW_VERSION}.zip"
 }
 
-# Determine agent list
-ALL_AGENTS=(claude gemini copilot cursor qwen opencode windsurf codex kilocode auggie roo)
+# Determine agent list - GitHub Copilot only
+ALL_AGENTS=(copilot)
 ALL_SCRIPTS=(sh ps)
 
 

@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **Linux/macOS** (or Windows; PowerShell scripts now supported without WSL)
-- AI coding agent: [Claude Code](https://www.anthropic.com/claude-code), [GitHub Copilot](https://code.visualstudio.com/), or [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+- [GitHub Copilot Chat](https://github.com/features/copilot) with access to **GitHub Models**
 - [uv](https://docs.astral.sh/uv/) for package management
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
@@ -26,15 +26,16 @@ uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specif
 uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init --here
 ```
 
-### Specify AI Agent
+### Select a GitHub Model
 
-You can proactively specify your AI agent during initialization:
+The CLI fetches available GitHub Models and lets you pick one interactively. You can also pre-select a model when initializing:
 
 ```bash
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --ai claude
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --ai gemini
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --ai copilot
+uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --model gpt-4o
+uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --model gpt-4o-mini
 ```
+
+If you omit `--model`, you'll get a curated list of GitHub Models to choose from during setup.
 
 ### Specify Script Type (Shell vs PowerShell)
 
@@ -53,15 +54,15 @@ uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specif
 
 ### Ignore Agent Tools Check
 
-If you prefer to get the templates without checking for the right tools:
+If you prefer to get the templates without checking for VS Code or Copilot tooling:
 
 ```bash
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --ai claude --ignore-agent-tools
+uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <project_name> --ignore-agent-tools
 ```
 
 ## Verification
 
-After initialization, you should see the following commands available in your AI agent:
+After initialization, you should see the following commands available in GitHub Copilot Chat:
 - `/specify` - Create specifications
 - `/plan` - Generate implementation plans
 - `/tasks` - Break down into actionable tasks

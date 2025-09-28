@@ -7,11 +7,35 @@ All notable changes to the Specify CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [LATEST_VERSION] - RELEASE_DATE
+> **Historical context:** Entries prior to version 0.1.0 describe the legacy multi-agent release line kept for archival reference. The active branch now targets GitHub Models exclusively.
+
+## [0.1.0] - 2025-09-28
 
 ### Added
 
-- Support for using `.` as a shorthand for current directory in `specify init .` command, equivalent to `--here` flag but more intuitive for users
+- **GitHub Models Integration**: Automatic fetching of available models from GitHub Models API
+- **Model Selection**: Interactive and command-line model selection with `--model` parameter
+- **Model Caching**: Smart 1-hour cache for API responses with `--no-cache` and `--clear-cache` options
+- **New Commands**:
+  - `list-models` - Browse available GitHub Models
+  - `status` - Show current project configuration and selected model
+  - `version` - Display version and system information
+- **Model Validation**: Validates specified models exist with helpful error messages
+- **Configuration Persistence**: Stores selected model in `.specify/config/models.json`
+- **Comprehensive Model Support**: 27+ models including GPT-4o, Claude Sonnet, Gemini, Meta Llama, and more
+- Support for using `.` as a shorthand for current directory in `specify init .` command
+
+### Changed
+
+- **BREAKING**: Focused exclusively on GitHub Models, removed support for other AI agents
+- Updated all documentation and examples to use GitHub Models terminology
+- Improved error messages with specific model suggestions
+- Fixed syntax warnings in ASCII art banners
+
+### Performance
+
+- Added intelligent caching system for model API responses
+- Optimized model fetching with fallback to comprehensive known model list
 
 ## [0.0.18] - 2025-09-27
 

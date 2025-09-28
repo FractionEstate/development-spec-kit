@@ -9,13 +9,13 @@ Mirrors the behavior of scripts/bash/update-agent-context.sh:
  2. Plan Data Extraction
  3. Agent File Management (create from template or update existing)
  4. Content Generation (technology stack, recent changes, timestamp)
- 5. Multi-Agent Support (claude, gemini, copilot, cursor, qwen, opencode, codex, windsurf)
+ 5. GitHub Models Support (VS Code integration)
 
 .PARAMETER AgentType
-Optional agent key to update a single agent. If omitted, updates all existing agent files (creating a default Claude file if none exist).
+Optional agent key to update a single agent. If omitted, updates all existing agent files (creating a default GitHub Models file if none exist).
 
 .EXAMPLE
-./update-agent-context.ps1 -AgentType claude
+./update-agent-context.ps1 -AgentType copilot
 
 .EXAMPLE
 ./update-agent-context.ps1   # Updates all existing agent files
@@ -25,7 +25,7 @@ Relies on common helper functions in common.ps1
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet('claude','gemini','copilot','cursor','qwen','opencode','codex','windsurf','kilocode','auggie','roo')]
+    [ValidateSet('copilot')]
     [string]$AgentType
 )
 
@@ -43,17 +43,10 @@ $HAS_GIT       = $envData.HAS_GIT
 $IMPL_PLAN     = $envData.IMPL_PLAN
 $NEW_PLAN = $IMPL_PLAN
 
-# Agent file paths
-$CLAUDE_FILE   = Join-Path $REPO_ROOT 'CLAUDE.md'
-$GEMINI_FILE   = Join-Path $REPO_ROOT 'GEMINI.md'
+# GitHub Models file path (only supported agent)
 $COPILOT_FILE  = Join-Path $REPO_ROOT '.github/copilot-instructions.md'
-$CURSOR_FILE   = Join-Path $REPO_ROOT '.cursor/rules/specify-rules.mdc'
-$QWEN_FILE     = Join-Path $REPO_ROOT 'QWEN.md'
 $AGENTS_FILE   = Join-Path $REPO_ROOT 'AGENTS.md'
-$WINDSURF_FILE = Join-Path $REPO_ROOT '.windsurf/rules/specify-rules.md'
-$KILOCODE_FILE = Join-Path $REPO_ROOT '.kilocode/rules/specify-rules.md'
-$AUGGIE_FILE   = Join-Path $REPO_ROOT '.augment/rules/specify-rules.md'
-$ROO_FILE      = Join-Path $REPO_ROOT '.roo/rules/specify-rules.md'
+
 
 $TEMPLATE_FILE = Join-Path $REPO_ROOT '.specify/templates/agent-file-template.md'
 
@@ -63,36 +56,36 @@ $script:NEW_FRAMEWORK = ''
 $script:NEW_DB = ''
 $script:NEW_PROJECT_TYPE = ''
 
-function Write-Info { 
+function Write-Info {
     param(
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    Write-Host "INFO: $Message" 
+    Write-Host "INFO: $Message"
 }
 
-function Write-Success { 
+function Write-Success {
     param(
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    Write-Host "$([char]0x2713) $Message" 
+    Write-Host "$([char]0x2713) $Message"
 }
 
-function Write-WarningMsg { 
+function Write-WarningMsg {
     param(
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    Write-Warning $Message 
+    Write-Warning $Message
 }
 
-function Write-Err { 
+function Write-Err {
     param(
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    Write-Host "ERROR: $Message" -ForegroundColor Red 
+    Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
 function Validate-Environment {
@@ -125,7 +118,7 @@ function Extract-PlanField {
     # Lines like **Language/Version**: Python 3.12
     $regex = "^\*\*$([Regex]::Escape($FieldPattern))\*\*: (.+)$"
     Get-Content -LiteralPath $PlanFile | ForEach-Object {
-        if ($_ -match $regex) { 
+        if ($_ -match $regex) {
             $val = $Matches[1].Trim()
             if ($val -notin @('NEEDS CLARIFICATION','N/A')) { return $val }
         }
@@ -165,15 +158,15 @@ function Format-TechnologyStack {
     return ($parts -join ' + ')
 }
 
-function Get-ProjectStructure { 
+function Get-ProjectStructure {
     param(
         [Parameter(Mandatory=$false)]
         [string]$ProjectType
     )
-    if ($ProjectType -match 'web') { return "backend/`nfrontend/`ntests/" } else { return "src/`ntests/" } 
+    if ($ProjectType -match 'web') { return "backend/`nfrontend/`ntests/" } else { return "src/`ntests/" }
 }
 
-function Get-CommandsForLanguage { 
+function Get-CommandsForLanguage {
     param(
         [Parameter(Mandatory=$false)]
         [string]$Lang
@@ -186,12 +179,12 @@ function Get-CommandsForLanguage {
     }
 }
 
-function Get-LanguageConventions { 
+function Get-LanguageConventions {
     param(
         [Parameter(Mandatory=$false)]
         [string]$Lang
     )
-    if ($Lang) { "${Lang}: Follow standard conventions" } else { 'General: Follow standard conventions' } 
+    if ($Lang) { "${Lang}: Follow standard conventions" } else { 'General: Follow standard conventions' }
 }
 
 function New-AgentFile {
@@ -218,7 +211,7 @@ function New-AgentFile {
     $content = Get-Content -LiteralPath $temp -Raw
     $content = $content -replace '\[PROJECT NAME\]',$ProjectName
     $content = $content -replace '\[DATE\]',$Date.ToString('yyyy-MM-dd')
-    
+
     # Build the technology stack string safely
     $techStackForTemplate = ""
     if ($escaped_lang -and $escaped_framework) {
@@ -228,7 +221,7 @@ function New-AgentFile {
     } elseif ($escaped_framework) {
         $techStackForTemplate = "- $escaped_framework ($escaped_branch)"
     }
-    
+
     $content = $content -replace '\[EXTRACTED FROM ALL PLAN.MD FILES\]',$techStackForTemplate
     # For project structure we manually embed (keep newlines)
     $escapedStructure = [Regex]::Escape($projectStructure)
@@ -236,7 +229,7 @@ function New-AgentFile {
     # Replace escaped newlines placeholder after all replacements
     $content = $content -replace '\[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES\]',$commands
     $content = $content -replace '\[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE\]',$languageConventions
-    
+
     # Build the recent changes string safely
     $recentChangesForTemplate = ""
     if ($escaped_lang -and $escaped_framework) {
@@ -246,7 +239,7 @@ function New-AgentFile {
     } elseif ($escaped_framework) {
         $recentChangesForTemplate = "- ${escaped_branch}: Added ${escaped_framework}"
     }
-    
+
     $content = $content -replace '\[LAST 3 FEATURES AND WHAT THEY ADDED\]',$recentChangesForTemplate
     # Convert literal \n sequences introduced by Escape to real newlines
     $content = $content -replace '\\n',[Environment]::NewLine
@@ -271,14 +264,14 @@ function Update-ExistingAgentFile {
     $newTechEntries = @()
     if ($techStack) {
         $escapedTechStack = [Regex]::Escape($techStack)
-        if (-not (Select-String -Pattern $escapedTechStack -Path $TargetFile -Quiet)) { 
-            $newTechEntries += "- $techStack ($CURRENT_BRANCH)" 
+        if (-not (Select-String -Pattern $escapedTechStack -Path $TargetFile -Quiet)) {
+            $newTechEntries += "- $techStack ($CURRENT_BRANCH)"
         }
     }
     if ($NEW_DB -and $NEW_DB -notin @('N/A','NEEDS CLARIFICATION')) {
         $escapedDB = [Regex]::Escape($NEW_DB)
-        if (-not (Select-String -Pattern $escapedDB -Path $TargetFile -Quiet)) { 
-            $newTechEntries += "- $NEW_DB ($CURRENT_BRANCH)" 
+        if (-not (Select-String -Pattern $escapedDB -Path $TargetFile -Quiet)) {
+            $newTechEntries += "- $NEW_DB ($CURRENT_BRANCH)"
         }
     }
     $newChangeEntry = ''
@@ -365,37 +358,18 @@ function Update-SpecificAgent {
         [string]$Type
     )
     switch ($Type) {
-        'claude'   { Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code' }
-        'gemini'   { Update-AgentFile -TargetFile $GEMINI_FILE   -AgentName 'Gemini CLI' }
-        'copilot'  { Update-AgentFile -TargetFile $COPILOT_FILE  -AgentName 'GitHub Copilot' }
-        'cursor'   { Update-AgentFile -TargetFile $CURSOR_FILE   -AgentName 'Cursor IDE' }
-        'qwen'     { Update-AgentFile -TargetFile $QWEN_FILE     -AgentName 'Qwen Code' }
-        'opencode' { Update-AgentFile -TargetFile $AGENTS_FILE   -AgentName 'opencode' }
-        'codex'    { Update-AgentFile -TargetFile $AGENTS_FILE   -AgentName 'Codex CLI' }
-        'windsurf' { Update-AgentFile -TargetFile $WINDSURF_FILE -AgentName 'Windsurf' }
-        'kilocode' { Update-AgentFile -TargetFile $KILOCODE_FILE -AgentName 'Kilo Code' }
-        'auggie'   { Update-AgentFile -TargetFile $AUGGIE_FILE   -AgentName 'Auggie CLI' }
-        'roo'      { Update-AgentFile -TargetFile $ROO_FILE      -AgentName 'Roo Code' }
-        default { Write-Err "Unknown agent type '$Type'"; Write-Err 'Expected: claude|gemini|copilot|cursor|qwen|opencode|codex|windsurf|kilocode|auggie|roo'; return $false }
+        'copilot'  { Update-AgentFile -TargetFile $COPILOT_FILE  -AgentName 'GitHub Models' }
+        default { Write-Err "Unknown agent type '$Type'"; Write-Err 'Expected: copilot'; return $false }
     }
 }
 
 function Update-AllExistingAgents {
     $found = $false
     $ok = $true
-    if (Test-Path $CLAUDE_FILE)   { if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $GEMINI_FILE)   { if (-not (Update-AgentFile -TargetFile $GEMINI_FILE   -AgentName 'Gemini CLI')) { $ok = $false }; $found = $true }
-    if (Test-Path $COPILOT_FILE)  { if (-not (Update-AgentFile -TargetFile $COPILOT_FILE  -AgentName 'GitHub Copilot')) { $ok = $false }; $found = $true }
-    if (Test-Path $CURSOR_FILE)   { if (-not (Update-AgentFile -TargetFile $CURSOR_FILE   -AgentName 'Cursor IDE')) { $ok = $false }; $found = $true }
-    if (Test-Path $QWEN_FILE)     { if (-not (Update-AgentFile -TargetFile $QWEN_FILE     -AgentName 'Qwen Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $AGENTS_FILE)   { if (-not (Update-AgentFile -TargetFile $AGENTS_FILE   -AgentName 'Codex/opencode')) { $ok = $false }; $found = $true }
-    if (Test-Path $WINDSURF_FILE) { if (-not (Update-AgentFile -TargetFile $WINDSURF_FILE -AgentName 'Windsurf')) { $ok = $false }; $found = $true }
-    if (Test-Path $KILOCODE_FILE) { if (-not (Update-AgentFile -TargetFile $KILOCODE_FILE -AgentName 'Kilo Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $AUGGIE_FILE)   { if (-not (Update-AgentFile -TargetFile $AUGGIE_FILE   -AgentName 'Auggie CLI')) { $ok = $false }; $found = $true }
-    if (Test-Path $ROO_FILE)      { if (-not (Update-AgentFile -TargetFile $ROO_FILE      -AgentName 'Roo Code')) { $ok = $false }; $found = $true }
+    if (Test-Path $COPILOT_FILE)  { if (-not (Update-AgentFile -TargetFile $COPILOT_FILE  -AgentName 'GitHub Models')) { $ok = $false }; $found = $true }
     if (-not $found) {
-        Write-Info 'No existing agent files found, creating default Claude file...'
-        if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE -AgentName 'Claude Code')) { $ok = $false }
+        Write-Info 'No existing agent files found, creating default GitHub Models file...'
+        if (-not (Update-AgentFile -TargetFile $COPILOT_FILE -AgentName 'GitHub Models')) { $ok = $false }
     }
     return $ok
 }
@@ -407,7 +381,7 @@ function Print-Summary {
     if ($NEW_FRAMEWORK) { Write-Host "  - Added framework: $NEW_FRAMEWORK" }
     if ($NEW_DB -and $NEW_DB -ne 'N/A') { Write-Host "  - Added database: $NEW_DB" }
     Write-Host ''
-    Write-Info 'Usage: ./update-agent-context.ps1 [-AgentType claude|gemini|copilot|cursor|qwen|opencode|codex|windsurf|kilocode|auggie|roo]'
+    Write-Info 'Usage: ./update-agent-context.ps1 [-AgentType copilot]'
 }
 
 function Main {

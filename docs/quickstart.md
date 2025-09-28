@@ -8,7 +8,7 @@ This guide will help you get started with Spec-Driven Development using Spec Kit
 
 ### 1. Install Specify
 
-Initialize your project depending on the coding agent you're using:
+Initialize your project for GitHub Copilot Chat with GitHub Models:
 
 ```bash
 uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <PROJECT_NAME>
@@ -38,7 +38,7 @@ Use the `/plan` command to provide your tech stack and architecture choices.
 
 ### 4. Break Down and Implement
 
-Use `/tasks` to create an actionable task list, then ask your agent to implement the feature.
+Use `/tasks` to create an actionable task list, then ask GitHub Copilot Chat to implement the feature.
 
 ## Detailed Example: Building Taskify
 

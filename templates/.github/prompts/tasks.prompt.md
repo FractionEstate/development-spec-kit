@@ -1,9 +1,11 @@
 ---
 description: Generate actionable task breakdown from implementation plan for systematic development execution.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-plan --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequirePlan -IncludeTasks
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --require-plan --include-tasks
+ps: scripts/powershell/check-prerequisites.ps1 -Json -RequirePlan -IncludeTasks
+-->
 
 # /tasks - Generate Task Breakdown
 
@@ -29,39 +31,32 @@ Load implementation context:
 - `memory/constitution.md` - Project standards (if exists)
 
 ### Step 2: Generate Structured Tasks
-Create tasks organized by phases:
+Use `templates/tasks-template.md` as the blueprint. Produce phased sections (`Phase 3.1` through `Phase 3.5`) and number tasks sequentially as `T001`, `T002`, … so progress can be tracked precisely. Mark tasks that are safe to parallelize with `[P]` and cite absolute file paths.
 
-**Setup Phase (S1-S2)**
-- Project structure initialization
-- Dependencies and tooling setup
-- Development environment configuration
+**Phase 3.1 – Setup**
+- Project skeleton, tooling, and dependency installation
+- Environment and configuration scaffolding
 
-**Test Phase (T1-T2)**  
-- Testing framework setup
-- Test utilities and mocks
-- Core component tests (following TDD)
+**Phase 3.2 – Tests First (TDD)**
+- Contract and integration tests that must fail before implementation
+- Unit test harnesses and fixtures
 
-**Core Phase (C1-C3)**
-- Data layer implementation
-- Business logic development
-- API/interface creation
+**Phase 3.3 – Core Implementation**
+- Data models, services, endpoints, and business logic
 
-**Integration Phase (I1-I2)**
-- External service integration
-- Database connections
-- Authentication and middleware
+**Phase 3.4 – Integration**
+- External service wiring, middleware, observability hooks
 
-**Polish Phase (P1-P3)**
-- Documentation completion
-- Performance optimization
-- Deployment preparation
+**Phase 3.5 – Polish**
+- Documentation, performance, cleanup, manual validation
 
 ### Step 3: Optimize for Copilot Workflow
 Each task should include:
-- **Clear scope** - Specific files and components
-- **Dependencies** - Prerequisites and ordering
-- **Acceptance criteria** - How to validate completion
-- **Copilot hints** - Context for better code generation
+- **Clear scope** - Specific files, components, and patterns to touch (absolute paths when possible)
+- **Dependencies** - Prerequisites and ordering; reference task IDs explicitly
+- **Acceptance criteria** - How to validate completion and required tests/documentation updates
+- **Copilot hints** - Concrete context for better code generation (mention relevant plan sections/contracts)
+- **Completion markers** - Use checkbox lists so the implementation agent can mark `[x]` as they progress
 
 ### Step 4: Enable @workspace Integration
 Structure tasks to support effective chat patterns:
@@ -70,6 +65,7 @@ Structure tasks to support effective chat patterns:
 Based on our data-model.md User entity and plan.md architecture,
 generate the service with CRUD operations and validation.
 ```
+- Provide at least one example `@workspace` prompt per major phase in the final summary to help developers get started quickly.
 
 ## Task Format Example
 ```markdown
@@ -84,4 +80,12 @@ generate the service with CRUD operations and validation.
 **Copilot Context**: UserService with MongoDB integration
 ```
 
-Remember: Good tasks enable predictable development and effective Copilot assistance through clear scope and context.
+### Step 5: Report Results
+Provide a Markdown summary that includes:
+- ✅ **Tasks file status** – Confirmation that phased sections mirror the template and the path to `tasks.md`
+- 🔁 **Parallel groups** – Enumerate `[P]` tasks or note when none exist
+- 🧩 **Prerequisites / blockers** – Items the implementation phase must resolve before starting
+- 💬 **@workspace starters** – At least one prompt per major phase to help developers ask Copilot for code
+- 👉 **Recommended next command** – Usually `/implement`, or `/clarify` if blockers remain
+
+Remember: Good tasks enable predictable development and effective Copilot assistance through clear scope, explicit dependencies, and ready-to-use chat cues.

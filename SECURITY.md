@@ -1,31 +1,31 @@
-Thanks for helping make GitHub safe for everyone.
+Thanks for helping keep the Spec Kit ecosystem safe for everyone.
 
 # Security
 
-GitHub takes the security of our software products and services seriously, including all of the open source code repositories managed through our GitHub organizations, such as [GitHub](https://github.com/GitHub).
-
-Even though [open source repositories are outside of the scope of our bug bounty program](https://bounty.github.com/index.html#scope) and therefore not eligible for bounty rewards, we will ensure that your finding gets passed along to the appropriate maintainers for remediation. 
+FractionEstate maintains this project and takes the security of our users, contributors, and downstream adopters seriously. Spec Kit is optimized for GitHub Models and GitHub Copilot workflows, so we rely on GitHub's coordinated disclosure program to receive and triage reported vulnerabilities.
 
 ## Reporting Security Issues
 
-If you believe you have found a security vulnerability in any GitHub-owned repository, please report it to us through coordinated disclosure.
+If you discover a security vulnerability, please report it privately so we can investigate and ship a fix before details become public.
 
-**Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
+**Do not open public issues, discussions, or pull requests for suspected vulnerabilities.**
 
-Instead, please send an email to opensource-security[@]github.com.
+Instead, choose one of the following coordinated disclosure channels:
 
-Please include as much of the information listed below as you can to help us better understand and resolve the issue:
+- **GitHub Security Advisories** – Use the "Report a vulnerability" link in the GitHub UI for this repository. This creates a private advisory thread with the maintainers.
+- **Email** – Send a message to opensource-security[@]github.com with "FractionEstate Spec Kit" in the subject line.
 
-  * The type of issue (e.g., buffer overflow, SQL injection, or cross-site scripting)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+When reporting, please include as much detail as possible to help us reproduce and assess impact:
 
-This information will help us triage your report more quickly.
+- Vulnerability category (e.g., command injection, insecure deserialization)
+- Affected file paths and relevant snippets or commit hashes
+- Required configuration, environment variables, or external dependencies
+- Step-by-step reproduction instructions
+- Proof-of-concept exploit or expected vs. actual behavior
+- Potential impact and severity assessment if known
+
+We will acknowledge receipt within five business days, coordinate on remediation timelines, and notify you when a fix is available. With your permission, we'll credit your report in the release notes once the issue is resolved.
 
 ## Policy
 
-See [GitHub's Safe Harbor Policy](https://docs.github.com/en/site-policy/security-policies/github-bug-bounty-program-legal-safe-harbor#1-safe-harbor-terms)
+All coordinated disclosure follows [GitHub's Safe Harbor Policy](https://docs.github.com/en/site-policy/security-policies/github-bug-bounty-program-legal-safe-harbor#1-safe-harbor-terms). At this time, the Spec Kit project is outside the scope of GitHub's public bug bounty rewards program, but security reports remain highly appreciated.

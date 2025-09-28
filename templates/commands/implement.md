@@ -1,9 +1,11 @@
 ---
 description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+-->
 
 The user input can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
@@ -29,7 +31,7 @@ $ARGUMENTS
 
 4. Execute implementation following the task plan:
    - **Phase-by-phase execution**: Complete each phase before moving to the next
-   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together  
+   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
    - **Validation checkpoints**: Verify each phase completion before proceeding
@@ -54,6 +56,8 @@ $ARGUMENTS
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
    - Confirm the implementation follows the technical plan
-   - Report final status with summary of completed work
+   - Record test results, documentation updates, and any follow-up risks for final reporting
+
+8. Deliver your final response as a Markdown summary that includes: branch name, files touched with absolute paths, completed vs remaining task counts, test/validation outcomes (PASS/FAIL with command names), documentation or follow-up notes, a ready-to-copy `@workspace` prompt for validation or future `/implement` follow-ups, and the recommended next command.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/tasks` first to regenerate the task list.

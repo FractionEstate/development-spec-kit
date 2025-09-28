@@ -1,9 +1,11 @@
 ---
 description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
+
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+-->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
@@ -93,6 +95,8 @@ Execution steps:
    - Provide explicit command suggestions: e.g., "Run /specify with refinement", "Run /plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'".
 
 8. Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
+
+9. Conclude with a short Markdown summary that highlights highest-severity findings, coverage metrics, prioritized follow-ups, a ready-to-copy `@workspace` prompt tailored to the recommended next command (e.g., `/specify`, `/plan`, `/tasks`, `/clarify`, or manual edits), and the suggested next command itself.
 
 Behavior rules:
 - NEVER modify files.
