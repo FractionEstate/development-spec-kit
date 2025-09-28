@@ -134,7 +134,7 @@ Focus: Code quality, error handling, test coverage
 ## 🚀 Community Resources
 
 ### Open Source Projects
-- **[Spec-Kit Repository](https://github.com/FractionEstate/spec-kit)** - This project's source
+- **[Spec-Kit Repository](https://github.com/FractionEstate/development-spec-kit)** - This project's source
 - **[Copilot Extensions](https://marketplace.visualstudio.com/search?term=copilot&target=VSCode)** - Community extensions
 - **[MCP Servers](https://github.com/modelcontextprotocol/servers)** - Community context providers
 

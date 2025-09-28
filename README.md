@@ -8,7 +8,7 @@
     <strong>An effort to allow organizations to focus on product scenarios rather than writing undifferentiated code with the help of Spec-Driven Development.</strong>
 </p>
 
-[![Release](https://github.com/github/spec-kit/actions/workflows/release.yml/badge.svg)](https://github.com/github/spec-kit/actions/workflows/release.yml)
+[![Release](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml/badge.svg)](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml)
 
 ---
 
@@ -46,7 +46,7 @@ Choose your preferred installation method:
 Install once and use everywhere:
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+uv tool install specify-cli --from git+https://github.com/FractionEstate/development-spec-kit.git
 ```
 
 Then use the tool directly:
@@ -61,7 +61,7 @@ specify check
 Run directly without installing:
 
 ```bash
-uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
+uvx --from git+https://github.com/FractionEstate/development-spec-kit.git specify init <PROJECT_NAME>
 ```
 
 **Benefits of persistent installation:**
@@ -186,7 +186,7 @@ specify init --here --ai copilot
 
 # Force merge into current (non-empty) directory without confirmation
 specify init . --force --ai copilot
-# or 
+# or
 specify init --here --force --ai copilot
 
 # Skip git initialization
@@ -205,7 +205,7 @@ When you select GitHub Copilot (`--ai copilot`), you get additional optimization
 
 **Enhanced Features:**
 - ✅ **VSCode Workspace Settings** - Optimized Copilot settings for all file types
-- ✅ **Chat-optimized Prompts** - Better @workspace conversation patterns  
+- ✅ **Chat-optimized Prompts** - Better @workspace conversation patterns
 - ✅ **Code Snippets** - Quick templates for specs, plans, and chat contexts
 - ✅ **Task Integration** - Run SDD commands directly from VSCode
 - ✅ **File Organization** - Smart nesting and associations for spec files
@@ -606,7 +606,7 @@ rm gcm-linux_amd64.2.6.1.deb
 
 ## 💬 Support
 
-For support, please open a [GitHub issue](https://github.com/github/spec-kit/issues/new). We welcome bug reports, feature requests, and questions about using Spec-Driven Development.
+For support, please open a [GitHub issue](https://github.com/FractionEstate/development-spec-kit/issues/new). We welcome bug reports, feature requests, and questions about using Spec-Driven Development.
 
 ## 🙏 Acknowledgements
 
