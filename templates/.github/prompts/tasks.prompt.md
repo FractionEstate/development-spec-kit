@@ -1,5 +1,5 @@
 ---
-description: Generate actionable task breakdown from implementation plan for systematic development execution.
+description: Break down your implementation plan into step-by-step development tasks with clear dependencies.
 ---
 
 <!-- prompt-scripts

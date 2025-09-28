@@ -32,7 +32,7 @@ import tempfile
 import shutil
 import shlex
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -194,7 +194,7 @@ SCRIPT_TYPE_CHOICES = {"sh": "POSIX Shell (bash/zsh)", "ps": "PowerShell"}
 
 # Agent configurations for setup (directory, format, arg placeholder)
 agent_configs = {
-    "copilot": {"dir": ".github/prompts", "format": "md", "arg_placeholder": "$ARGUMENTS"},
+    "copilot": {"dir": ".github/prompts", "format": "prompt.md", "arg_placeholder": "$ARGUMENTS"},
 }
 
 
@@ -682,19 +682,9 @@ def copy_local_template(project_path: Path, ai_assistant: str, script_type: str,
         # Ensure project directory exists
         project_path.mkdir(parents=True, exist_ok=True)
 
-        # Copy all template files to project root
-        for item in dev_templates_dir.iterdir():
-            if item.name.startswith('.'):
-                continue  # Skip hidden files like .github, .vscode
-            dest = project_path / item.name
-            if item.is_dir():
-                shutil.copytree(item, dest, dirs_exist_ok=True)
-            else:
-                shutil.copy2(item, dest)
-
-        # Create .specify directory and copy development files
+        # Create .specify directory and copy development assets
         specify_dir = project_path / ".specify"
-        specify_dir.mkdir(exist_ok=True)
+        specify_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy memory
         if dev_memory_dir.exists():
@@ -706,6 +696,30 @@ def copy_local_template(project_path: Path, ai_assistant: str, script_type: str,
 
         # Copy templates to .specify/templates
         shutil.copytree(dev_templates_dir, specify_dir / "templates", dirs_exist_ok=True)
+
+        # Copy VS Code workspace settings to project root
+        vscode_src = dev_templates_dir / ".vscode"
+        if vscode_src.exists():
+            shutil.copytree(vscode_src, project_path / ".vscode", dirs_exist_ok=True)
+
+        # Copy GitHub Copilot guidance (excluding prompts, which are regenerated)
+        github_src = dev_templates_dir / ".github"
+        github_dest = project_path / ".github"
+        github_dest.mkdir(parents=True, exist_ok=True)
+
+        if github_src.exists():
+            for item in github_src.iterdir():
+                if item.name == "prompts":
+                    continue
+                dest_path = github_dest / item.name
+                if item.is_dir():
+                    shutil.copytree(item, dest_path, dirs_exist_ok=True)
+                else:
+                    dest_path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(item, dest_path)
+
+        # Ensure prompts directory exists; contents will be generated below
+        (github_dest / "prompts").mkdir(parents=True, exist_ok=True)
 
         if tracker:
             tracker.complete("copy", "local templates copied")
@@ -741,7 +755,7 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
         config_data = {
             "github_models": {
                 "selected_model": selected_model,
-                "last_updated": datetime.utcnow().isoformat()
+                "last_updated": datetime.now(timezone.utc).isoformat()
             }
         }
 
@@ -765,6 +779,8 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
                 prompt_content = content.replace(f'# {description}', '', 1).strip()
                 content = f'description = "{description}"\n\nprompt = """\n{prompt_content}\n"""'
                 output_file = output_dir / f"{command_name}.toml"
+            elif config["format"] == "prompt.md":
+                output_file = output_dir / f"{command_name}.prompt.md"
             else:
                 output_file = output_dir / f"{command_name}.md"
 

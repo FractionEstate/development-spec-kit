@@ -1,5 +1,5 @@
 ---
-description: Create or update the feature specification from a natural language feature description.
+description: Turn your feature idea into a detailed specification document with requirements and user stories.
 ---
 
 <!-- prompt-scripts

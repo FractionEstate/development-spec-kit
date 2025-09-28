@@ -1,5 +1,5 @@
 ---
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
+description: Execute all development tasks to build your feature according to the plan and specifications.
 ---
 
 <!-- prompt-scripts

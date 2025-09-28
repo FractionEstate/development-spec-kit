@@ -1,5 +1,5 @@
 ---
-description: Execute the implementation planning workflow using the plan template to generate design artifacts.
+description: Create technical architecture and implementation roadmap from your feature specification.
 ---
 
 <!-- prompt-scripts

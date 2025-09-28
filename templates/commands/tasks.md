@@ -1,5 +1,5 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
+description: Break down your implementation plan into step-by-step development tasks with clear dependencies.
 ---
 
 <!-- prompt-scripts
