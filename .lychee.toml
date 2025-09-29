@@ -1,5 +1,5 @@
 # Lychee link checker configuration
-verbose = "true"
+# Verbosity is controlled via CLI args in the workflow (--verbose)
 
 # Retry policy
 max_retries = 2
@@ -17,4 +17,4 @@ exclude = [
 accept = [200, 206, 429]
 
 # Cache to speed up repeated runs
-cache = "true"
+cache = true
