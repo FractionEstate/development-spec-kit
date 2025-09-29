@@ -17,7 +17,7 @@ Steps:
    cd docs
    docfx docfx.json --serve
    ```
-3. Open http://localhost:8080
+3. Open `http://localhost:8080`
 
 ## Structure
 
