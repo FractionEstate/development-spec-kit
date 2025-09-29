@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./media/logo_large.webp" alt="FractionEstate Development Spec Kit logo" width="240" />
+    <img src="./media/logo.png" alt="FractionEstate Development Spec Kit logo" width="240" />
     <h1>FractionEstate Development Spec Kit</h1>
     <h3><em>Spec-Driven Development with GitHub Models + VS Code</em></h3>
 </div>
