@@ -1,11 +1,11 @@
 <div align="center">
-    <img src="./media/logo_small.webp"/>
-    <h1>🚀 FractionEstate Development Spec Kit</h1>
-    <h3><em>GitHub Models & VS Code optimized Spec-Driven Development</em></h3>
+    <img src="./media/logo_large.webp" alt="FractionEstate Development Spec Kit logo" width="240" />
+    <h1>FractionEstate Development Spec Kit</h1>
+    <h3><em>Spec-Driven Development with GitHub Models + VS Code</em></h3>
 </div>
 
 <p align="center">
-    <strong>A specialized toolkit for FractionEstate teams to implement Spec-Driven Development using GitHub Models and VS Code, focusing on high-quality software delivery through AI-native workflows.</strong>
+    <strong>Opinionated, GitHub Models–first tooling to build software from executable specs in VS Code.</strong>
 </p>
 
 [![Release](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml/badge.svg)](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml)
@@ -13,397 +13,98 @@
 
 ---
 
-## Table of Contents
+## Why this kit
 
-- [🤔 What is Spec-Driven Development?](#-what-is-spec-driven-development)
-- [⚡ Get started](#-get-started)
-- [📽️ Video Overview](#️-video-overview)
-- [🤖 GitHub Models Integration](#-github-models-integration)
-- [🔧 Specify CLI Reference](#-specify-cli-reference)
-- [📚 Core philosophy](#-core-philosophy)
-- [🌟 Development phases](#-development-phases)
-- [🎯 FractionEstate Goals](#-fractionestate-goals)
-- [🔧 Prerequisites](#-prerequisites)
-- [📖 Learn more](#-learn-more)
-- [📋 Detailed process](#-detailed-process)
-- [🔍 Troubleshooting](#-troubleshooting)
-- [👥 Maintainers](#-maintainers)
-- [💬 Support](#-support)
-- [🙏 Acknowledgements](#-acknowledgements)
-- [📄 License](#-license)
+This repo provides a small CLI and templates that make Spec‑Driven Development practical with GitHub Copilot Chat running on GitHub Models. It bootstraps a workspace, installs curated prompts, and wires VS Code for an AI‑native flow. Only GitHub Models are supported.
 
-## 🤔 What is Spec-Driven Development?
+## 60‑second start
 
-Spec-Driven Development **flips the script** on traditional software development. For decades, code has been king — specifications were just scaffolding we built and discarded once the "real work" of coding began. Spec-Driven Development changes this: **specifications become executable**, directly generating working implementations rather than just guiding them.
-
-## ⚡ Get started
-
-### Easy install
-
-Pick your shell and run a single command to install the Specify CLI via uv:
+Install the CLI and initialize a project.
 
 - bash/zsh:
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash && \
+    specify init my-project && \
+    specify check
     ```
 - PowerShell:
     ```powershell
-    iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex
+    iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex; specify init my-project; specify check
     ```
 
-Updates and uninstall:
+More options (update/uninstall, choose model/script): see ./docs/installation.md and ./docs/quickstart.md.
 
-- bash/zsh: `scripts/bash/install-specify.sh --update` or `--uninstall`
-- PowerShell: `scripts/powershell/install-specify.ps1 -Update` or `-Uninstall`
+## What you get
 
-### 1. Install Specify CLI
+Running `specify init` generates a VS Code–ready project with:
 
-Install the FractionEstate Development Spec Kit CLI:
+- GitHub Copilot Chat guidance under `.github/` (instructions, context, prompts)
+- VS Code tasks/snippets for SDD flows
+- Spec templates and a memory constitution starter
+- GitHub Models selection (interactive or via `--model`)
+
+<img src="./media/specify_cli.gif" alt="Specify CLI demo" width="700" />
+
+## Usage
+
+Initialize:
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/FractionEstate/development-spec-kit.git
+specify init <project-name>
 ```
 
-Then use the tool directly:
+Common options:
+
+- `--model gpt-4o` preselects a GitHub Model
+- `--script sh|ps` chooses shell script flavor (auto-detected otherwise)
+- `--here` initializes in the current directory; combine with `--force` to merge into non-empty dirs
+- `--no-git` skips repo init; `--github-token` supplies a token for private/preview models
+
+Verify your environment:
 
 ```bash
-specify init <PROJECT_NAME>
 specify check
 ```
 
-### 2. Initialize Your Project with GitHub Models
+## Work with specs in chat
 
-Create a new project optimized for GitHub Models and VS Code:
+After init, open VS Code and use GitHub Copilot Chat with these commands:
 
-```bash
-specify init my-project
-```
+- `/constitution` – establish project principles (writes `.specify/memory/constitution.md`)
+- `/specify` – describe what to build (requirements and user stories)
+- `/clarify` – resolve gaps before planning
+- `/plan` – produce the technical plan with your stack
+- `/tasks` – generate actionable tasks
+- `/analyze` – cross‑check coverage and consistency
+- `/implement` – execute tasks to build the feature
 
-Optionally pin a specific GitHub Model during initialization:
+## Agent capabilities (at a glance)
 
-```bash
-specify init my-project --model gpt-4o
-```
+- Search/read workspace files, propose minimal diffs, and apply changes
+- Run short terminal commands and summarize results
+- Trigger VS Code tasks; insert curated prompt snippets
+- Respect guardrails (no secrets, minimal/destructive changes confirmed)
 
-This creates a project with:
-- ✅ **VS Code Workspace Settings** - Optimized Copilot configuration
-- ✅ **GitHub Models Instructions** - Project-specific guidance
-- ✅ **Spec-Driven Workflows** - Structured development commands
-- ✅ **VS Code Tasks & Snippets** - Integrated development experience
+See AGENTS.md for details.
 
-**Benefits of persistent installation:**
+## Documentation
 
-- Tool stays installed and available in PATH
-- No need to create shell aliases
-- Better tool management with `uv tool list`, `uv tool upgrade`, `uv tool uninstall`
-- Cleaner shell configuration
+- Quickstart: ./docs/quickstart.md
+- Installation: ./docs/installation.md
+- Methodology: ./spec-driven.md
+- Project guide index: ./docs/index.md
 
-### 2. Establish project principles
+## Contributing & Support
 
-Use the **`/constitution`** command to create your project's governing principles and development guidelines that will guide all subsequent development.
+- Contributing guidelines: ./CONTRIBUTING.md
+- Code of Conduct: ./CODE_OF_CONDUCT.md
+- Support: ./SUPPORT.md
+- Security: ./SECURITY.md
 
-```bash
-/constitution Create principles focused on code quality, testing standards, user experience consistency, and performance requirements
-```
+## License & Changelog
 
-### 3. Create the spec
-
-Use the **`/specify`** command to describe what you want to build. Focus on the **what** and **why**, not the tech stack.
-
-```bash
-/specify Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface.
-```
-
-### 4. Create a technical implementation plan
-
-Use the **`/plan`** command to provide your tech stack and architecture choices.
-
-```bash
-/plan The application uses Vite with minimal number of libraries. Use vanilla HTML, CSS, and JavaScript as much as possible. Images are not uploaded anywhere and metadata is stored in a local SQLite database.
-```
-
-### 5. Break down into tasks
-
-Use **`/tasks`** to create an actionable task list from your implementation plan.
-
-```bash
-/tasks
-```
-
-### 6. Execute implementation
-
-Use **`/implement`** to execute all tasks and build your feature according to the plan.
-
-```bash
-/implement
-```
-
-For detailed step-by-step instructions, see our [comprehensive guide](./spec-driven.md).
-
-## 📽️ Video Overview
-
-Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.com/watch?v=a9eR1xsfvHg&pp=0gcJCckJAYcqIYzv)!
-
-[![Spec Kit video header](/media/spec-kit-video-header.jpg)](https://www.youtube.com/watch?v=a9eR1xsfvHg&pp=0gcJCckJAYcqIYzv)
-
-## 🤖 GitHub Models Integration
-
-The FractionEstate Development Spec Kit is optimized specifically for **GitHub Models** and **VS Code**, providing enhanced features for specification-driven development:
-
-### Enhanced Features for GitHub Models
-
-| Feature | Description |
-|---------|-------------|
-| **VS Code Workspace Settings** | Optimized Copilot settings for all file types and enhanced AI assistance |
-| **Chat-optimized Prompts** | Better @workspace conversation patterns for specification work |
-| **Code Snippets** | Quick templates for specs, plans, and chat contexts |
-| **Task Integration** | Run SDD commands directly from VS Code integrated terminal |
-| **File Organization** | Smart nesting and associations for specification files |
-| **Extensions** | Recommended VS Code extensions for optimal development experience |
-| **Reference Links** | Comprehensive documentation and resource links |
-| **Context Optimization** | Enhanced workspace intelligence for better AI suggestions |
-
-### Key Files for GitHub Models
-- `.vscode/settings.json` - Copilot-optimized workspace settings
-- `.vscode/tasks.json` - Integrated SDD workflow tasks
-- `.vscode/spec-driven-dev.code-snippets` - Quick templates and context patterns
-- `.github/copilot-instructions.md` - Comprehensive chat guidance
-- `.github/copilot-context.md` - Enhanced context sharing guide
-- `.github/copilot-references.md` - Extensive documentation and reference links
-- Enhanced command prompts in `.github/prompts/`
-
-### Agent tools at a glance
-
-What the chat agent can do in this workspace (and in projects generated by this kit):
-
-- Search across the workspace and read specific files or sections on request
-- Propose and apply minimal file edits (diff-style patches) with clear progress updates
-- Run safe, short terminal commands (one-liners) from the integrated terminal and summarize results
-- Trigger and document VS Code tasks (via `tasks.json`) for longer workflows
-- Insert curated prompt snippets to speed up SDD flows (see `templates/.vscode/spec-driven-dev.code-snippets`)
-- Optionally preview local pages/docs in the Simple Browser when explicitly requested
-
-Guardrails used by the agent:
-
-- Keep edits minimal and reversible; avoid broad refactors without an agreed plan
-- Confirm before destructive or long-running commands; prefer tasks for multi-step flows
-- Never exfiltrate secrets; avoid printing tokens or credentials
-
-Learn more:
-
-- Integration overview: `AGENTS.md`
-- Chat guidance (templates): `templates/.github/copilot-instructions.md`
-- Context & references (templates): `templates/.github/copilot-context.md`, `templates/.github/copilot-references.md`
-
-## 🔧 Specify CLI Reference
-
-The `specify` command supports the following options:
-
-### Commands
-
-| Command     | Description                                                    |
-|-------------|----------------------------------------------------------------|
-| `init`      | Initialize a new Specify project optimized for GitHub Models  |
-| `check`     | Check for installed tools (`git`, `code`/`code-insiders`) |
-
-### `specify init` Arguments & Options
-
-| Argument/Option        | Type     | Description                                                                  |
-|------------------------|----------|------------------------------------------------------------------------------|
-| `<project-name>`       | Argument | Name for your new project directory (optional if using `--here`, or use `.` for current directory) |
-| `--ai`                 | Option   | Override the assistant profile (defaults to `copilot`; other values are legacy and not recommended) |
-| `--model`              | Option   | Preselect a GitHub Model (e.g., `gpt-4o`, `gpt-4o-mini`)                    |
-| `--script`             | Option   | Script variant to use: `sh` (bash/zsh) or `ps` (PowerShell)                 |
-| `--no-git`             | Flag     | Skip git repository initialization                                          |
-| `--here`               | Flag     | Initialize project in the current directory instead of creating a new one   |
-| `--force`              | Flag     | Force merge/overwrite when initializing in current directory (skip confirmation) |
-| `--skip-tls`           | Flag     | Skip SSL/TLS verification (not recommended)                                 |
-| `--debug`              | Flag     | Enable detailed debug output for troubleshooting                            |
-| `--github-token`       | Option   | GitHub token for API requests (or set GH_TOKEN/GITHUB_TOKEN env variable)  |
-| `--ignore-agent-tools` | Flag     | Skip VS Code/GitHub Copilot tooling checks (useful in CI)                   |
-
-### Examples
-
-```bash
-# Basic project initialization (defaults to GitHub Models)
-specify init my-project
-
-# Initialize with a specific GitHub Model
-specify init my-project --model gpt-4o
-
-# Initialize with PowerShell scripts (Windows/cross-platform)
-specify init my-project --model gpt-4o --script ps
-
-# Initialize in current directory
-specify init .
-# or use the --here flag
-specify init --here
-
-# Force merge into current (non-empty) directory without confirmation
-specify init . --force
-# or
-specify init --here --force
-
-# Skip git initialization
-specify init my-project --no-git
-
-# Enable debug output for troubleshooting
-specify init my-project --debug
-
-# Use GitHub token for API requests (helpful for corporate environments)
-specify init my-project --github-token ghp_your_token_here
-```
-
-### Available Slash Commands
-
-After running `specify init`, you can use these commands with GitHub Models Chat for structured development:
-
-| Command         | Description                                                           |
-|-----------------|-----------------------------------------------------------------------|
-| `/constitution` | Create or update project governing principles and development guidelines |
-| `/specify`      | Define what you want to build (requirements and user stories)        |
-| `/clarify`      | Clarify underspecified areas (must be run before `/plan` unless explicitly skipped; formerly `/quizme`) |
-| `/plan`         | Create technical implementation plans with your chosen tech stack     |
-| `/tasks`        | Generate actionable task lists for implementation                     |
-| `/analyze`      | Cross-artifact consistency & coverage analysis (run after /tasks, before /implement) |
-| `/implement`    | Execute all tasks to build the feature according to the plan         |
-
-### Environment Variables
-
-| Variable         | Description                                                                                    |
-|------------------|------------------------------------------------------------------------------------------------|
-| `SPECIFY_FEATURE` | Override feature detection for non-Git repositories. Set to the feature directory name (e.g., `001-photo-albums`) to work on a specific feature when not using Git branches.<br/>**Must be set in the context of the agent you're working with prior to using `/plan` or follow-up commands. |
-
-## 📚 Core philosophy
-
-Spec-Driven Development is a structured process that emphasizes:
-
-- **Intent-driven development** where specifications define the "_what_" before the "_how_"
-- **Rich specification creation** using guardrails and organizational principles
-- **Multi-step refinement** rather than one-shot code generation from prompts
-- **Heavy reliance** on advanced AI model capabilities for specification interpretation
-
-## 🌟 Development phases
-
-| Phase | Focus | Key Activities |
-|-------|-------|----------------|
-| **0-to-1 Development** ("Greenfield") | Generate from scratch | <ul><li>Start with high-level requirements</li><li>Generate specifications</li><li>Plan implementation steps</li><li>Build production-ready applications</li></ul> |
-| **Creative Exploration** | Parallel implementations | <ul><li>Explore diverse solutions</li><li>Support multiple technology stacks & architectures</li><li>Experiment with UX patterns</li></ul> |
-| **Iterative Enhancement** ("Brownfield") | Brownfield modernization | <ul><li>Add features iteratively</li><li>Modernize legacy systems</li><li>Adapt processes</li></ul> |
-
-## 🎯 FractionEstate Goals
-
-This toolkit is designed to support FractionEstate's development objectives:
-
-### GitHub-Centric Development
-
-- Leverage GitHub Models' advanced AI capabilities for specification-driven development
-- Integrate seamlessly with VS Code and GitHub's ecosystem
-- Utilize GitHub's project management and CI/CD features
-
-### Real Estate Technology Focus
-
-- Build applications for real estate tokenization and fractional ownership
-- Support complex financial calculations and regulatory compliance
-- Enable scalable multi-tenant architecture for property management
-
-### Enterprise-Grade Quality
-
-- Demonstrate mission-critical application development practices
-- Incorporate FractionEstate's technical standards and architectural patterns
-- Support regulatory compliance and security requirements for financial applications
-
-### Iterative & Collaborative Development
-
-- Enable rapid prototyping and iteration cycles
-- Support collaborative development with clear specifications
-- Provide robust workflows for feature development and system modernization
-
-## 🔧 Prerequisites
-
-- **Linux/macOS** (or WSL2 on Windows)
-- **[VS Code](https://code.visualstudio.com/)** with **[GitHub Copilot](https://github.com/features/copilot)** extension
-- [uv](https://docs.astral.sh/uv/) for package management
-- [Python 3.11+](https://www.python.org/downloads/)
-- [Git](https://git-scm.com/downloads)
-- Active GitHub Copilot subscription (required for AI assistance)
-
-### Recommended VS Code Extensions
-- GitHub Models
-- GitHub Models Chat
-- GitLens
-- Python
-- Markdown All in One
-
-## 📖 Learn more
-
-- **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
-- **[Detailed Walkthrough](#-detailed-process)** - Step-by-step implementation guide
-
----
-
-## 📋 Detailed process
-
-<details>
-<summary>Click to expand the detailed step-by-step walkthrough</summary>
-
-You can use the Specify CLI to bootstrap your project, which will bring in the required artifacts in your environment. Run:
-
-```bash
-specify init <project_name>
-```
-
-Or initialize in the current directory:
-
-```bash
-specify init .
-# or use the --here flag
-specify init --here
-# Skip confirmation when the directory already has files
-specify init . --force
-# or
-specify init --here --force
-```
-
-![Specify CLI bootstrapping a new project in the terminal](./media/specify_cli.gif)
-
-The FractionEstate Development Spec Kit is optimized for GitHub Copilot. You can initialize with:
-
-```bash
-specify init <project_name>
-# Include a specific GitHub Model if you prefer:
-specify init <project_name> --model gpt-4o
-# Or initialize in the current directory:
-specify init .
-# or use --here flag
-specify init --here
-# Force merge into a non-empty current directory
-specify init . --force
-# or
-specify init --here --force
-```
-
-The CLI will check if you have VS Code installed and will set up GitHub Copilot-optimized configurations.
-
-### **STEP 1:** Establish project principles
-
-Go to the project folder and open it in VS Code. Start a new GitHub Copilot Chat session.
-
-You will know that things are configured correctly if you see the spec-driven development prompts available in `.github/prompts/` and can use them in your Copilot Chat conversations.
-
-The first step should be establishing your project's governing principles using the `/constitution` command. This helps ensure consistent decision-making throughout all subsequent development phases:
-
-```text
-/constitution Create principles focused on code quality, testing standards, user experience consistency, and performance requirements. Include governance for how these principles should guide technical decisions and implementation choices.
-```
-
-This step creates or updates the `.specify/memory/constitution.md` file with your project's foundational guidelines that GitHub Copilot will reference during specification, planning, and implementation phases.
-
-### **STEP 2:** Create project specifications
-
-With your project principles established, you can now create the functional specifications. Use the `/specify` command and then provide the concrete requirements for the project you want to develop.
-
->[!IMPORTANT]
+- License: ./LICENSE
+- Changelog: ./CHANGELOG.md
 >Be as explicit as possible about _what_ you are trying to build and _why_. **Do not focus on the tech stack at this point**.
 
 An example prompt:
