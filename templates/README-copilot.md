@@ -122,6 +122,9 @@ Request: Identify likely discrepancies and recommend updates to spec/plan/tasks 
 - Tasks (⇧⌘B / Ctrl+Shift+B) echo the slash commands so keyboard workflows stay fluid.
 - Snippets mirror the latest templates—type the prefix, press **Tab**, and start drafting.
 
+Tip: For a full list of task labels mapped to slash commands, see the “VS Code Tasks Cheat Sheet” in `.github/copilot-references.md`.
+
+<a id="agent-tools--capabilities"></a>
 ## 🧰 Agent tools & capabilities
 
 Your chat agent can use a focused toolkit to operate on this workspace. Mention the capability explicitly in your prompt when you need it.
@@ -143,6 +146,7 @@ Tips
 - Point to exact files/paths and desired outcomes.
 - Ask for summaries and diffs to keep context tight.
 
+<a id="try-it-5-minute-tour"></a>
 ## ⏱️ Try it: 5‑minute tour
 
 Use these bite‑size prompts to exercise the most useful agent tools right away:
