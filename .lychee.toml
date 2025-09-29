@@ -1,0 +1,20 @@
+# Lychee link checker configuration
+verbose = true
+
+# Retry policy
+max_retries = 2
+retry_wait_time = 2
+
+# Timeouts
+timeout = 10
+
+# Exclusions: known flakey or private endpoints
+exclude = [
+  "https://discord.gg/ai" # invites can return 404 intermittently
+]
+
+# Accept these status codes as OK
+accept = [200, 206, 429]
+
+# Cache to speed up repeated runs
+cache = true
