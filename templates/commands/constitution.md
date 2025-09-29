@@ -2,6 +2,11 @@
 description: Define project principles and governance rules that guide all development decisions.
 ---
 
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --paths-only
+ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
+-->
+
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
 User input:

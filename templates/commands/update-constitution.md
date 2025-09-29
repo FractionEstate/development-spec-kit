@@ -2,6 +2,11 @@
 description: Update existing project constitution with new principles or governance changes.
 ---
 
+<!-- prompt-scripts
+sh: scripts/bash/check-prerequisites.sh --json --paths-only
+ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
+-->
+
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
 User input:
