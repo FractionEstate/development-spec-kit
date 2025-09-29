@@ -143,6 +143,34 @@ Tips
 - Point to exact files/paths and desired outcomes.
 - Ask for summaries and diffs to keep context tight.
 
+## ⏱️ Try it: 5‑minute tour
+
+Use these bite‑size prompts to exercise the most useful agent tools right away:
+
+1) Workspace search → summary
+- Prompt: "Search the workspace for 'Feature Bootstrap Walkthrough' and list files and headings where it appears. Then suggest any missing cross‑links."
+- Outcome: A quick map of where the walkthrough lives and if more links are needed.
+
+2) Targeted file read → extraction
+- Prompt: "Open `templates/.github/copilot-instructions.md` and summarize the 'Prompt Quick Reference' table into 3 bullets."
+- Outcome: A concise distillation you can paste into planning notes.
+
+3) Terminal check → repo status
+- Prompt: "Run `git status -sb` from the repo root and report any modified files grouped by directory."
+- Outcome: A short status with zero noise; long outputs are auto‑truncated.
+
+4) Session TODO tracking → visible plan
+- Prompt: "Start a TODO list for today's session with: A) Review README sections, B) Add a demo clip link, C) Open a docs issue. Mark A in‑progress."
+- Outcome: A structured plan with exactly one item in progress at a time.
+
+5) Snippet insertion → instant scaffolding
+- Prompt: "Insert the `agent-tools` snippet right below this line to show capabilities inline."
+- Outcome: A reusable tools overview appears in place.
+
+Notes
+- Keep prompts explicit: name the tool, the file path(s), and the exact output you want.
+- For notebook or browser preview actions, mention them explicitly (only if your repo includes those assets).
+
 ## �️ Quality Guardrails
 
 ### Code & Implementation

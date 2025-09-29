@@ -196,6 +196,13 @@ Use these capabilities explicitly in prompts to guide high-quality actions:
 
 Provide exact file paths, expected outcomes, and any guardrails (e.g., "change only the table, leave intro untouched").
 
+### Guardrails & limits
+- Terminal: one-line commands only; large outputs may be truncated.
+- File reads: prefer large meaningful ranges over many tiny reads.
+- Edits: minimal diffs; avoid unrelated reformatting unless asked.
+- Tasks: require proper wiring in `.vscode/tasks.json`.
+- Notebooks/Browser: only available if such files exist.
+
 ## Quality Standards
 
 ### Code Quality

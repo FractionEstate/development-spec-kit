@@ -38,6 +38,7 @@
 | Spec-Driven Development Playbook | `../README-copilot.md` | Premium Copilot onboarding guide |
 | Feature Bootstrap Walkthrough | `../README-copilot.md#feature-bootstrap-walkthrough` | Command-by-command launch sequence |
 | Agent Tools & Capabilities | `../README-copilot.md#agent-tools--capabilities` | What the chat agent can do and how to ask |
+| Try it: 5‑minute tour | `../README-copilot.md#️-try-it-5-minute-tour` | Hands-on prompts to exercise agent tools |
 | Snippet: Feature Bootstrap (`feature-bootstrap`) | `.vscode/spec-driven-dev.code-snippets` | Drop-in walkthrough checklist |
 | Workflow & Prompt Guide | `./copilot-instructions.md#development-workflow` | Phase-by-phase process |
 | Context Playbook | `./copilot-context.md` | Ready-to-send context patterns |

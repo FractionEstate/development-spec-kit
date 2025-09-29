@@ -122,4 +122,9 @@ Consider: Error handling patterns from plan, validation rules from data model
 
 See `templates/README-copilot.md#agent-tools--capabilities` for details and prompt examples.
 
+### Quick start prompts
+- "Search for 'Agent tools & capabilities' and confirm it appears in README + instructions + context."
+- "Read `copilot-references.md` and list the SDD Methodology table rows."
+- "Insert the `agent-tools` snippet into this doc under Resources."
+
 Use this brief as the companion to the `README-copilot.md` playbook. Load the relevant `.specify/specs/<feature>/` files before each session, cite constitution guardrails, and Copilot will consistently deliver premium guidance across the SDD lifecycle.
