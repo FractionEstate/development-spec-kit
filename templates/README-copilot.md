@@ -1,219 +1,197 @@
 # Spec-Driven Development with GitHub Copilot
 
-This project is optimized for **GitHub Copilot** and **VSCode Chat** integration. It follows the Spec-Driven Development (SDD) methodology where specifications drive implementation.
+GitHub Copilot is the primary partner in this repository. The playbook below distills the Spec-Driven Development (SDD) workflow, so every prompt, command, and artifact lands exactly where it should—no guesswork, no loose ends.
 
-## 🚀 Getting Started with Copilot
+## � Quick Orientation
 
-### VSCode Setup
-This project includes optimized VSCode configuration:
-- ✅ Enhanced Copilot settings for all file types
-- ✅ Spec-driven development file associations
-- ✅ Code snippets for common templates
-- ✅ Task integration for workflow commands
-- ✅ File nesting for better organization
+| What | Where | Why it Matters |
+|------|-------|----------------|
+| Project Constitution | `.specify/memory/constitution.md` | Non-negotiable principles that anchor every decision and review. |
+| Active Feature Artifacts | `.specify/specs/<feature>/` | Canonical source for `spec.md`, `plan.md`, `tasks.md`, plus optional data models, contracts, and research. |
+| Copilot System Prompts | `.github/copilot-instructions.md` & `.github/copilot-context.md` | Chat guidance that keeps Copilot aligned with SDD patterns and canonical paths. |
+| Reference Library | `.github/copilot-references.md` | Curated links, checklists, and deep dives to accelerate answers. |
+| VS Code Enhancements | `.vscode/` | Settings, tasks, and snippets tailored for the SDD workflow. |
 
-### GitHub Copilot Chat Optimization
-The project includes `.github/copilot-instructions.md` with:
-- 📋 Project context and structure explanation
-- 🎯 Best practices for @workspace conversations
-- 🔧 Integration features and shortcuts
-- 🎨 Chat patterns for different development phases
-
-## 📁 Project Structure
+## �️ Workspace Layout
 
 ```
 project-root/
-└── .specify/
-    ├── memory/
-    │   └── constitution.md          # Project principles
-    ├── specs/
-    │   └── feature-*/
-    │       ├── spec.md             # Feature specification
-    │       ├── plan.md             # Implementation plan
-    │       ├── tasks.md            # Task breakdown
-    │       ├── data-model.md       # Data models (if applicable)
-    │       ├── contracts/          # API contracts (if applicable)
-    │       ├── quickstart.md       # Integration guide (if applicable)
-    │       └── research.md         # Technical research (if applicable)
-├── .vscode/
-│   ├── settings.json           # Copilot-optimized settings
-│   ├── tasks.json              # SDD workflow tasks
-│   └── spec-driven-dev.code-snippets  # Quick templates
-└── .github/
-    ├── copilot-instructions.md # Chat optimization guide
-    └── prompts/                # Enhanced command prompts
+├── .specify/
+│   ├── memory/
+│   │   └── constitution.md                 # Project-wide guardrails
+│   └── specs/
+│       └── <feature-slug>/
+│           ├── spec.md                     # Feature specification
+│           ├── plan.md                     # Architecture and sequencing
+│           ├── tasks.md                    # Ordered implementation tasks
+│           ├── data-model.md               # Entities and schemas (optional)
+│           ├── contracts/                  # API or integration contracts (optional)
+│           ├── quickstart.md               # Integration smoke tests (optional)
+│           └── research.md                 # Supporting analysis (optional)
+├── .github/
+│   ├── copilot-instructions.md             # Primary Copilot briefing
+│   ├── copilot-context.md                  # Ready-to-paste context patterns
+│   ├── copilot-references.md               # Extended references and links
+│   └── prompts/                            # Slash-command prompt set
+└── .vscode/
+    ├── settings.json                       # Copilot-optimized editor configuration
+    ├── tasks.json                          # Workflow wiring for VS Code tasks
+    └── spec-driven-dev.code-snippets       # Context-aware template snippets
 ```
 
-## 🎯 Spec-Driven Development Workflow
+## 🧭 Workflow Phases
 
-### 1. Constitution (`/constitution`)
-Define your project's governing principles and development standards.
+1. **Constitution (`/constitution`)** – Establish principles, definition of done, and tooling expectations.
+2. **Specify (`/specify`)** – Translate intent into a structured `spec.md` with acceptance criteria.
+3. **Clarify (`/clarify`)** – Resolve open questions before any planning or coding begins.
+4. **Plan (`/plan`)** – Produce the technical blueprint, sequencing, and risk callouts in `plan.md`.
+5. **Tasks (`/tasks`)** – Break work into ordered, testable units stored in `tasks.md`.
+6. **Implement (`/implement`)** – Code against the plan while updating task state and capturing deltas.
+7. **Analyze (`/analyze`)** – Reconcile artifacts, surface gaps, and confirm readiness to ship.
 
-### 2. Specify (`/specify`)
-Create detailed feature specifications from natural language descriptions.
+Each slash command produces markdown artifacts directly inside `.specify/specs/<feature>/`, keeping the project audit-ready.
 
-### 3. Clarify (`/clarify`)
-Resolve ambiguities and edge cases in your specifications.
+### Feature Bootstrap Walkthrough
 
-### 4. Plan (`/plan`)
-Generate technical implementation plans with architecture and tech stack.
+| Step | Command / Artifact | What to Provide | Output |
+|------|--------------------|-----------------|--------|
+| 0 | Gather Intent | Raw narrative, goals, constraints | Starting context for the feature |
+| 1 | `/specify` | Intent + constraints | `.specify/specs/<feature>/spec.md` with `[NEEDS CLARIFICATION]` markers |
+| 2 | `/clarify` | Answers to each marker | Updated `spec.md` without blockers |
+| 3 | `/plan` | Tech stack preferences, architectural guardrails | `plan.md`, optional `data-model.md`, risk notes |
+| 4 | `/tasks` | Confirmation the plan is stable | `tasks.md` outlining ordered work (with `[P]` parallel items) |
+| 5 | `/implement` | Reference to specific task IDs and plan sections | Implementation PRs plus updated `tasks.md` statuses |
+| 6 | `/analyze` | Pointers to spec/plan/tasks | Gap report ensuring alignment before reviews |
 
-### 5. Tasks (`/tasks`)
-Break down the plan into actionable, granular tasks.
+Use this loop for every feature: intent → spec → clarifications → plan → tasks → implementation → analysis. Update the authoritative artifact after each step so Copilot never operates on stale context.
 
-### 6. Implement (`/implement`)
-Execute the implementation following the structured task plan.
+## 💬 Copilot Chat Playbook
 
-### 7. Analyze (`/analyze`)
-Validate consistency and completeness across all artifacts.
+### Guiding Principles
 
-## 💬 Copilot Chat Best Practices
+- **Lead with context.** Always point Copilot at the relevant `spec.md`, `plan.md`, `tasks.md`, and `constitution.md`.
+- **Reference paths verbatim.** Use `.specify/specs/<feature>/…` so Copilot never confuses legacy directories.
+- **Close the loop.** When Copilot proposes changes, update the authoritative artifact (spec, plan, tasks) before moving on.
 
-### Using @workspace Effectively
+### @workspace Templates
 
-**For Specification Writing:**
+**Specification Upgrade**
 ```
-@workspace I'm working on the user authentication specification.
-Current spec.md has login/logout flows defined.
-Please help me add password reset functionality while following our constitution.md security principles.
+@workspace I'm refining .specify/specs/<feature>/spec.md.
+Current state: [summarize sections or gaps].
+Request: Tighten acceptance criteria for [specific area] while honoring constitution.md requirements.
 ```
 
-**For Implementation:**
+**Implementation Session**
 ```
-@workspace I need to implement the UserService class from tasks.md.
-The plan.md specifies Node.js with Express and MongoDB.
-Please generate the code following our architecture patterns.
+@workspace Implementing [component] for .specify/specs/<feature>/tasks.md step [ID].
+Plan reference: .specify/specs/<feature>/plan.md section [anchor].
+Request: Generate code that satisfies [requirement] with tests outlined in tasks.md.
 ```
 
-**For Debugging:**
+**Debugging & Analysis**
 ```
-@workspace I'm having authentication issues with the login endpoint.
-Based on our spec.md requirements and plan.md architecture,
-what could be causing the JWT token validation to fail?
+@workspace Investigating [issue] in [file or module].
+Compare against: spec.md expectations + plan.md architecture for <feature>.
+Request: Identify likely discrepancies and recommend updates to spec/plan/tasks if needed.
 ```
 
 ### Quick Context Snippets
-Use these snippets in markdown files:
-- `copilot-context` - Basic context template
-- `sdd-chat` - Enhanced chat request template
-- `spec-template` - Complete feature specification template
 
-## 🔧 VSCode Integration Features
+- `spec-template` – Full specification scaffold with sections for scope, requirements, and validation.
+- `copilot-context` – Ready-to-send context bundle for Copilot Chat.
+- `sdd-chat` – Rich prompt skeleton optimized for multi-phase conversations.
 
-### Available Tasks (Ctrl+Shift+P → "Tasks: Run Task")
-- **Specify: Create Feature** - Launch `/specify` command
-- **Plan: Generate Implementation Plan** - Launch `/plan` command
-- **Tasks: Generate Task Breakdown** - Launch `/tasks` command
-- **Implement: Execute Implementation** - Launch `/implement` command
-- **Constitution: Set Project Principles** - Launch `/constitution` command
-- **Clarify: Resolve Ambiguities** - Launch `/clarify` command
-- **Analyze: Cross-Artifact Analysis** - Launch `/analyze` command
+## ⚡ Slash Commands & VS Code Tasks
 
-### Enhanced File Organization
-- Related files are nested together in the explorer
-- Spec files are grouped with their implementation artifacts
-- Enhanced search excludes build artifacts and dependencies
-- Markdown preview optimized for specification documents
+| Slash Command | Purpose | When to Run | VS Code Task |
+|---------------|---------|-------------|--------------|
+| `/specify` | Generate or evolve a feature specification | Kick off a new feature or overhaul unclear requirements | **Specify: Create Feature** |
+| `/clarify` | Resolve ambiguities flagged by `/specify` or reviewers | Before planning if any `[NEEDS CLARIFICATION]` markers remain | **Clarify: Resolve Ambiguities** |
+| `/plan` | Produce architecture, sequencing, and risk notes | After the spec is stable and clarifications are settled | **Plan: Generate Implementation Plan** |
+| `/tasks` | Derive actionable, ordered tasks | Immediately after planning to prepare implementation checkpoints | **Tasks: Generate Task Breakdown** |
+| `/implement` | Execute coding work inline with the plan | While building; run iteratively per task cluster | **Implement: Execute Implementation** |
+| `/analyze` | Cross-audit artifacts for drift or omissions | After major feature milestones or before reviews | **Analyze: Cross-Artifact Analysis** |
+| `/constitution` | Establish or refine project principles | During project inception or governance updates | **Constitution: Set Project Principles** |
 
-### Code Snippets
-- `spec-template` - Complete feature specification
-- `copilot-context` - Structured context for Copilot Chat
-- `sdd-chat` - Enhanced chat request template
+### VS Code Enhancements
 
-## 🎨 Chat Patterns by Phase
+- Copilot is enabled for every supported language with tuned completions.
+- File nesting groups `spec.md`, `plan.md`, `tasks.md`, and related artifacts for fast navigation.
+- Workspace search excludes build output, spotlighting only authoritative documents.
+- Tasks (⇧⌘B / Ctrl+Shift+B) echo the slash commands so keyboard workflows stay fluid.
+- Snippets mirror the latest templates—type the prefix, press **Tab**, and start drafting.
 
-### During Specification
+## 🧰 Agent tools & capabilities
+
+Your chat agent can use a focused toolkit to operate on this workspace. Mention the capability explicitly in your prompt when you need it.
+
+| Capability | What it does | Typical prompt | Notes/limits |
+|-----------|---------------|----------------|--------------|
+| File edits & creation | Create or modify files anywhere in the repo | "Create `.specify/specs/<feature>/spec.md` with sections X/Y/Z" | Keeps changes minimal; preserves style; won’t run code unless asked |
+| Workspace search | Find code/docs by keywords or semantics | "Search for references to 'tasks.md' across the repo and summarize" | Prefer broader queries, then narrow; avoids noisy outputs |
+| Targeted file reads | Read large, meaningful chunks of files | "Open `templates/.github/copilot-instructions.md` and extract the workflow table" | Reads by line range to stay efficient |
+| Terminal commands | Run one-line shell commands and summarize results | "Run git status -sb and report modified files" | No secrets; single-line commands; long outputs are truncated |
+| VS Code tasks | Launch configured tasks that mirror slash commands | "Run the Tasks: Generate Task Breakdown" | Requires tasks.json wiring (see `.vscode/tasks.json`) |
+| Snippets | Insert ready-made templates into docs | "Insert the `feature-bootstrap` checklist here" | See `.vscode/spec-driven-dev.code-snippets` |
+| Notebooks (optional) | Edit or run Jupyter notebook cells | "Open the first code cell in `<notebook>.ipynb` and run it" | Only if notebooks exist in this repo |
+| Browser preview (optional) | Open URLs in the editor’s simple browser | "Open the docs site URL and confirm the sidebar renders" | For quick previews; not a full browser |
+| Session TODO tracking | Maintain a visible plan during multi-step work | "Start a TODO list with items A/B/C and mark A in-progress" | Keeps one item in progress at a time |
+
+Tips
+- Say what tool to use: "use the terminal", "edit the file", "search the workspace".
+- Point to exact files/paths and desired outcomes.
+- Ask for summaries and diffs to keep context tight.
+
+## �️ Quality Guardrails
+
+### Code & Implementation
+- Respect testing directives from `constitution.md` and `tasks.md`.
+- Implement only what `spec.md` mandates; capture stretch ideas in `research.md`.
+- Bake in logging, error handling, and observability defined in the plan.
+
+### Documentation & Alignment
+- Keep `plan.md` synchronized with architectural decisions made during implementation.
+- Update `tasks.md` as progress unfolds—mark done, add blockers, track dependencies.
+- Ensure terminology stays consistent across spec, plan, tasks, and code.
+
+### Governance & Reviews
+- Reference constitution excerpts when negotiating trade-offs.
+- Run `/analyze` before handoffs to surface mismatches early.
+- Record follow-up actions in the relevant artifact, not ad-hoc notes.
+
+## 🧪 Troubleshooting Patterns
+
+**Specification Ambiguity**
 ```
-@workspace Working on [feature-name] specification.
-Current context: Early specification phase
-Files: spec.md (in progress)
-
-Help me: [specific specification question]
-Consider: Project constitution and user experience principles
-```
-
-### During Planning
-```
-@workspace Planning implementation for [feature-name].
-Current context: Technical planning phase
-Files: spec.md (complete), plan.md (in progress)
-
-Help me: [architecture/technology question]
-Consider: Specification requirements and project constraints
-```
-
-### During Implementation
-```
-@workspace Implementing [specific-component] for [feature-name].
-Current context: Development phase
-Files: spec.md, plan.md, tasks.md, [relevant-code-files]
-
-Help me: [specific coding question]
-Consider: Architecture from plan.md and requirements from spec.md
-```
-
-## 🛠️ Development Guidelines
-
-### Code Quality
-- Follow testing requirements from `constitution.md`
-- Implement comprehensive error handling
-- Include appropriate logging and monitoring
-- Maintain clean, readable code structure
-
-### Documentation
-- Keep specifications current with implementation
-- Update plans when making architectural changes
-- Maintain task progress in `tasks.md`
-- Document decisions in appropriate files
-
-### Consistency
-- Ensure spec-to-implementation alignment
-- Maintain consistent terminology across files
-- Follow established patterns and conventions
-- Validate cross-file references and dependencies
-
-## 🔍 Troubleshooting with Copilot
-
-### Common Issues and Chat Patterns
-
-**Specification Ambiguity:**
-```
-@workspace The current spec.md has unclear requirements for [specific area].
-Help me clarify [specific ambiguity] and suggest concrete acceptance criteria.
+@workspace .specify/specs/<feature>/spec.md leaves [scenario] undefined.
+Help me propose acceptance criteria and edge cases that satisfy constitution.md.
 ```
 
-**Implementation Drift:**
+**Implementation Drift**
 ```
-@workspace Compare my current [component] implementation against our spec.md requirements.
-Are there any deviations from the specified behavior?
-```
-
-**Architecture Questions:**
-```
-@workspace Based on our plan.md architecture, what's the best way to implement [specific feature]?
-Consider our tech stack: [list from plan.md]
+@workspace Compare current [component] implementation against spec.md + plan.md for <feature>.
+Flag any mismatches and suggest updates to tasks.md to realign.
 ```
 
-**Task Management:**
+**Integration or Contract Breakage**
 ```
-@workspace Help me update tasks.md to reflect the completion of [completed tasks].
-What should be the next priority based on our task dependencies?
+@workspace Validate [API integration] against .specify/specs/<feature>/contracts/[name].
+Highlight contract clauses my current implementation violates and how to fix them.
 ```
 
-## 📚 Additional Resources
+**Task Hygiene**
+```
+@workspace Review .specify/specs/<feature>/tasks.md.
+Mark [completed items], reprioritize remaining work, and note any blockers requiring clarification.
+```
 
-- Read `.github/copilot-instructions.md` for comprehensive chat optimization guidance
-- Review `.github/copilot-context.md` for enhanced context sharing patterns
-- Explore `.github/copilot-references.md` for extensive documentation and reference links
-- Use VSCode tasks for quick access to SDD workflow commands
-- Reference code snippets for consistent formatting and structure
-- Leverage file nesting for better project organization
+## 📚 Resource Hub
 
-**Enhanced Features:**
-- 🔧 **Optimized Settings**: Streamlined VSCode configuration for better performance
-- 🔗 **Reference Links**: Comprehensive documentation and resource links
-- 📝 **Enhanced Snippets**: Improved code snippets with context-aware patterns
-- 🎯 **Focused Context**: Streamlined context sharing for better AI understanding
-- 📊 **Performance**: Optimized configurations for faster response times
+- **Primary Instructions** – `.github/copilot-instructions.md`
+- **Context Playbook** – `.github/copilot-context.md`
+- **Reference Library** – `.github/copilot-references.md`
+- **VS Code Snippets** – `.vscode/spec-driven-dev.code-snippets`
+- **Workflow Tasks** – `.vscode/tasks.json`
 
-Remember: GitHub Copilot Chat works best when provided with clear context about your current development phase, relevant files, and specific questions. Always reference the SDD workflow and project structure for optimal assistance.
+Stay disciplined about context, update the canonical artifacts first, and GitHub Copilot will deliver premium-quality assistance on every feature.

@@ -33,16 +33,24 @@
 ## 🏗️ Spec-Driven Development Resources
 
 ### SDD Methodology
-- **[Spec-Driven Development Overview](../README-copilot.md)** - Project-specific SDD guide
-- **[Development Workflow](./copilot-instructions.md#development-workflow)** - Phase-by-phase process
-- **[Template Structure](../spec-template.md)** - Specification templates
-- **[Implementation Patterns](../plan-template.md)** - Planning and architecture templates
+| Resource | Location | Purpose |
+|----------|----------|---------|
+| Spec-Driven Development Playbook | `../README-copilot.md` | Premium Copilot onboarding guide |
+| Feature Bootstrap Walkthrough | `../README-copilot.md#feature-bootstrap-walkthrough` | Command-by-command launch sequence |
+| Agent Tools & Capabilities | `../README-copilot.md#agent-tools--capabilities` | What the chat agent can do and how to ask |
+| Snippet: Feature Bootstrap (`feature-bootstrap`) | `.vscode/spec-driven-dev.code-snippets` | Drop-in walkthrough checklist |
+| Workflow & Prompt Guide | `./copilot-instructions.md#development-workflow` | Phase-by-phase process |
+| Context Playbook | `./copilot-context.md` | Ready-to-send context patterns |
+| Specification Template | `../spec-template.md` | Authoritative spec format |
+| Planning Template | `../plan-template.md` | Architecture and sequencing blueprint |
+| Task Template | `../tasks-template.md` | Granular execution breakdown |
 
 ### Development Tools & Scripts
 - **[Bash Scripts](../../scripts/bash/)** - Unix/Linux automation scripts
 - **[PowerShell Scripts](../../scripts/powershell/)** - Windows automation scripts
 - **[Agent File Template](../agent-file-template.md)** - Regenerate Copilot-ready project context summaries
-- **[Workflow Automation](./workflows/)** - CI/CD integration patterns
+- **[Snippet Library](../.vscode/spec-driven-dev.code-snippets)** - Context-aware markdown snippets
+- **[VS Code Tasks](../.vscode/tasks.json)** - Slash-command automation inside the editor
 
 ## 🎯 Chat Optimization Techniques
 

@@ -2,36 +2,58 @@
 
 ## Project Context
 
-This file provides enhanced context for GitHub Copilot Chat to understand the Spec-Driven Development (SDD) methodology and project structure.
+This brief keeps GitHub Copilot grounded in the Spec-Driven Development (SDD) workflow. Pair it with the refreshed `README-copilot.md` to deliver precise, phase-aware assistance every time.
 
-### Project Type & Methodology
-- **Framework**: Spec-Driven Development (SDD)
-- **Philosophy**: Specifications are executable and drive implementation
-- **Approach**: Systematic, phase-based development with clear documentation
+### Quick Orientation
+
+| Focus | Canonical Location | Use It For |
+|-------|--------------------|------------|
+| Project principles | `.specify/memory/constitution.md` | Governance, testing standards, and decision guardrails |
+| Active feature assets | `.specify/specs/<feature>/` | `spec.md`, `plan.md`, `tasks.md`, plus optional data models, contracts, research |
+| Conversation blueprints | `.github/copilot-instructions.md` & `.github/copilot-context.md` | Baseline guidance and ready-to-send prompts |
+| Deep reference library | `.github/copilot-references.md` | Extended documentation, checklists, and supporting links |
+| VS Code workflow | `.vscode/` | Settings, tasks, and snippets optimized for SDD |
+
+### Workspace Layout
+
+```
+project-root/
+├── .specify/
+│   ├── memory/
+│   │   └── constitution.md
+│   └── specs/
+│       └── <feature-slug>/
+│           ├── spec.md
+│           ├── plan.md
+│           ├── tasks.md
+│           ├── data-model.md
+│           ├── contracts/
+│           ├── quickstart.md
+│           └── research.md
+├── .github/
+│   ├── copilot-instructions.md
+│   ├── copilot-context.md
+│   ├── copilot-references.md
+│   └── prompts/
+└── .vscode/
+    ├── settings.json
+    ├── tasks.json
+    └── spec-driven-dev.code-snippets
+```
 
 ### File Relationships & Dependencies
 ```
-constitution.md ──> spec.md ──> plan.md ──> tasks.md ──> implementation
-      ↑               ↑           ↑           ↑
+constitution.md  →  spec.md  →  plan.md  →  tasks.md  →  implementation
+        ↑             ↑           ↑           ↑
    principles     requirements  architecture  execution
 ```
 
-### Key Directories & Artifacts
-| Location | Purpose |
-|----------|---------|
-| `memory/constitution.md` | Non-negotiable project principles that govern every decision |
-| `.specify/specs/<feature>/spec.md` | Feature requirements and acceptance criteria |
-| `.specify/specs/<feature>/plan.md` | Technical architecture and sequencing extracted from the spec |
-| `.specify/specs/<feature>/tasks.md` | Ordered implementation tasks with dependencies |
-| `.specify/specs/<feature>/data-model.md` | Entities, relationships, and schema constraints |
-| `.specify/specs/<feature>/contracts/` | API or integration contracts referenced during implementation |
-
 ### Context Hierarchy for Copilot Suggestions
-1. **Constitutional Level**: Project principles and standards (`memory/constitution.md`)
-2. **Specification Level**: Feature requirements and acceptance criteria (`spec.md`)
-3. **Planning Level**: Technical architecture and implementation approach (`plan.md`)
-4. **Task Level**: Granular implementation tasks and dependencies (`tasks.md`)
-5. **Implementation Level**: Actual code, tests, and documentation
+1. **Constitutional Level** – `memory/constitution.md`
+2. **Specification Level** – `.specify/specs/<feature>/spec.md`
+3. **Planning Level** – `.specify/specs/<feature>/plan.md`
+4. **Task Level** – `.specify/specs/<feature>/tasks.md`
+5. **Implementation Level** – Source code, tests, and integration docs
 
 ### Enhanced Chat Patterns
 
@@ -70,13 +92,34 @@ Consider: Error handling patterns from plan, validation rules from data model
 - Confirm documentation stays current with implementation
 
 ### Slash Command Quick Reference
-| Command | Purpose |
-|---------|---------|
-| `/specify` | Create a new feature specification and branch using project templates |
-| `/clarify` | Resolve ambiguous requirements and document clarifications inside the spec |
-| `/plan` | Produce architecture, data models, and implementation sequencing |
-| `/tasks` | Generate granular execution tasks with dependencies |
-| `/implement` | Drive the build process using the generated tasks and context |
-| `/analyze` | Cross-check spec, plan, and tasks for inconsistencies before coding |
+| Command | Purpose | Copilot Prompt Tips |
+|---------|---------|---------------------|
+| `/specify` | Generate or evolve a feature specification | Feed raw intent plus blockers; resolve `[NEEDS CLARIFICATION]` markers before planning. |
+| `/clarify` | Eliminate ambiguities flagged by specs or reviewers | Answer each clarification inline so downstream commands stay unblocked. |
+| `/plan` | Produce architecture, sequencing, and risk notes | Provide stack preferences; capture trade-offs and open questions in the summary. |
+| `/tasks` | Derive ordered, testable work items | Highlight parallelizable `[P]` tasks and dependencies for smooth implementation. |
+| `/implement` | Execute against the approved plan | Reference specific `tasks.md` entries and confirm updates after each coding block. |
+| `/analyze` | Cross-audit artifacts for drift | Run before handoff or release to surface gaps between spec, plan, tasks, and code. |
+| `/constitution` | Establish or revise project principles | Use during inception or governance refreshes; cite sections when making trade-offs. |
 
-This enhanced context enables GitHub Copilot to provide more intelligent, project-aware assistance throughout the Spec-Driven Development lifecycle.
+### Resource Hub
+- **Primary Instructions** – `.github/copilot-instructions.md`
+- **Conversation Playbook** – `.github/copilot-context.md`
+- **Reference Library** – `.github/copilot-references.md`
+- **Workflow Snippets** – `.vscode/spec-driven-dev.code-snippets`
+- **Copilot README** – `templates/README-copilot.md`
+- **Feature Bootstrap Walkthrough** – `templates/README-copilot.md#feature-bootstrap-walkthrough`
+- **Snippet: Feature Bootstrap** – `templates/.vscode/spec-driven-dev.code-snippets` (`feature-bootstrap`)
+
+### Agent tools (quick reference)
+- Edits & creates files on request
+- Searches and reads files by path or pattern
+- Runs one-line terminal commands and summarizes
+- Launches VS Code tasks wired to slash commands
+- Inserts snippets like `feature-bootstrap`
+- Maintains a session TODO when asked
+- Optional: notebooks and simple browser preview
+
+See `templates/README-copilot.md#agent-tools--capabilities` for details and prompt examples.
+
+Use this brief as the companion to the `README-copilot.md` playbook. Load the relevant `.specify/specs/<feature>/` files before each session, cite constitution guardrails, and Copilot will consistently deliver premium guidance across the SDD lifecycle.
