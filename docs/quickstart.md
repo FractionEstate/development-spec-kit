@@ -4,6 +4,21 @@ This guide will help you get started with Spec-Driven Development using Spec Kit
 
 > NEW: All automation scripts now provide both Bash (`.sh`) and PowerShell (`.ps1`) variants. The `specify` CLI auto-selects based on OS unless you pass `--script sh|ps`.
 
+## 60-second start
+
+Install the CLI and initialize a project in one go.
+
+- bash/zsh:
+	```bash
+	curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash && \
+	specify init my-project
+	```
+- PowerShell:
+	```powershell
+	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex; \
+	specify init my-project
+	```
+
 ## The 4-Step Process
 
 ### 1. Install Specify
