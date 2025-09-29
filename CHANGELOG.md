@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Historical context:** Entries prior to version 0.1.0 describe the legacy multi-agent release line kept for archival reference. The active branch now targets GitHub Models exclusively.
 
+## [Unreleased]
+
+### Added
+
+- Documentation: "Agent tools & capabilities" sections across Copilot collateral (README, instructions, context) and an `agent-tools` snippet
+- Documentation: "Try it: 5‑minute tour" to exercise search/read/terminal/TODO/snippet tools
+- Documentation: References upgrades with Agent Tools quick reference and VS Code Tasks cheat sheet
+- CI: Link checker workflow using lycheeverse/lychee, with Markdown report artifact and job summary
+
+### Changed
+
+- README: Added stable anchors for Agent Tools and Try It sections; linked to the Tasks Cheat Sheet in references
+
 ## [0.1.0] - 2025-09-28
 
 ### Added

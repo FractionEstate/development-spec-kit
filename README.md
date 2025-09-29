@@ -9,6 +9,7 @@
 </p>
 
 [![Release](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml/badge.svg)](https://github.com/FractionEstate/development-spec-kit/actions/workflows/release.yml)
+[![Link Checker](https://github.com/FractionEstate/development-spec-kit/actions/workflows/link-check.yml/badge.svg)](https://github.com/FractionEstate/development-spec-kit/actions/workflows/link-check.yml)
 
 ---
 
