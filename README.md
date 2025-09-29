@@ -38,6 +38,24 @@ Spec-Driven Development **flips the script** on traditional software development
 
 ## ⚡ Get started
 
+### Easy install
+
+Pick your shell and run a single command to install the Specify CLI via uv:
+
+- bash/zsh:
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
+    ```
+- PowerShell:
+    ```powershell
+    iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex
+    ```
+
+Updates and uninstall:
+
+- bash/zsh: `scripts/bash/install-specify.sh --update` or `--uninstall`
+- PowerShell: `scripts/powershell/install-specify.ps1 -Update` or `-Uninstall`
+
 ### 1. Install Specify CLI
 
 Install the FractionEstate Development Spec Kit CLI:

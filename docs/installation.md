@@ -8,9 +8,32 @@
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
 
-## Installation
+## Easy install (one-liner)
 
-### Initialize a New Project
+Pick your shell and run a single command to install the Specify CLI via uv:
+
+- bash/zsh:
+	```bash
+	curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
+	```
+- PowerShell:
+	```powershell
+	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex
+	```
+
+### Script options
+
+- Update to latest:
+	- bash/zsh: `scripts/bash/install-specify.sh --update`
+	- PowerShell: `scripts/powershell/install-specify.ps1 -Update`
+- Uninstall:
+	- bash/zsh: `scripts/bash/install-specify.sh --uninstall`
+	- PowerShell: `scripts/powershell/install-specify.ps1 -Uninstall`
+- Override source:
+	- bash/zsh: `scripts/bash/install-specify.sh --from git+https://github.com/FractionEstate/development-spec-kit.git`
+	- PowerShell: `scripts/powershell/install-specify.ps1 -From git+https://github.com/FractionEstate/development-spec-kit.git`
+
+## Initialize a New Project
 
 The easiest way to get started is to initialize a new project:
 
