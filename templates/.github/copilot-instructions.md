@@ -19,20 +19,31 @@ This is a **Spec-Driven Development (SDD)** project where specifications are exe
 ```
 project-root/
 └── .specify/
-    ├── memory/
-    │   └── constitution.md          # Project principles
-    ├── specs/
-    │   └── feature-*/
-    │       ├── spec.md             # Feature specification
-    │       ├── plan.md             # Implementation plan
-    │       ├── tasks.md            # Task breakdown
-    │       ├── data-model.md       # Data models (if applicable)
-    │       ├── contracts/          # API contracts (if applicable)
-    │       ├── quickstart.md       # Integration guide (if applicable)
-│       └── research.md         # Technical research (if applicable)
+   ├── memory/
+   │   └── constitution.md          # Project principles
+   ├── specs/
+   │   └── feature-*/
+   │       ├── spec.md             # Feature specification
+   │       ├── plan.md             # Implementation plan
+   │       ├── tasks.md            # Task breakdown
+   │       ├── data-model.md       # Data models (if applicable)
+   │       ├── contracts/          # API contracts (if applicable)
+   │       ├── quickstart.md       # Integration guide (if applicable)
+   │       └── research.md         # Technical research (if applicable)
 └── .github/
-    └── prompts/                # Copilot command prompts
+   └── prompts/                # Copilot command prompts
 ```
+
+### Key Directories & Artifacts
+| Location | Purpose |
+|----------|---------|
+| `memory/constitution.md` | Non-negotiable project principles governing every decision |
+| `.specify/specs/<feature>/spec.md` | Feature requirements, acceptance criteria, and clarifications |
+| `.specify/specs/<feature>/plan.md` | Technical architecture, sequencing, and supporting research links |
+| `.specify/specs/<feature>/tasks.md` | Ordered implementation tasks with dependencies and status |
+| `.specify/specs/<feature>/data-model.md` | Entities, relationships, and schema constraints |
+| `.specify/specs/<feature>/contracts/` | API/integration contracts referenced during implementation |
+| `.specify/specs/<feature>/quickstart.md` | Integration scenarios and smoke-test guidance |
 
 ## Chat Interaction Guidelines
 
@@ -40,9 +51,9 @@ project-root/
 
 1. **Always consider the full context:**
    - Check `memory/constitution.md` for project principles
-   - Review the current feature's `spec.md` for requirements
-   - Examine `plan.md` for technical decisions
-   - Reference `tasks.md` for implementation progress
+   - Review the current feature's `.specify/specs/<feature>/spec.md` for requirements
+   - Examine `.specify/specs/<feature>/plan.md` for technical decisions
+   - Reference `.specify/specs/<feature>/tasks.md` for implementation progress
 
 2. **Maintain SDD principles:**
    - Specifications should be clear and unambiguous
@@ -83,7 +94,7 @@ project-root/
 1. **Use context markers:**
    ```
    @workspace Working on [feature-name] in the [phase] phase
-   Current files: spec.md, plan.md, tasks.md
+   Current files: .specify/specs/<feature>/spec.md, .specify/specs/<feature>/plan.md, .specify/specs/<feature>/tasks.md
 
    Question: [Your specific question]
    ```
@@ -103,21 +114,21 @@ project-root/
 **For Specification Writing:**
 ```
 @workspace I'm working on the [feature] specification.
-Current spec.md has [current state].
+Current file: .specify/specs/<feature>/spec.md shows [current state].
 Please help me [specific need] while following our constitution.md principles.
 ```
 
 **For Implementation:**
 ```
-@workspace I need to implement [specific task] from tasks.md.
-The plan.md specifies [technical approach].
+@workspace I need to implement [specific task] from .specify/specs/<feature>/tasks.md.
+.specify/specs/<feature>/plan.md specifies [technical approach].
 Please generate code that [specific requirement].
 ```
 
 **For Debugging:**
 ```
 @workspace I'm having an issue with [component].
-Based on our spec.md requirements and plan.md architecture,
+Based on .specify/specs/<feature>/spec.md requirements and .specify/specs/<feature>/plan.md architecture,
 what could be causing [problem description]?
 ```
 
