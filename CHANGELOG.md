@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - README: Added stable anchors for Agent Tools and Try It sections; linked to the Tasks Cheat Sheet in references
+- Documentation: Rewrote root README plus docs homepage, quickstart, installation, and local development guides for the GitHub Models–first workflow (60-second start, one-liners, agent capabilities)
 
 ## [0.1.0] - 2025-09-28
 
