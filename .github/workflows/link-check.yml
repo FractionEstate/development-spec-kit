@@ -18,11 +18,11 @@ jobs:
         with:
           # Read config from repo (fallback to defaults if missing)
           args: |
-            --config .lychee.toml \
-            --accept 200,206,429 \
-            --max-concurrency 4 \
-            --verbose \
-            **/*.md templates/**/*.md
+            --config .lychee.toml
+            --accept 200,206,429
+            --max-concurrency 4
+            --verbose
+            **/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
