@@ -11,13 +11,15 @@ Install the CLI and initialize a project in one go.
 - bash/zsh:
 	```bash
 	curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash && \
-	specify init my-project
+	specify init my-project && \
+	specify check
 	```
 - PowerShell:
 	```powershell
-	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex; \
-	specify init my-project
+	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex; specify init my-project; specify check
 	```
+
+More options and tips: see the Installation guide (script flags, model selection, and shell preferences): [installation.md](./installation.md)
 
 ## The 4-Step Process
 
@@ -132,6 +134,6 @@ implement .specify/specs/002-create-taskify/plan.md
 
 ## Next Steps
 
-- Read the complete methodology for in-depth guidance
-- Check out more examples in the repository
-- Explore the source code on GitHub
+- Read the complete methodology for in-depth guidance: [Spec-Driven Development](../spec-driven.md)
+- Check out more examples in the repository: https://github.com/FractionEstate/development-spec-kit
+- Explore the source code on GitHub: https://github.com/FractionEstate/development-spec-kit
