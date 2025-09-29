@@ -34,3 +34,13 @@ jobs:
         with:
           name: lychee-report
           path: lychee/**
+
+      - name: Summarize results in job summary
+        if: always()
+        run: |
+          echo "## Lychee Link Check Report" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f lychee/report.md ]; then
+            cat lychee/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No report generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
