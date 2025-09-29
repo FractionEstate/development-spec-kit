@@ -22,6 +22,8 @@ jobs:
             --accept 200,206,429
             --max-concurrency 4
             --verbose
+            --format markdown
+            --output lychee/report.md
             **/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
