@@ -68,7 +68,7 @@ End your response with a labeled Markdown summary block containing:
 
 Example starter:
 ```
-@workspace Review specs/00X-feature/clarifications and help me answer the listed questions so we can proceed to /plan.
+@workspace Review .specify/specs/00X-feature/clarifications and help me answer the listed questions so we can proceed to /plan.
 ```
 
 ## VSCode Integration Tips

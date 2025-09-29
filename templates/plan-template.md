@@ -10,7 +10,7 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 # Implementation Plan: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Input**: Feature specification from `/.specify/specs/[###-feature-name]/spec.md`
 
 ## Execution Flow (/plan command scope)
 ```
@@ -61,7 +61,7 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 
 ### Documentation (this feature)
 ```
-specs/[###-feature]/
+.specify/specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
 ├── research.md          # Phase 0 output (/plan command)
 ├── data-model.md        # Phase 1 output (/plan command)

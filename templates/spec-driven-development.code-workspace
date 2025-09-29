@@ -6,7 +6,7 @@
         },
         {
             "name": "Specifications",
-            "path": "./specs"
+            "path": "./.specify/specs"
         },
         {
             "name": "Memory & Constitution",
@@ -54,7 +54,9 @@
                 "label": "SDD: Create Feature Specification",
                 "type": "shell",
                 "command": "echo",
-                "args": ["Use /specify command in Copilot Chat"],
+                "args": [
+                    "Use /specify command in Copilot Chat"
+                ],
                 "group": "build",
                 "presentation": {
                     "echo": true,
@@ -63,9 +65,11 @@
             },
             {
                 "label": "SDD: Generate Implementation Plan",
-                "type": "shell", 
+                "type": "shell",
                 "command": "echo",
-                "args": ["Use /plan command in Copilot Chat"],
+                "args": [
+                    "Use /plan command in Copilot Chat"
+                ],
                 "group": "build",
                 "presentation": {
                     "echo": true,

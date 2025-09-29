@@ -51,7 +51,7 @@
 #### Specification Phase
 ```
 @workspace [SDD-PHASE:specify] Creating specification for [feature-name].
-Context: constitution.md principles, similar features in specs/
+Context: constitution.md principles, similar features in .specify/specs/
 Goal: Complete, unambiguous specification following SDD methodology
 Focus: User stories, acceptance criteria, edge cases
 ```

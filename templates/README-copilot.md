@@ -23,16 +23,17 @@ The project includes `.github/copilot-instructions.md` with:
 
 ```
 project-root/
-├── memory/
-│   └── constitution.md          # Project principles
-├── specs/
-│   └── feature-*/
-│       ├── spec.md             # Feature specification
-│       ├── plan.md             # Implementation plan
-│       ├── tasks.md            # Task breakdown
-│       ├── data-model.md       # Data models (if applicable)
-│       ├── contracts/          # API contracts (if applicable)
-│       ├── quickstart.md       # Integration guide (if applicable)
+└── .specify/
+    ├── memory/
+    │   └── constitution.md          # Project principles
+    ├── specs/
+    │   └── feature-*/
+    │       ├── spec.md             # Feature specification
+    │       ├── plan.md             # Implementation plan
+    │       ├── tasks.md            # Task breakdown
+    │       ├── data-model.md       # Data models (if applicable)
+    │       ├── contracts/          # API contracts (if applicable)
+    │       ├── quickstart.md       # Integration guide (if applicable)
 │       └── research.md         # Technical research (if applicable)
 ├── .vscode/
 │   ├── settings.json           # Copilot-optimized settings
@@ -72,7 +73,7 @@ Validate consistency and completeness across all artifacts.
 
 **For Specification Writing:**
 ```
-@workspace I'm working on the user authentication specification. 
+@workspace I'm working on the user authentication specification.
 Current spec.md has login/logout flows defined.
 Please help me add password reset functionality while following our constitution.md security principles.
 ```
@@ -134,7 +135,7 @@ Consider: Project constitution and user experience principles
 ### During Planning
 ```
 @workspace Planning implementation for [feature-name].
-Current context: Technical planning phase  
+Current context: Technical planning phase
 Files: spec.md (complete), plan.md (in progress)
 
 Help me: [architecture/technology question]

@@ -18,16 +18,17 @@ This is a **Spec-Driven Development (SDD)** project where specifications are exe
 ### Key Files Structure
 ```
 project-root/
-├── memory/
-│   └── constitution.md          # Project principles
-├── specs/
-│   └── feature-*/
-│       ├── spec.md             # Feature specification
-│       ├── plan.md             # Implementation plan
-│       ├── tasks.md            # Task breakdown
-│       ├── data-model.md       # Data models (if applicable)
-│       ├── contracts/          # API contracts (if applicable)
-│       ├── quickstart.md       # Integration guide (if applicable)
+└── .specify/
+    ├── memory/
+    │   └── constitution.md          # Project principles
+    ├── specs/
+    │   └── feature-*/
+    │       ├── spec.md             # Feature specification
+    │       ├── plan.md             # Implementation plan
+    │       ├── tasks.md            # Task breakdown
+    │       ├── data-model.md       # Data models (if applicable)
+    │       ├── contracts/          # API contracts (if applicable)
+    │       ├── quickstart.md       # Integration guide (if applicable)
 │       └── research.md         # Technical research (if applicable)
 └── .github/
     └── prompts/                # Copilot command prompts

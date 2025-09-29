@@ -34,10 +34,10 @@ Help me: Complete the specification following our SDD template structure
 Consider: GDPR compliance from constitution, existing user model patterns
 ```
 
-#### Architecture-Aware Planning Requests  
+#### Architecture-Aware Planning Requests
 ```
 @workspace Planning microservices architecture for e-commerce.
-Context files: specs/feature-*/spec.md (requirements), memory/constitution.md (principles)
+Context files: .specify/specs/feature-*/spec.md (requirements), memory/constitution.md (principles)
 Tech stack preference: Node.js, PostgreSQL, Redis, Docker
 Help me: Generate technical implementation plan with data model and API contracts
 Consider: Scalability requirements from spec, performance standards from constitution

@@ -385,7 +385,7 @@ delete any comments that you made, but you can't delete comments anybody else ma
 
 After this prompt is entered, you should see GitHub Copilot kick off the planning and spec drafting process. The system will also trigger some of the built-in scripts to set up the repository.
 
-Once this step is completed, you should have a new branch created (e.g., `001-create-taskify`), as well as a new specification in the `specs/001-create-taskify` directory.
+Once this step is completed, you should have a new branch created (e.g., `001-create-taskify`), as well as a new specification in the `.specify/specs/001-create-taskify` directory.
 
 The produced specification should contain a set of user stories and functional requirements, as defined in the template.
 
@@ -459,28 +459,29 @@ The output of this step will include a number of implementation detail documents
 │   ├── settings.json
 │   ├── tasks.json
 │   └── spec-driven-dev.code-snippets
-├── memory
-│	 └── constitution.md
-├── scripts
-│	 ├── check-prerequisites.sh
-│	 ├── common.sh
-│	 ├── create-new-feature.sh
-│	 ├── setup-plan.sh
-│	 └── update-agent-context.sh
-├── specs
-│	 └── 001-create-taskify
-│	     ├── contracts
-│	     │	 ├── api-spec.json
-│	     │	 └── signalr-spec.md
-│	     ├── data-model.md
-│	     ├── plan.md
-│	     ├── quickstart.md
-│	     ├── research.md
-│	     └── spec.md
-└── templates
-    ├── plan-template.md
-    ├── spec-template.md
-    └── tasks-template.md
+└── .specify
+    ├── memory
+    │	 └── constitution.md
+    ├── scripts
+    │	 ├── check-prerequisites.sh
+    │	 ├── common.sh
+    │	 ├── create-new-feature.sh
+    │	 ├── setup-plan.sh
+    │	 └── update-agent-context.sh
+    ├── specs
+    │	 └── 001-create-taskify
+    │	     ├── contracts
+    │	     │	 ├── api-spec.json
+    │	     │	 └── signalr-spec.md
+    │	     ├── data-model.md
+    │	     ├── plan.md
+    │	     ├── quickstart.md
+    │	     ├── research.md
+    │	     └── spec.md
+    └── templates
+        ├── plan-template.md
+        ├── spec-template.md
+        └── tasks-template.md
 ```
 
 Check the `research.md` document to ensure that the right tech stack is used, based on your instructions. You can ask GitHub Copilot to refine it if any of the components stand out, or even have it check the locally-installed version of the platform/framework you want to use (e.g., .NET).
