@@ -16,7 +16,7 @@ set -euo pipefail
 #   --help/-h    Show help
 #
 # Notes:
-# - Requires: bash, git, python3.11+, and uv (https://docs.astral.sh/uv/)
+# - Requires: bash, git, python3.11+, and curl (installs uv automatically if missing)
 # - Installs as a uv tool named 'specify-cli'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,6 +32,22 @@ print_help() {
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || { echo "ERROR: '$1' is required but not found in PATH." >&2; exit 1; }
+}
+
+ensure_uv() {
+  if command -v uv >/dev/null 2>&1; then
+    return
+  fi
+
+  echo "uv not found. Installing uv..."
+  require_cmd curl
+  export PATH="$HOME/.local/bin:$PATH"
+  curl -fsSL https://astral.sh/uv/install.sh | sh
+
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "ERROR: uv installation attempted but 'uv' is still not available. Please add \"$HOME/.local/bin\" to PATH and retry." >&2
+    exit 1
+  fi
 }
 
 parse_args() {
@@ -70,8 +86,8 @@ main() {
   parse_args "$@"
   # Basic prereq checks
   require_cmd python3
-  require_cmd uv
   require_cmd git
+  ensure_uv
 
   case "$ACTION" in
     install) install;;

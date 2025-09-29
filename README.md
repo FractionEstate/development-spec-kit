@@ -34,6 +34,8 @@ Install the CLI and initialize a project.
 
 More options (update/uninstall, choose model/script): see ./docs/installation.md and ./docs/quickstart.md.
 
+The install scripts automatically bootstrap [uv](https://docs.astral.sh/uv/) if it's not already on your PATH.
+
 ## What you get
 
 Running `specify init` generates a VS Code–ready project with:

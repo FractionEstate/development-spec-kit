@@ -4,7 +4,7 @@
   Easy installer/manager for the FractionEstate Specify CLI using uv (PowerShell)
 
 .DESCRIPTION
-  Installs, updates, or uninstalls the specify-cli uv tool.
+  Installs, updates, or uninstalls the specify-cli uv tool. Installs uv automatically if it's missing.
 
 .PARAMETER Update
   Upgrade to the latest version
@@ -42,6 +42,23 @@ function Require-Cmd {
   }
 }
 
+function Ensure-Uv {
+  if (Get-Command uv -ErrorAction SilentlyContinue) {
+    return
+  }
+
+  Write-Host "uv not found. Installing uv..."
+  $env:PATH = "$env:USERPROFILE\.local\bin;$env:LOCALAPPDATA\Programs\uv;$env:USERPROFILE\AppData\Roaming\uv\bin;$env:PATH"
+  $installScript = Invoke-WebRequest https://astral.sh/uv/install.ps1 -UseBasicParsing
+  Invoke-Expression $installScript.Content
+  $env:PATH = "$env:USERPROFILE\.local\bin;$env:LOCALAPPDATA\Programs\uv;$env:USERPROFILE\AppData\Roaming\uv\bin;$env:PATH"
+
+  if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+    Write-Error "ERROR: uv installation attempted but 'uv' is still not available. Please ensure %USERPROFILE%\\.local\\bin is in PATH and retry."
+    exit 1
+  }
+}
+
 function Install-Specify {
   Write-Host "Installing Specify CLI from: $From"
   uv tool install specify-cli --from $From
@@ -64,8 +81,8 @@ function Uninstall-Specify {
 
 # Pre-req checks
 Require-Cmd python3
-Require-Cmd uv
 Require-Cmd git
+Ensure-Uv
 
 if ($Uninstall) {
   Uninstall-Specify

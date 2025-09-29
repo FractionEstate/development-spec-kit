@@ -21,6 +21,8 @@ Pick your shell and run a single command to install the Specify CLI via uv:
 	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex
 	```
 
+These installers automatically bootstrap [uv](https://docs.astral.sh/uv/) if it's not already available.
+
 ### Script options
 
 - Update to latest:

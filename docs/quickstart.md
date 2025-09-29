@@ -19,6 +19,8 @@ Install the CLI and initialize a project in one go.
 	iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex; specify init my-project; specify check
 	```
 
+The installer scripts will install [uv](https://docs.astral.sh/uv/) automatically if it's missing.
+
 More options and tips: see the Installation guide (script flags, model selection, and shell preferences): [installation.md](./installation.md)
 
 ## The 4-Step Process
