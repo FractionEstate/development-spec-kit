@@ -38,6 +38,7 @@
 | Spec-Driven Development Playbook | `../README-copilot.md` | Premium Copilot onboarding guide |
 | Feature Bootstrap Walkthrough | `../README-copilot.md#feature-bootstrap-walkthrough` | Command-by-command launch sequence |
 | Agent Tools & Capabilities | `../README-copilot.md#agent-tools--capabilities` | What the chat agent can do and how to ask |
+| Snippet: Agent Tools (`agent-tools`) | `.vscode/spec-driven-dev.code-snippets` | Drop-in tools overview for docs/chats |
 | Try it: 5-minute tour | `../README-copilot.md#try-it-5-minute-tour` | Hands-on prompts to exercise agent tools |
 | Snippet: Feature Bootstrap (`feature-bootstrap`) | `.vscode/spec-driven-dev.code-snippets` | Drop-in walkthrough checklist |
 | Workflow & Prompt Guide | `./copilot-instructions.md#development-workflow` | Phase-by-phase process |
@@ -45,6 +46,32 @@
 | Specification Template | `../spec-template.md` | Authoritative spec format |
 | Planning Template | `../plan-template.md` | Architecture and sequencing blueprint |
 | Task Template | `../tasks-template.md` | Granular execution breakdown |
+## 🧰 Agent Tools – Quick Reference
+
+Use these in your prompts to guide the agent:
+
+- File edits & creation — “Edit `templates/README-copilot.md` to update the tools table.”
+- Workspace search — “Search for mentions of `feature-bootstrap` and list files.”
+- Targeted reads — “Read `copilot-instructions.md` and summarize the ‘Prompt Quick Reference’ table.”
+- Terminal command — “Run `git status -sb` and summarize modified files by folder.”
+- VS Code tasks — “Run the ‘Tasks: Generate Task Breakdown’ task.”
+- Snippets — “Insert the `agent-tools` snippet below this line.”
+- Session TODO — “Start a TODO list with items A/B/C and mark A in-progress.”
+- Optional: Notebooks/Browser — Only if those assets exist in the repo.
+
+See details in `../README-copilot.md#agent-tools--capabilities`.
+
+## 🧭 VS Code Tasks Cheat Sheet
+
+| Task label (Tasks: Run Task) | Mirrors slash command | Purpose |
+|------------------------------|-----------------------|---------|
+| Specify: Create Feature | `/specify` | Generate or evolve a feature specification |
+| Clarify: Resolve Ambiguities | `/clarify` | Remove ambiguities before planning |
+| Plan: Generate Implementation Plan | `/plan` | Produce architecture, sequencing, risks |
+| Tasks: Generate Task Breakdown | `/tasks` | Derive ordered, testable work items |
+| Implement: Execute Implementation | `/implement` | Execute coding against the plan |
+| Analyze: Cross-Artifact Analysis | `/analyze` | Check for drift across spec/plan/tasks |
+| Constitution: Set Project Principles | `/constitution` | Establish/refine project guardrails |
 
 ### Development Tools & Scripts
 - **[Bash Scripts](../../scripts/bash/)** - Unix/Linux automation scripts
