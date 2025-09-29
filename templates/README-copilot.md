@@ -34,7 +34,7 @@ project-root/
     │       ├── data-model.md       # Data models (if applicable)
     │       ├── contracts/          # API contracts (if applicable)
     │       ├── quickstart.md       # Integration guide (if applicable)
-│       └── research.md         # Technical research (if applicable)
+    │       └── research.md         # Technical research (if applicable)
 ├── .vscode/
 │   ├── settings.json           # Copilot-optimized settings
 │   ├── tasks.json              # SDD workflow tasks
