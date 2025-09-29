@@ -292,7 +292,9 @@ This toolkit is designed to support FractionEstate's development objectives:
 - GitHub Models Chat
 - GitLens
 - Python
-- Markdown All in One## 📖 Learn more
+- Markdown All in One
+
+## 📖 Learn more
 
 - **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
 - **[Detailed Walkthrough](#-detailed-process)** - Step-by-step implementation guide
@@ -529,7 +531,7 @@ This helps refine the implementation plan and helps you avoid potential blind sp
 You can also ask GitHub Copilot (if you have the [GitHub CLI](https://docs.github.com/en/github-cli/github-cli) installed) to go ahead and create a pull request from your current branch to `main` with a detailed description, to make sure that the effort is properly tracked.
 
 >[!NOTE]
->Before you have GitHub Copilot implement it, it's also worth prompting it to cross-check the details to see if there are any over-engineered pieces (remember - it can be over-eager). If over-engineered components or decisions exist, you can ask GitHub Copilot to resolve them. Ensure that GitHub Copilot follows the [constitution](base/memory/constitution.md) as the foundational piece that it must adhere to when establishing the plan.
+>Before you have GitHub Copilot implement it, it's also worth prompting it to cross-check the details to see if there are any over-engineered pieces (remember - it can be over-eager). If over-engineered components or decisions exist, you can ask GitHub Copilot to resolve them. Ensure that GitHub Copilot follows the [constitution](.specify/memory/constitution.md) as the foundational piece that it must adhere to when establishing the plan.
 
 ### STEP 6: Implementation
 
