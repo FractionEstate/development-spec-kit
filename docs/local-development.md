@@ -1,175 +1,122 @@
-# Local Development Guide
+# Local development
 
-How to iterate on the `specify` CLI locally without publishing a release or committing to `main`.
-
-> Scripts ship in both Bash (`.sh`) and PowerShell (`.ps1`) variants. The CLI auto-selects based on OS unless you pass `--script sh|ps`.
+This guide shows how to iterate on the Specify CLI, regenerate documentation, and validate changes before opening a pull request.
 
 ## Prerequisites
 
 - Python 3.11+
-- [uv](https://docs.astral.sh/uv/) package manager
+- [uv](https://docs.astral.sh/uv/) (installed automatically by the project scripts)
 - Git
-- Optional: VS Code + GitHub Copilot with access to GitHub Models
+- Optional: VS Code with GitHub Copilot access to GitHub Models
 
-## 1. Clone and Switch Branches
+## 1. Clone and branch
 
 ```bash
 git clone https://github.com/FractionEstate/development-spec-kit.git
 cd development-spec-kit
-# Work on a feature branch
-git checkout -b your-feature-branch
+git checkout -b feature/my-change
 ```
 
-## 2. Run the CLI Directly (Fastest Feedback)
+## 2. Run the CLI straight from source
 
-You can execute the CLI via the module entrypoint without installing anything:
+Use the module entry point for the fastest feedback loop:
 
 ```bash
-# From repo root
 python -m src.specify_cli --help
-python -m src.specify_cli init demo-project --model gpt-4o --ignore-agent-tools --script sh
+python -m src.specify_cli list-models --no-cache
+python -m src.specify_cli init demo --model gpt-4.1 --ignore-agent-tools
 ```
 
-If you prefer invoking the script file style (uses shebang):
+You can also invoke the script file directly:
 
 ```bash
-python src/specify_cli/__init__.py init demo-project --script ps
+python src/specify_cli/__init__.py status
 ```
 
-## 3. Editable install (isolated environment)
-
-Create an isolated environment using `uv` so dependencies resolve exactly like end users get them:
+## 3. Editable install (uv)
 
 ```bash
-# Create & activate virtual env (uv auto-manages .venv)
 uv venv
-source .venv/bin/activate  # or on Windows PowerShell: .venv\Scripts\Activate.ps1
-
-# Install project in editable mode
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
 uv pip install -e .
 
-# Now 'specify' entrypoint is available
 specify --help
+specify status
 ```
 
-Re-running after code edits requires no reinstall because of editable mode.
+Editable mode allows you to modify the CLI and re-run commands without reinstalling.
 
-## 4. Invoke with uvx directly from Git (current branch)
+## 4. Exercise real templates with `uvx`
 
-`uvx` can run from a local path (or a Git ref) to simulate user flows:
+`uvx` lets you run the current repository as if it were a published package:
 
 ```bash
-uvx --from . specify init demo-uvx --model gpt-4o --ignore-agent-tools --script sh
+uvx --from . specify init demo-uvx --model gpt-4.1 --ignore-agent-tools
 ```
 
-You can also point uvx at a specific branch without merging:
+You can target a remote branch once pushed:
 
 ```bash
-# Push your working branch first
-git push origin your-feature-branch
-uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@your-feature-branch specify init demo-branch-test --script ps
+git push origin feature/my-change
+uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@feature/my-change specify list-models --refresh
 ```
 
-### 4a. Absolute path uvx (run from anywhere)
+## 5. Validate code changes
 
-If you're in another directory, use an absolute path instead of `.`:
+- **Syntax check** – `python -m compileall src/specify_cli/__init__.py`
+- **Run key commands** – `specify status`, `specify list-models --refresh`, `specify init --here --ignore-agent-tools`
+- **Ensure script mapping** – run both `.specify/scripts/bash/*.sh` and `.specify/scripts/powershell/*.ps1` if you changed command templates.
 
-```bash
-uvx --from /mnt/c/GitHub/development-spec-kit specify --help
-uvx --from /mnt/c/GitHub/development-spec-kit specify init demo-anywhere --model gpt-4o --ignore-agent-tools --script sh
-```
+## 6. Update documentation
 
-Set an environment variable for convenience:
-```bash
-export SPEC_KIT_SRC=/mnt/c/GitHub/development-spec-kit
-uvx --from "$SPEC_KIT_SRC" specify init demo-env --model gpt-4o --ignore-agent-tools --script ps
-```
+1. Edit Markdown under `docs/` or the root `README.md`.
+2. Preview with DocFX:
 
-(Optional) Define a shell function:
-```bash
-specify-dev() { uvx --from /mnt/c/GitHub/development-spec-kit specify "$@"; }
-# Then
-specify-dev --help
-```
+   ```bash
+   cd docs
+   dotnet tool install -g docfx  # first time only
+   docfx docfx.json --serve
+   ```
 
-## 5. Test script permissions
+3. Visit `http://localhost:8080` to review the site.
+4. Run `specify status` and capture new behaviors in the docs if the CLI output changed.
 
-After running an `init`, check that shell scripts are executable on POSIX systems:
-
-```bash
-ls -l scripts | grep .sh
-# Expect owner execute bit (e.g. -rwxr-xr-x)
-```
-On Windows you will instead use the `.ps1` scripts (no chmod needed).
-
-## 6. Run lint / basic checks (add your own)
-
-Currently no enforced lint config is bundled, but you can quickly sanity check importability:
-```bash
-python -c "import specify_cli; print('Import OK')"
-```
-
-## 7. Build a wheel locally (optional)
-
-Validate packaging before publishing:
+## 7. Build artifacts (optional)
 
 ```bash
 uv build
 ls dist/
 ```
-Install the built artifact into a fresh throwaway environment if needed.
 
-## 8. Use a temporary workspace
+Install the resulting wheel in a fresh environment when you need to validate packaging.
 
-When testing `init --here` in a dirty directory, create a temp workspace:
+## 8. Keep things tidy
 
-```bash
-mkdir /tmp/spec-test && cd /tmp/spec-test
-python -m src.specify_cli init --here --model gpt-4o --ignore-agent-tools --script sh  # if repo copied here
-```
-Or copy only the modified CLI portion if you want a lighter sandbox.
-
-## 9. Debug network / TLS skips
-
-If you need to bypass TLS validation while experimenting:
-
-```bash
-specify check --skip-tls
-specify init demo --skip-tls --model gpt-4o --ignore-agent-tools --script ps
-```
-(Use only for local experimentation.)
-
-## 10. Rapid edit loop summary
-
-| Action | Command |
-|--------|---------|
-| Run CLI directly | `python -m src.specify_cli --help` |
-| Editable install | `uv pip install -e .` then `specify ...` |
-| Local uvx run (repo root) | `uvx --from . specify ...` |
-| Local uvx run (abs path) | `uvx --from /mnt/c/GitHub/development-spec-kit specify ...` |
-| Git branch uvx | `uvx --from git+URL@branch specify ...` |
-| Build wheel | `uv build` |
-
-## 11. Clean up
-
-Remove build artifacts / virtual env quickly:
 ```bash
 rm -rf .venv dist build *.egg-info
 ```
 
-## 12. Common issues
+## 9. Preparing a pull request
 
-| Symptom | Fix |
-|---------|-----|
-| `ModuleNotFoundError: typer` | Run `uv pip install -e .` |
-| Scripts not executable (Linux) | Re-run init or `chmod +x scripts/*.sh` |
-| Git step skipped | You passed `--no-git` or Git not installed |
-| Wrong script type downloaded | Pass `--script sh` or `--script ps` explicitly |
-| TLS errors on corporate network | Try `--skip-tls` (not for production) |
+- Run through the [Quickstart](getting-started/quickstart.md) with your local CLI to ensure the workflow still works end-to-end.
+- Update [CHANGELOG.md](../CHANGELOG.md) under “Unreleased” with a concise summary of your changes.
+- Verify docs and README point to the new behavior.
+- Push your branch and open a PR. The link checker and documentation workflows run automatically.
 
-## 13. Next steps
+## 10. Release workflow (maintainers)
 
-- Update docs and run through Quick Start using your modified CLI
-- Open a PR when satisfied
-- (Optional) Tag a release once changes land in `main`
+1. Update the changelog and bump the version in `pyproject.toml`.
+2. Create a release branch and run `uv build` to ensure packaging passes.
+3. Use the `release.yml` GitHub Action to publish artifacts and documentation.
+4. Tag the release and announce changes.
 
+## Useful snippets
+
+| Task | Command |
+| ---- | ------- |
+| Run CLI without install | `python -m src.specify_cli --help` |
+| Editable install | `uv pip install -e .` |
+| Local `uvx` run | `uvx --from . specify status` |
+| Remote branch `uvx` | `uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@branch specify ...` |
+| Build wheel | `uv build` |
+| Clean artefacts | `rm -rf .venv dist build *.egg-info` |

@@ -1,33 +1,30 @@
 # Documentation
 
-Source for the public docs site, built with [DocFX](https://dotnet.github.io/docfx/).
+Source for the public documentation site, built with [DocFX](https://dotnet.github.io/docfx/).
 
 ## Build locally
 
-Prerequisites:
-- .NET SDK (for DocFX global tool)
+Prerequisite: .NET SDK (for the DocFX global tool).
 
-Steps:
-1. Install DocFX:
-   ```bash
-   dotnet tool install -g docfx
-   ```
-2. Build and serve:
-   ```bash
-   cd docs
-   docfx docfx.json --serve
-   ```
-3. Open `http://localhost:8080`
+```bash
+dotnet tool install -g docfx
+cd docs
+docfx docfx.json --serve
+```
+
+Open `http://localhost:8080` to preview the site.
 
 ## Structure
 
-- `docfx.json` – DocFX configuration
-- `index.md` – Docs homepage
-- `installation.md` – Installation guide
-- `quickstart.md` – Quickstart guide
-- `local-development.md` – Contributing locally to the CLI
-- `toc.yml` – Table of contents
+- `index.md` – Documentation hub
+- `overview.md` – Toolkit philosophy and key components
+- `getting-started/` – Installation and quickstart guides
+- `workflows.md` – Slash-command lifecycle walkthrough
+- `reference/` – CLI, script, and configuration references
+- `troubleshooting.md` – Common issues and fixes
+- `local-development.md` – How to hack on the CLI
+- `toc.yml` – Site navigation
 
 ## Deployment
 
-Docs are built and deployed to GitHub Pages via the "Deploy Documentation to Pages" workflow on pushes to `main`.
+`docs.yml` GitHub Actions workflow builds and publishes `_site/` to GitHub Pages on pushes to `main`.

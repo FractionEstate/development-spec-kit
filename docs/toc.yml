@@ -1,17 +1,30 @@
-# Home page
 - name: Home
   href: index.md
 
-# Getting started section
-- name: Getting Started
+- name: Overview
+  href: overview.md
+
+- name: Getting started
   items:
     - name: Installation
-      href: installation.md
-    - name: Quick Start
-      href: quickstart.md
+      href: getting-started/installation.md
+    - name: Quickstart
+      href: getting-started/quickstart.md
 
-# Development workflows
-- name: Development
+- name: Workflows
+  href: workflows.md
+
+- name: Reference
   items:
-    - name: Local Development
-      href: local-development.md
+    - name: CLI
+      href: reference/cli.md
+    - name: Scripts
+      href: reference/scripts.md
+    - name: Configuration
+      href: reference/configuration.md
+
+- name: Troubleshooting
+  href: troubleshooting.md
+
+- name: Local development
+  href: local-development.md

@@ -67,7 +67,12 @@ install() {
   uv tool install specify-cli --from "$SRC"
   echo
   echo "Installed tools:"; uv tool list | grep -E '^specify-cli'
-  echo "Done. Try: specify --help"
+  echo
+  echo "Next steps:"
+  echo "  specify init my-project --model gpt-4.1"
+  echo "  specify doctor"
+  echo
+  echo "Tip: After initialization, open VS Code and use GitHub Copilot Chat slash commands (e.g. /specify, /plan)."
 }
 
 update() {

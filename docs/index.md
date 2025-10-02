@@ -1,29 +1,25 @@
-# FractionEstate Development Spec Kit
+# Spec Kit documentation hub
 
-GitHub Models + VS Code, purpose-built for Spec‑Driven Development.
+Welcome! This site captures everything you need to operate FractionEstate's Spec Kit—from installation through advanced workflows. GitHub Models and VS Code sit at the center of every guide.
 
 ## Start here
 
-- Quickstart (60‑second start): [quickstart.md](quickstart.md)
-- Installation (one‑liners + options): [installation.md](installation.md)
-- Local development (hack on the CLI): [local-development.md](local-development.md)
-- Methodology (why and how SDD): [../spec-driven.md](../spec-driven.md)
+- [Overview](overview.md) – Understand the toolkit and its design principles.
+- [Installation](getting-started/installation.md) – Install or upgrade the CLI.
+- [Quickstart](getting-started/quickstart.md) – Run the slash-command workflow end to end.
+- [Workflows](workflows.md) – Dive into each Copilot command and its artifacts.
 
-## What this kit includes
+## Explore the details
 
-- `specify` CLI to initialize a GitHub Models–optimized workspace
-- Curated Copilot Chat guidance under `.github/` (instructions, context, prompts)
-- VS Code tasks/snippets wired for SDD flows
-- Spec templates and a starter constitution
+- [CLI reference](reference/cli.md)
+- [Script reference](reference/scripts.md)
+- [Configuration reference](reference/configuration.md)
+- [Troubleshooting](troubleshooting.md)
+- [Local development guide](local-development.md)
+- [Spec-Driven Development](../spec-driven.md)
 
-## GitHub Models–first
+## Keep learning
 
-Only GitHub Models are supported. The CLI fetches models (or uses a curated fallback) and injects your choice into the prompts and workspace configuration.
-
-## Contributing & Support
-
-- Contributing: [../CONTRIBUTING.md](../CONTRIBUTING.md)
-- Code of Conduct: [../CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
-- Support: [../SUPPORT.md](../SUPPORT.md)
-
-<!-- trigger: pages rebuild 2025-09-29 -->
+- Follow the [CHANGELOG](../CHANGELOG.md) for release notes.
+- Check the [README](../README.md) for a high-level project tour.
+- Need help? File an issue via [Support](../SUPPORT.md) or review the [Code of Conduct](../CODE_OF_CONDUCT.md).

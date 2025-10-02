@@ -17,11 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation: "Try it: 5‑minute tour" to exercise search/read/terminal/TODO/snippet tools
 - Documentation: References upgrades with Agent Tools quick reference and VS Code Tasks cheat sheet
 - CI: Link checker workflow using lycheeverse/lychee, with Markdown report artifact and job summary
+- CLI: `status` command now reports GitHub Models catalog freshness, catalog source, and the configured script flavor with friendly timestamps
 
 ### Changed
 
 - README: Added stable anchors for Agent Tools and Try It sections; linked to the Tasks Cheat Sheet in references
 - Documentation: Rewrote root README plus docs homepage, quickstart, installation, and local development guides for the GitHub Models–first workflow (60-second start, one-liners, agent capabilities)
+- CLI: Trimmed fallback catalog to GitHub Models, fixed API ID normalization, and improved caching behavior for offline scenarios
+- CLI: Command template generation now resolves POSIX vs PowerShell scripts to the correct folders/extensions
+- Installers: Added post-install guidance that points users at GitHub Copilot Chat slash commands after bootstrapping the CLI
 
 ## [0.1.0] - 2025-09-28
 
@@ -65,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New `/clarify` command template to surface up to 5 targeted clarification questions for an existing spec and persist answers into a Clarifications section in the spec.
 - New `/analyze` command template providing a non-destructive cross-artifact discrepancy and alignment report (spec, clarifications, plan, tasks, constitution) inserted after `/tasks` and before `/implement`.
-	- Note: Constitution rules are explicitly treated as non-negotiable; any conflict is a CRITICAL finding requiring artifact remediation, not weakening of principles.
+  - Note: Constitution rules are explicitly treated as non-negotiable; any conflict is a CRITICAL finding requiring artifact remediation, not weakening of principles.
 
 ## [0.0.16] - 2025-09-22
 

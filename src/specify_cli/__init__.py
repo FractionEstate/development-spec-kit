@@ -32,6 +32,8 @@ import tempfile
 import shutil
 import shlex
 import json
+import importlib.metadata
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Tuple
@@ -45,6 +47,7 @@ from rich.text import Text
 from rich.live import Live
 from rich.align import Align
 from rich.table import Table
+from rich import box
 from rich.tree import Tree
 from typer.core import TyperGroup
 
@@ -67,14 +70,13 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
 
 def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dict:
     """Fetch available GitHub Models from the API with optional caching."""
-    cache_file = Path.home() / ".specify" / "models_cache.json"
+    cache_file = _models_cache_path()
 
     # Check cache first (if enabled and recent)
     if use_cache and cache_file.exists():
         try:
             cache_stat = cache_file.stat()
             # Use cache if less than 1 hour old
-            import time
             if time.time() - cache_stat.st_mtime < 3600:  # 1 hour
                 with open(cache_file, 'r') as f:
                     cached_data = json.load(f)
@@ -115,7 +117,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                         model_name = model.get("name", model_id)
                         if model_id:
                             # Simplify model IDs for better usability
-                            simple_id = model_id.split("/")[-2] if "/" in model_id else model_id
+                            simple_id = model_id.split("/")[-1] if "/" in model_id else model_id
                             api_models[simple_id] = model_name
                 elif isinstance(models_data, list):
                     # Handle direct list format
@@ -123,7 +125,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                         model_id = model.get("id", "")
                         model_name = model.get("name", model_id)
                         if model_id:
-                            simple_id = model_id.split("/")[-2] if "/" in model_id else model_id
+                            simple_id = model_id.split("/")[-1] if "/" in model_id else model_id
                             api_models[simple_id] = model_name
 
                 # Merge with fallback known models (fallback takes precedence for known models)
@@ -134,11 +136,10 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                 if use_cache:
                     try:
                         cache_file.parent.mkdir(parents=True, exist_ok=True)
-                        import time
                         cache_data = {
                             "models": combined_models,
                             "timestamp": time.time(),
-                            "source": "api_with_fallback"
+                            "source": "api" if api_models else "fallback",
                         }
                         with open(cache_file, 'w') as f:
                             json.dump(cache_data, f, indent=2)
@@ -148,44 +149,300 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                 return combined_models
             else:
                 # Fallback to known models if API fails
-                return get_fallback_github_models()
+                fallback_only = get_fallback_github_models()
+                if use_cache:
+                    try:
+                        cache_file.parent.mkdir(parents=True, exist_ok=True)
+                        cache_file.write_text(
+                            json.dumps(
+                                {
+                                    "models": fallback_only,
+                                    "timestamp": time.time(),
+                                    "source": "fallback",
+                                },
+                                indent=2,
+                            )
+                        )
+                    except Exception:
+                        pass
+                return fallback_only
     except Exception:
         # Fallback to known models if any error occurs
-        return get_fallback_github_models()
+        fallback_only = get_fallback_github_models()
+        if use_cache:
+            try:
+                cache_file.parent.mkdir(parents=True, exist_ok=True)
+                cache_file.write_text(
+                    json.dumps(
+                        {
+                            "models": fallback_only,
+                            "timestamp": time.time(),
+                            "source": "fallback",
+                        },
+                        indent=2,
+                    )
+                )
+            except Exception:
+                pass
+        return fallback_only
+
+GITHUB_MODEL_FALLBACKS: dict[str, str] = {
+    "gpt-4.1": "GPT-4.1",
+    "gpt-4.1-mini": "GPT-4.1 Mini",
+    "gpt-4o": "GPT-4o",
+    "gpt-4o-mini": "GPT-4o Mini",
+    "gpt-4o-audio-preview": "GPT-4o Audio Preview",
+    "gpt-4o-realtime-preview": "GPT-4o Realtime Preview",
+    "gpt-4o-realtime-mini": "GPT-4o Realtime Mini",
+    "gpt-4o-mini-transcribe": "GPT-4o Mini Transcribe",
+    "text-embedding-3-large": "Text Embedding 3 Large",
+    "text-embedding-3-small": "Text Embedding 3 Small",
+}
+
 
 def get_fallback_github_models() -> dict:
-    """Return a fallback list of known GitHub Models when API is unavailable."""
+    """Return a curated GitHub Models-only fallback list when the live catalog is unavailable."""
+    return dict(GITHUB_MODEL_FALLBACKS)
+
+
+def _models_cache_path() -> Path:
+    return Path.home() / ".specify" / "models_cache.json"
+
+
+def _load_models_cache_metadata() -> dict | None:
+    cache_file = _models_cache_path()
+    if not cache_file.exists():
+        return None
+    try:
+        data = json.loads(cache_file.read_text())
+        data["path"] = cache_file
+        data["age_seconds"] = max(time.time() - cache_file.stat().st_mtime, 0)
+        return data
+    except Exception:
+        return {"path": cache_file, "age_seconds": None, "corrupt": True}
+
+
+def _format_age(seconds: float | None) -> str:
+    if seconds is None:
+        return "unknown age"
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    minutes = seconds / 60
+    if minutes < 60:
+        return f"{int(minutes)}m"
+    hours = minutes / 60
+    if hours < 24:
+        return f"{int(hours)}h"
+    days = hours / 24
+    if days < 7:
+        return f"{int(days)}d"
+    weeks = days / 7
+    return f"{int(weeks)}w"
+
+
+def _parse_iso8601(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        cleaned = value.rstrip("Z") + "+00:00" if value.endswith("Z") else value
+        dt = datetime.fromisoformat(cleaned)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+EM_DASH = "—"
+
+
+def _read_first_markdown_heading(path: Path) -> str | None:
+    """Return the first Markdown heading in a file, if present."""
+    if not path.exists():
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                stripped = line.strip()
+                if stripped.startswith("#"):
+                    return stripped.lstrip("# ").strip()
+    except Exception:
+        return None
+    return None
+
+
+def _collect_workflow_artifacts(specify_dir: Path) -> dict:
+    """Inspect key workflow artifacts in a Specify workspace."""
+    constitution_path = specify_dir / "memory" / "constitution.md"
+    constitution_exists = constitution_path.exists()
+
+    specs_root = specify_dir / "specs"
+    features: list[dict] = []
+
+    if specs_root.exists():
+        for feature_dir in sorted(specs_root.iterdir(), key=lambda p: p.name):
+            if not feature_dir.is_dir():
+                continue
+            spec_path = feature_dir / "spec.md"
+            plan_path = feature_dir / "plan.md"
+            tasks_path = feature_dir / "tasks.md"
+
+            features.append(
+                {
+                    "path": feature_dir,
+                    "slug": feature_dir.name,
+                    "spec": spec_path.exists(),
+                    "plan": plan_path.exists(),
+                    "tasks": tasks_path.exists(),
+                    "title": _read_first_markdown_heading(spec_path),
+                }
+            )
+
+    specs_ready = sum(1 for feature in features if feature["spec"])
+    plans_ready = sum(1 for feature in features if feature["plan"])
+    tasks_ready = sum(1 for feature in features if feature["tasks"])
+
+    waiting_plan = [feature for feature in features if feature["spec"] and not feature["plan"]]
+    waiting_tasks = [feature for feature in features if feature["plan"] and not feature["tasks"]]
+    missing_spec = [feature for feature in features if not feature["spec"]]
+
     return {
-        "gpt-4": "GPT-4",
-        "gpt-4-turbo": "GPT-4 Turbo",
-        "gpt-4.1": "GPT-4.1",
-        "gpt-4o": "GPT-4o",
-        "gpt-4o-mini": "GPT-4o Mini",
-        "gpt-5-mini": "GPT-5 Mini",
-        "gpt-5": "GPT-5",
-        "gpt-5-codex": "GPT-5 Codex",
-        "grok-code-fast-1": "Grok Code Fast 1",
-        "claude-3-5-sonnet": "Claude Sonnet 3.5",
-        "claude-3-7-sonnet": "Claude Sonnet 3.7",
-        "claude-4-sonnet": "Claude Sonnet 4",
-        "gemini-2.5-pro": "Gemini 2.5 Pro",
-        "o3-mini": "o3-mini",
-        "o4-mini": "o4-mini",
-        # Additional models from Azure/GitHub Models marketplace
-        "meta-llama-3-70b-instruct": "Meta Llama 3 70B Instruct",
-        "meta-llama-3-8b-instruct": "Meta Llama 3 8B Instruct",
-        "meta-llama-3.1-405b-instruct": "Meta Llama 3.1 405B Instruct",
-        "meta-llama-3.1-70b-instruct": "Meta Llama 3.1 70B Instruct",
-        "meta-llama-3.1-8b-instruct": "Meta Llama 3.1 8B Instruct",
-        "mistral-nemo": "Mistral Nemo",
-        "mistral-large-2407": "Mistral Large 2407",
-        "mistral-small": "Mistral Small",
-        "ai21-jamba-instruct": "AI21 Jamba Instruct",
-        "cohere-embed-v3-english": "Cohere Embed v3 English",
-        "cohere-embed-v3-multilingual": "Cohere Embed v3 Multilingual"
+        "constitution": constitution_exists,
+        "features": features,
+        "feature_total": len(features),
+        "specs_ready": specs_ready,
+        "plans_ready": plans_ready,
+        "tasks_ready": tasks_ready,
+        "waiting_plan": waiting_plan,
+        "waiting_tasks": waiting_tasks,
+        "missing_spec": missing_spec,
     }
 
+
+def _feature_display_name(feature: dict) -> str:
+    title = feature.get("title") or ""
+    slug = feature.get("slug") or ""
+    if title and title.lower() != slug.lower():
+        return f"{slug} · {title}"
+    return slug or title or "feature"
+
+
+def _format_stage_progress(completed: int, total: int) -> str:
+    if total == 0:
+        if completed == 0:
+            return "[yellow]Not started[/yellow]"
+        return f"[green]{completed} ready[/green]"
+    if completed == total:
+        return f"[green]✓ {completed}/{total} ready[/green]"
+    missing = total - completed
+    return f"[yellow]{completed}/{total} ready[/yellow] ([red]{missing} pending[/red])"
+
+
+def _render_workflow_summary(summary: dict) -> None:
+    console.print()
+    table = Table(
+        title="Workflow Artifacts",
+        box=box.SIMPLE_HEAVY,
+        show_edge=True,
+        show_header=True,
+        pad_edge=True,
+    )
+    table.add_column("Stage", style="cyan", no_wrap=True)
+    table.add_column("Status", style="white")
+    table.add_column("Next Step", style="magenta")
+
+    constitution_status = (
+        "[green]✓ Recorded[/green]" if summary["constitution"] else "[yellow]Missing[/yellow]"
+    )
+    constitution_next = (
+        EM_DASH if summary["constitution"] else "Run [magenta]/constitution[/magenta] in Copilot Chat"
+    )
+    table.add_row("Constitution", constitution_status, constitution_next)
+
+    feature_total = summary["feature_total"]
+    specs_ready = summary["specs_ready"]
+
+    if feature_total == 0:
+        specs_status = "[yellow]No features captured yet[/yellow]"
+    else:
+        specs_status = (
+            f"[green]✓ {specs_ready} feature{'s' if specs_ready != 1 else ''} captured[/green]"
+            if specs_ready and specs_ready == feature_total
+            else _format_stage_progress(specs_ready, feature_total)
+        )
+    specs_next = (
+        EM_DASH
+        if specs_ready
+        else "Use [magenta]/specify[/magenta] to draft your first feature"
+    )
+    if summary["missing_spec"]:
+        first_missing = summary["missing_spec"][0]
+        specs_next = (
+            f"Complete spec → [magenta]/specify[/magenta] · {_feature_display_name(first_missing)}"
+        )
+    table.add_row("Specs", specs_status, specs_next)
+
+    plans_ready = summary["plans_ready"]
+    plan_total = specs_ready if specs_ready else 0
+    if specs_ready == 0:
+        plans_status = "[dim]Waiting for specs[/dim]"
+    else:
+        plans_status = _format_stage_progress(plans_ready, plan_total)
+    if summary["waiting_plan"]:
+        next_feature = summary["waiting_plan"][0]
+        plans_next = f"[magenta]/plan[/magenta] → {_feature_display_name(next_feature)}"
+    elif plans_ready:
+        plans_next = EM_DASH
+    else:
+        plans_next = "Run [magenta]/plan[/magenta] after [magenta]/specify[/magenta]"
+    table.add_row("Plans", plans_status, plans_next)
+
+    tasks_ready = summary["tasks_ready"]
+    tasks_total = plans_ready if plans_ready else 0
+    if plans_ready == 0:
+        tasks_status = "[dim]Waiting for plans[/dim]"
+    else:
+        tasks_status = _format_stage_progress(tasks_ready, tasks_total)
+    if summary["waiting_tasks"]:
+        next_tasks = summary["waiting_tasks"][0]
+        tasks_next = f"[magenta]/tasks[/magenta] → {_feature_display_name(next_tasks)}"
+    elif tasks_ready:
+        tasks_next = EM_DASH
+    else:
+        tasks_next = "Run [magenta]/tasks[/magenta] after [magenta]/plan[/magenta]"
+    table.add_row("Tasks", tasks_status, tasks_next)
+
+    console.print(table)
+
+    followups: list[str] = []
+    if not summary["constitution"]:
+        followups.append("Record guardrails with [magenta]/constitution[/magenta].")
+    if specs_ready == 0:
+        followups.append("Kick off your first feature with [magenta]/specify[/magenta].")
+    if summary["missing_spec"]:
+        names = ", ".join(_feature_display_name(feature) for feature in summary["missing_spec"][:3])
+        if len(summary["missing_spec"]) > 3:
+            names += ", …"
+        followups.append(f"Finish draft specs for: {names}.")
+    if summary["waiting_plan"]:
+        names = ", ".join(_feature_display_name(feature) for feature in summary["waiting_plan"][:3])
+        if len(summary["waiting_plan"]) > 3:
+            names += ", …"
+        followups.append(f"Plan next steps with [magenta]/plan[/magenta] → {names}.")
+    if summary["waiting_tasks"]:
+        names = ", ".join(_feature_display_name(feature) for feature in summary["waiting_tasks"][:3])
+        if len(summary["waiting_tasks"]) > 3:
+            names += ", …"
+        followups.append(f"Create execution tasks via [magenta]/tasks[/magenta] → {names}.")
+
+    if followups:
+        console.print()
+        console.print("[dim]Next suggestions:[/dim]")
+        for item in followups:
+            console.print(f"  • {item}")
+
 # Constants
+WORKSPACE_DOT_DIRS = (".github", ".vscode", ".specify")
 AI_CHOICES = {
     "copilot": "GitHub Models",
 }
@@ -551,33 +808,39 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(original_cwd)
 
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
+def fetch_latest_release_metadata(client: httpx.Client, github_token: str | None = None, debug: bool = False) -> dict:
     repo_owner = "FractionEstate"
     repo_name = "development-spec-kit"
+    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+
+    response = client.get(
+        api_url,
+        timeout=30,
+        follow_redirects=True,
+        headers=_github_auth_headers(github_token),
+    )
+    status = response.status_code
+    if status != 200:
+        msg = f"GitHub API returned {status} for {api_url}"
+        if debug:
+            msg += f"\nResponse headers: {response.headers}\nBody (truncated 500): {response.text[:500]}"
+        raise RuntimeError(msg)
+    try:
+        release_data = response.json()
+    except ValueError as je:
+        raise RuntimeError(f"Failed to parse release JSON: {je}\nRaw (truncated 400): {response.text[:400]}")
+    return release_data
+
+
+def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
     if client is None:
         client = httpx.Client(verify=ssl_context)
 
     if verbose:
         console.print("[cyan]Fetching latest release information...[/cyan]")
-    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
 
     try:
-        response = client.get(
-            api_url,
-            timeout=30,
-            follow_redirects=True,
-            headers=_github_auth_headers(github_token),
-        )
-        status = response.status_code
-        if status != 200:
-            msg = f"GitHub API returned {status} for {api_url}"
-            if debug:
-                msg += f"\nResponse headers: {response.headers}\nBody (truncated 500): {response.text[:500]}"
-            raise RuntimeError(msg)
-        try:
-            release_data = response.json()
-        except ValueError as je:
-            raise RuntimeError(f"Failed to parse release JSON: {je}\nRaw (truncated 400): {response.text[:400]}")
+        release_data = fetch_latest_release_metadata(client, github_token, debug)
     except Exception as e:
         console.print(f"[red]Error fetching release information[/red]")
         console.print(Panel(str(e), title="Fetch Error", border_style="red"))
@@ -747,21 +1010,55 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
     output_dir = project_path / config["dir"]
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Store model configuration if provided
-    if selected_model and ai_assistant == "copilot":
+    script_folder_map = {"ps": "powershell", "sh": "bash"}
+    script_extension_map = {"ps": "ps1", "sh": "sh"}
+    script_folder = script_folder_map.get(script_type, script_type)
+    script_extension = script_extension_map.get(script_type, script_type)
+
+    # Persist configuration (model + script metadata) for status reporting
+    if ai_assistant == "copilot":
         config_dir = project_path / ".specify" / "config"
         config_dir.mkdir(parents=True, exist_ok=True)
 
-        config_data = {
-            "github_models": {
-                "selected_model": selected_model,
-                "last_updated": datetime.now(timezone.utc).isoformat()
-            }
+        config_file = config_dir / "models.json"
+        existing: dict = {}
+        if config_file.exists():
+            try:
+                existing = json.loads(config_file.read_text())
+            except Exception:
+                existing = {}
+
+        config_payload = existing.copy()
+
+        github_meta = config_payload.get("github_models", {})
+        catalog_meta = _load_models_cache_metadata() or {}
+        if selected_model:
+            github_meta.update(
+                {
+                    "selected_model": selected_model,
+                    "last_updated": datetime.now(timezone.utc).isoformat(),
+                    "catalog_source": catalog_meta.get("source") or github_meta.get("catalog_source", "user-selection"),
+                }
+            )
+        elif catalog_meta.get("source") and "catalog_source" not in github_meta:
+            github_meta["catalog_source"] = catalog_meta.get("source")
+
+        if catalog_meta.get("timestamp") and "catalog_cached_at" not in github_meta:
+            try:
+                cached_dt = datetime.fromtimestamp(catalog_meta["timestamp"], tz=timezone.utc)
+                github_meta["catalog_cached_at"] = cached_dt.isoformat()
+            except Exception:
+                pass
+        config_payload["github_models"] = github_meta
+
+        config_payload["scripts"] = {
+            "preferred": script_type,
+            "folder": script_folder,
+            "extension": script_extension,
+            "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 
-        config_file = config_dir / "models.json"
-        with open(config_file, 'w') as f:
-            json.dump(config_data, f, indent=2)
+        config_file.write_text(json.dumps(config_payload, indent=2))
 
     # Process each command template
     if templates_dir.exists():
@@ -771,7 +1068,9 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
 
             # Replace placeholders
             content = content.replace("$ARGUMENTS", config["arg_placeholder"])
-            content = content.replace("{SCRIPT}", f".specify/scripts/{script_type}/{template_file.stem}.{script_type}")
+            content = content.replace(
+                "{SCRIPT}", f".specify/scripts/{script_folder}/{template_file.stem}.{script_extension}"
+            )
 
             if config["format"] == "toml":
                 # Wrap in TOML format
@@ -989,11 +1288,83 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
             for f in failures:
                 console.print(f"  - {f}")
 
+
+def _merge_directory(source: Path, destination: Path) -> list[str]:
+    """Merge source directory into destination, returning list of new relative paths copied."""
+    copied: list[str] = []
+    if not source.exists() or not source.is_dir():
+        return copied
+
+    destination.mkdir(parents=True, exist_ok=True)
+
+    for item in source.iterdir():
+        target = destination / item.name
+        if item.is_dir():
+            child_results = _merge_directory(item, target)
+            copied.extend([f"{item.name}/{child}" for child in child_results])
+        else:
+            if target.exists():
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(item, target)
+            copied.append(item.name)
+    return copied
+
+
+def sync_workspace_config(project_path: Path, workspace_root: Path) -> tuple[bool, str]:
+    """Ensure workspace root has required dot-directories for slash commands.
+
+    Returns (changed, detail).
+    """
+    try:
+        if project_path.resolve() == workspace_root.resolve():
+            return False, "project is workspace root"
+    except FileNotFoundError:
+        return False, "workspace path missing"
+
+    if not is_git_repo(workspace_root):
+        return False, "workspace root not a git repo"
+
+    synced_dirs: list[str] = []
+    for dirname in WORKSPACE_DOT_DIRS:
+        source = project_path / dirname
+        if not source.exists():
+            continue
+        destination = workspace_root / dirname
+        copied = _merge_directory(source, destination)
+        if copied:
+            synced_dirs.append(dirname)
+
+    if not synced_dirs:
+        return False, "no workspace directories to sync"
+
+    detail = ", ".join(synced_dirs)
+    return True, f"synced {detail}"
+
+
+def resolve_workspace_root(start: Path) -> Path:
+    """Return git workspace root if inside a repo, otherwise the starting path."""
+    if is_git_repo(start):
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                check=True,
+                capture_output=True,
+                text=True,
+                cwd=start,
+            )
+            top = result.stdout.strip()
+            if top:
+                return Path(top)
+        except subprocess.CalledProcessError:
+            pass
+    return start
+
 @app.command()
 def init(
     project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here, or use '.' for current directory)"),
     ai_assistant: str = typer.Option(None, "--ai", help="AI assistant identifier (GitHub Models uses 'copilot'; leave unset for default)"),
-    model: str = typer.Option(None, "--model", help="Specific GitHub Model to use (e.g., gpt-4o, claude-3-5-sonnet)"),
+    model: str = typer.Option(None, "--model", help="Specific GitHub Model to use (e.g., gpt-4.1, gpt-4o)"),
     script_type: str = typer.Option(None, "--script", help="Script type to use: sh or ps"),
     ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="Skip checks for VS Code/GitHub Copilot tooling"),
     no_git: bool = typer.Option(False, "--no-git", help="Skip git repository initialization"),
@@ -1198,6 +1569,7 @@ def init(
         ("extract", "Extract template"),
         ("zip-list", "Archive contents"),
         ("extracted-summary", "Extraction summary"),
+        ("workspace", "Sync workspace config"),
         ("chmod", "Ensure scripts executable"),
         ("cleanup", "Cleanup"),
         ("git", "Initialize git repository"),
@@ -1218,6 +1590,17 @@ def init(
                 copy_local_template(project_path, selected_ai, selected_script, selected_model, here, verbose=False, tracker=tracker)
             else:
                 download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
+
+            tracker.start("workspace")
+            try:
+                synced, detail = sync_workspace_config(project_path, current_dir)
+            except Exception as sync_error:
+                tracker.error("workspace", str(sync_error))
+            else:
+                if synced:
+                    tracker.complete("workspace", detail)
+                else:
+                    tracker.skip("workspace", detail)
 
             # Ensure scripts are executable (POSIX)
             ensure_executable_scripts(project_path, tracker=tracker)
@@ -1356,7 +1739,7 @@ def list_models(
 
     # Handle cache clearing
     if clear_cache:
-        cache_file = Path.home() / ".specify" / "models_cache.json"
+        cache_file = _models_cache_path()
         if cache_file.exists():
             cache_file.unlink()
             console.print("[green]✓ Models cache cleared[/green]")
@@ -1392,6 +1775,16 @@ def list_models(
         console.print(f"\n[dim]API endpoint: https://models.inference.ai.azure.com/models[/dim]")
         console.print(f"[dim]Auth: {'✓ Token provided' if _github_token(github_token) else '⚠ No token (may have limited access)'}[/dim]")
 
+    cache_meta = _load_models_cache_metadata()
+    if cache_meta:
+        age = _format_age(cache_meta.get("age_seconds"))
+        source = cache_meta.get("source", "unknown")
+        console.print(
+            f"\n[dim]Cache: {age} old (source: {source}). Run 'specify list-models --refresh' to force an update.[/dim]"
+        )
+    elif not no_cache:
+        console.print("\n[dim]Cache: none (will populate after the first successful API call).[/dim]")
+
 
 @app.command()
 def status():
@@ -1424,18 +1817,63 @@ def status():
         # Show selected model if configured
         if models_config.exists():
             try:
-                with open(models_config, 'r') as f:
-                    config_data = json.load(f)
-                selected_model = config_data.get("github_models", {}).get("selected_model")
-                last_updated = config_data.get("github_models", {}).get("last_updated", "unknown")
-                if selected_model:
-                    console.print(f"[cyan]Selected Model:[/cyan] {selected_model} [dim](configured {last_updated})[/dim]")
+                config_data = json.loads(models_config.read_text())
             except Exception:
                 console.print("[yellow]⚠ Model configuration file exists but could not be read[/yellow]")
+            else:
+                github_meta = config_data.get("github_models", {})
+                selected_model = github_meta.get("selected_model")
+                last_updated_raw = github_meta.get("last_updated")
+                catalog_source = github_meta.get("catalog_source")
+
+                if selected_model:
+                    last_updated_dt = _parse_iso8601(last_updated_raw)
+                    if last_updated_dt:
+                        age = _format_age((datetime.now(timezone.utc) - last_updated_dt).total_seconds())
+                        iso_stamp = last_updated_dt.isoformat().replace("+00:00", "Z")
+                        console.print(
+                            f"[cyan]Selected Model:[/cyan] {selected_model} [dim](set {age} ago · {iso_stamp})[/dim]"
+                        )
+                    else:
+                        console.print(
+                            f"[cyan]Selected Model:[/cyan] {selected_model} [dim](configured {last_updated_raw or 'unknown'})[/dim]"
+                        )
+                else:
+                    console.print("[dim]No specific model configured (will use default)[/dim]")
+
+                if catalog_source:
+                    console.print(f"[dim]Catalog source: {catalog_source}[/dim]")
+
+                catalog_cached_at = github_meta.get("catalog_cached_at")
+                if catalog_cached_at:
+                    cached_dt = _parse_iso8601(catalog_cached_at)
+                    if cached_dt:
+                        cache_age = _format_age((datetime.now(timezone.utc) - cached_dt).total_seconds())
+                        console.print(
+                            f"[dim]Catalog cached: {cache_age} ago ({cached_dt.isoformat().replace('+00:00', 'Z')})[/dim]"
+                        )
+
+                scripts_meta = config_data.get("scripts", {})
+                if scripts_meta:
+                    script_flavor = scripts_meta.get("preferred", "unknown")
+                    descriptor = "/".join(filter(None, [scripts_meta.get("folder"), scripts_meta.get("extension")]))
+                    last_script_dt = _parse_iso8601(scripts_meta.get("last_updated"))
+                    if last_script_dt:
+                        script_age = _format_age((datetime.now(timezone.utc) - last_script_dt).total_seconds())
+                        console.print(
+                            f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'}, updated {script_age} ago)[/dim]"
+                        )
+                    else:
+                        console.print(
+                            f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'})[/dim]"
+                        )
         else:
             console.print("[dim]No specific model configured (will use default)[/dim]")
     else:
         console.print("[yellow]⚠ No GitHub Models prompts found[/yellow]")
+
+    artifact_summary = _collect_workflow_artifacts(specify_dir)
+    _render_workflow_summary(artifact_summary)
 
     # Check for git repository
     if is_git_repo(current_dir):
@@ -1451,6 +1889,14 @@ def status():
             for prompt_file in prompt_files:
                 command_name = prompt_file.stem
                 console.print(f"  [cyan]/{command_name}[/cyan]")
+
+    cache_meta = _load_models_cache_metadata()
+    if cache_meta:
+        age_human = _format_age(cache_meta.get("age_seconds"))
+        source = cache_meta.get("source", "unknown")
+        console.print(
+            f"\n[dim]Models cache: {age_human} old (source: {source}). Use 'specify list-models --refresh' to update.[/dim]"
+        )
 
 
 @app.command()

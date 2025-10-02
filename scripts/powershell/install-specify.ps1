@@ -64,7 +64,12 @@ function Install-Specify {
   uv tool install specify-cli --from $From
   Write-Host "`nInstalled tools:"
   uv tool list | Select-String '^specify-cli' | ForEach-Object { $_.Line }
-  Write-Host "Done. Try: specify --help"
+  Write-Host ""
+  Write-Host "Next steps:"
+  Write-Host "  specify init my-project --model gpt-4.1"
+  Write-Host "  specify doctor"
+  Write-Host ""
+  Write-Host "Tip: After initialization, open VS Code and drive the flow with GitHub Copilot Chat slash commands (e.g. /specify, /plan)."
 }
 
 function Update-Specify {
