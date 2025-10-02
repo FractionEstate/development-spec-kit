@@ -55,7 +55,7 @@ Each command writes structured artifacts under `.specify/specs/<feature>/` and r
 
 - `specify init` – scaffold or refresh a workspace (supports `--here`, `--model`, `--script`).
 - `specify list-models` – view the GitHub Models catalog, including cache age and source.
-- `specify status` – summarize prompts, selected model, script flavor, catalog freshness, and show a workflow progress dashboard with next actions.
+- `specify status` – summarize prompts, selected model, script flavor, catalog freshness, show a workflow progress dashboard plus feature table, and export the full dataset with `--json`.
 - `specify check` – confirm Git, VS Code, and Copilot prerequisites.
 - `specify version` – print CLI/Python versions and cache status.
 

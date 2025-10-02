@@ -65,6 +65,7 @@ uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@featur
 
 - **Syntax check** – `python -m compileall src/specify_cli/__init__.py`
 - **Run key commands** – `specify status`, `specify list-models --refresh`, `specify init --here --ignore-agent-tools`
+- **Automation checks** – `specify status --json` to confirm machine-readable output and inspect feature coverage.
 - **Ensure script mapping** – run both `.specify/scripts/bash/*.sh` and `.specify/scripts/powershell/*.ps1` if you changed command templates.
 
 ## 6. Update documentation

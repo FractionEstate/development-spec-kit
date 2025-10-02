@@ -61,6 +61,6 @@ Every Spec Kit workspace ships with curated slash commands that keep GitHub Copi
 
 ## Supporting automation
 
-- **CLI commands**: `specify status` summarizes configured prompts, script flavor, model choice, cache freshness, and now displays a workflow dashboard that highlights which slash commands to run next.
+- **CLI commands**: `specify status` summarizes configured prompts, script flavor, model choice, cache freshness, and now displays a workflow dashboard plus feature table that highlights which slash commands to run next. Use `--json` when you need automation-friendly output.
 - **Scripts**: `.specify/scripts/**` provide Bash and PowerShell helpers used by the prompts to gather context.
 - **Documentation**: Keep the [Quickstart](getting-started/quickstart.md) and [CLI reference](reference/cli.md) handy while you work through the lifecycle.

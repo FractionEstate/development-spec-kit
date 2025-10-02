@@ -78,7 +78,16 @@ Outputs include:
 - Script flavor (bash or PowerShell) wired into the prompt templates.
 - Age of the cached model catalog with a reminder command to refresh it.
 - A "Workflow Artifacts" dashboard summarizing constitution/spec/plan/task coverage with suggested next slash commands.
+- A feature progress table (first five features) with stage completion indicators and next recommended action.
 - Git repository status for the current directory.
+
+### Helpful flags
+
+| Flag | Description |
+| ---- | ----------- |
+| `--json` | Print the entire status payload as JSON (includes workflow summary, feature states, prompts, scripts, and cache metadata). |
+
+Use the JSON output when integrating with automation or when you need to inspect every feature beyond the first five shown in the table.
 
 ## `specify version`
 

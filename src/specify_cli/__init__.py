@@ -59,14 +59,17 @@ import truststore
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
 
+
 def _github_token(cli_token: str | None = None) -> str | None:
     """Return sanitized GitHub token (cli arg takes precedence) or None."""
     return ((cli_token or os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN") or "").strip()) or None
+
 
 def _github_auth_headers(cli_token: str | None = None) -> dict:
     """Return Authorization header dict only when a non-empty token exists."""
     token = _github_token(cli_token)
     return {"Authorization": f"Bearer {token}"} if token else {}
+
 
 def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dict:
     """Fetch available GitHub Models from the API with optional caching."""
@@ -215,11 +218,11 @@ def _load_models_cache_metadata() -> dict | None:
         return None
     try:
         data = json.loads(cache_file.read_text())
-        data["path"] = cache_file
+        data["path"] = str(cache_file)
         data["age_seconds"] = max(time.time() - cache_file.stat().st_mtime, 0)
         return data
     except Exception:
-        return {"path": cache_file, "age_seconds": None, "corrupt": True}
+        return {"path": str(cache_file), "age_seconds": None, "corrupt": True}
 
 
 def _format_age(seconds: float | None) -> str:
@@ -287,14 +290,29 @@ def _collect_workflow_artifacts(specify_dir: Path) -> dict:
             plan_path = feature_dir / "plan.md"
             tasks_path = feature_dir / "tasks.md"
 
+            spec_exists = spec_path.exists()
+            plan_exists = plan_path.exists()
+            tasks_exists = tasks_path.exists()
+
+            if not spec_exists:
+                next_command = "specify"
+            elif not plan_exists:
+                next_command = "plan"
+            elif not tasks_exists:
+                next_command = "tasks"
+            else:
+                next_command = "implement"
+
             features.append(
                 {
-                    "path": feature_dir,
+                    "path": str(feature_dir),
                     "slug": feature_dir.name,
-                    "spec": spec_path.exists(),
-                    "plan": plan_path.exists(),
-                    "tasks": tasks_path.exists(),
-                    "title": _read_first_markdown_heading(spec_path),
+                    "spec": spec_exists,
+                    "plan": plan_exists,
+                    "tasks": tasks_exists,
+                    "title": _read_first_markdown_heading(spec_path) if spec_exists else None,
+                    "next_command": next_command,
+                    "ready_for_implementation": next_command == "implement",
                 }
             )
 
@@ -440,6 +458,55 @@ def _render_workflow_summary(summary: dict) -> None:
         console.print("[dim]Next suggestions:[/dim]")
         for item in followups:
             console.print(f"  • {item}")
+
+
+def _format_stage_cell(flag: bool) -> str:
+    return "[green]✓[/green]" if flag else "[yellow]○[/yellow]"
+
+
+def _next_action_label(feature: dict) -> str:
+    mapping = {
+        "specify": "Draft with [magenta]/specify[/magenta]",
+        "plan": "Plan via [magenta]/plan[/magenta]",
+        "tasks": "Task with [magenta]/tasks[/magenta]",
+        "implement": "Ready for [magenta]/implement[/magenta]",
+    }
+    return mapping.get(feature.get("next_command"), EM_DASH)
+
+
+def _render_feature_details(summary: dict) -> None:
+    features = summary.get("features") or []
+    if not features:
+        console.print()
+        console.print("[dim]No feature folders yet. Use [magenta]/specify[/magenta] to start your first feature.[/dim]")
+        return
+
+    console.print()
+    console.print("[bold]Feature Progress[/bold]")
+
+    table = Table(box=box.SIMPLE, show_header=True, show_edge=True)
+    table.add_column("Feature", style="cyan", no_wrap=True)
+    table.add_column("Spec", justify="center")
+    table.add_column("Plan", justify="center")
+    table.add_column("Tasks", justify="center")
+    table.add_column("Next Action", style="magenta")
+
+    for feature in features[:5]:
+        feature_name = _feature_display_name(feature)
+        table.add_row(
+            feature_name,
+            _format_stage_cell(feature.get("spec")),
+            _format_stage_cell(feature.get("plan")),
+            _format_stage_cell(feature.get("tasks")),
+            _next_action_label(feature),
+        )
+
+    console.print(table)
+
+    if len(features) > 5:
+        console.print(
+            f"[dim]Showing first 5 of {len(features)} features. Run with --json to see the full list.[/dim]"
+        )
 
 # Constants
 WORKSPACE_DOT_DIRS = (".github", ".vscode", ".specify")
@@ -1787,115 +1854,179 @@ def list_models(
 
 
 @app.command()
-def status():
+def status(
+    output_json: bool = typer.Option(
+        False,
+        "--json",
+        help="Output status information as JSON instead of formatted text.",
+    )
+):
     """Show current project configuration and status."""
-    show_banner()
 
     current_dir = Path.cwd()
-    console.print(f"[bold]Project Status[/bold]\n")
-    console.print(f"[cyan]Current Directory:[/cyan] {current_dir}")
-
-    # Check if this is a Specify project
     specify_dir = current_dir / ".specify"
     github_dir = current_dir / ".github"
     prompts_dir = github_dir / "prompts"
     config_dir = specify_dir / "config"
     models_config = config_dir / "models.json"
 
-    if not specify_dir.exists():
+    is_specify_project = specify_dir.exists()
+
+    prompt_files: list[Path] = []
+    if prompts_dir.exists():
+        prompt_files = sorted(prompts_dir.glob("*.md"))
+
+    config_data: dict | None = None
+    config_error: str | None = None
+    if models_config.exists():
+        try:
+            config_data = json.loads(models_config.read_text())
+        except Exception as exc:
+            config_error = str(exc)
+
+    model_info = None
+    scripts_info = None
+    if isinstance(config_data, dict):
+        github_meta = config_data.get("github_models", {})
+        scripts_meta = config_data.get("scripts", {})
+        model_info = {
+            "selected_model": github_meta.get("selected_model"),
+            "last_updated": github_meta.get("last_updated"),
+            "catalog_source": github_meta.get("catalog_source"),
+            "catalog_cached_at": github_meta.get("catalog_cached_at"),
+        }
+        scripts_info = {
+            "preferred": scripts_meta.get("preferred"),
+            "folder": scripts_meta.get("folder"),
+            "extension": scripts_meta.get("extension"),
+            "last_updated": scripts_meta.get("last_updated"),
+        }
+
+    artifact_summary = _collect_workflow_artifacts(specify_dir) if is_specify_project else None
+    if artifact_summary is None:
+        artifact_summary = {
+            "constitution": False,
+            "features": [],
+            "feature_total": 0,
+            "specs_ready": 0,
+            "plans_ready": 0,
+            "tasks_ready": 0,
+            "waiting_plan": [],
+            "waiting_tasks": [],
+            "missing_spec": [],
+        }
+
+    commands = [path.stem for path in prompt_files]
+    git_repo = is_git_repo(current_dir)
+    cache_meta = _load_models_cache_metadata()
+
+    status_payload = {
+        "current_directory": str(current_dir),
+        "is_specify_project": is_specify_project,
+        "prompts": {
+            "configured": bool(prompt_files),
+            "count": len(prompt_files),
+            "directory": str(prompts_dir),
+            "commands": commands,
+        },
+        "model": model_info,
+        "scripts": scripts_info,
+        "workflow": artifact_summary,
+        "git": {"is_repo": git_repo},
+        "models_cache": cache_meta,
+        "config_error": config_error,
+    }
+
+    if output_json:
+        console.print(json.dumps(status_payload, indent=2))
+        return
+
+    show_banner()
+
+    console.print("[bold]Project Status[/bold]\n")
+    console.print(f"[cyan]Current Directory:[/cyan] {current_dir}")
+
+    if not is_specify_project:
         console.print("[red]⚠ Not a Specify project[/red] (no .specify directory found)")
         console.print("[dim]Run 'specify init .' to initialize this directory as a Specify project[/dim]")
         return
 
     console.print("[green]✓ Specify project detected[/green]")
 
-    # Show AI configuration
-    if prompts_dir.exists():
-        prompt_files = list(prompts_dir.glob("*.md"))
+    if prompt_files:
         console.print(f"[cyan]AI Assistant:[/cyan] GitHub Models ({len(prompt_files)} prompts configured)")
-
-        # Show selected model if configured
-        if models_config.exists():
-            try:
-                config_data = json.loads(models_config.read_text())
-            except Exception:
-                console.print("[yellow]⚠ Model configuration file exists but could not be read[/yellow]")
-            else:
-                github_meta = config_data.get("github_models", {})
-                selected_model = github_meta.get("selected_model")
-                last_updated_raw = github_meta.get("last_updated")
-                catalog_source = github_meta.get("catalog_source")
-
-                if selected_model:
-                    last_updated_dt = _parse_iso8601(last_updated_raw)
-                    if last_updated_dt:
-                        age = _format_age((datetime.now(timezone.utc) - last_updated_dt).total_seconds())
-                        iso_stamp = last_updated_dt.isoformat().replace("+00:00", "Z")
-                        console.print(
-                            f"[cyan]Selected Model:[/cyan] {selected_model} [dim](set {age} ago · {iso_stamp})[/dim]"
-                        )
-                    else:
-                        console.print(
-                            f"[cyan]Selected Model:[/cyan] {selected_model} [dim](configured {last_updated_raw or 'unknown'})[/dim]"
-                        )
-                else:
-                    console.print("[dim]No specific model configured (will use default)[/dim]")
-
-                if catalog_source:
-                    console.print(f"[dim]Catalog source: {catalog_source}[/dim]")
-
-                catalog_cached_at = github_meta.get("catalog_cached_at")
-                if catalog_cached_at:
-                    cached_dt = _parse_iso8601(catalog_cached_at)
-                    if cached_dt:
-                        cache_age = _format_age((datetime.now(timezone.utc) - cached_dt).total_seconds())
-                        console.print(
-                            f"[dim]Catalog cached: {cache_age} ago ({cached_dt.isoformat().replace('+00:00', 'Z')})[/dim]"
-                        )
-
-                scripts_meta = config_data.get("scripts", {})
-                if scripts_meta:
-                    script_flavor = scripts_meta.get("preferred", "unknown")
-                    descriptor = "/".join(filter(None, [scripts_meta.get("folder"), scripts_meta.get("extension")]))
-                    last_script_dt = _parse_iso8601(scripts_meta.get("last_updated"))
-                    if last_script_dt:
-                        script_age = _format_age((datetime.now(timezone.utc) - last_script_dt).total_seconds())
-                        console.print(
-                            f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'}, updated {script_age} ago)[/dim]"
-                        )
-                    else:
-                        console.print(
-                            f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'})[/dim]"
-                        )
-        else:
-            console.print("[dim]No specific model configured (will use default)[/dim]")
     else:
         console.print("[yellow]⚠ No GitHub Models prompts found[/yellow]")
 
-    artifact_summary = _collect_workflow_artifacts(specify_dir)
-    _render_workflow_summary(artifact_summary)
+    github_meta = model_info or {}
+    selected_model = github_meta.get("selected_model") if github_meta else None
+    last_updated_raw = github_meta.get("last_updated") if github_meta else None
+    catalog_source = github_meta.get("catalog_source") if github_meta else None
+    catalog_cached_at = github_meta.get("catalog_cached_at") if github_meta else None
 
-    # Check for git repository
-    if is_git_repo(current_dir):
+    if config_error and models_config.exists():
+        console.print("[yellow]⚠ Model configuration file exists but could not be read[/yellow]")
+    elif selected_model:
+        last_updated_dt = _parse_iso8601(last_updated_raw)
+        if last_updated_dt:
+            age = _format_age((datetime.now(timezone.utc) - last_updated_dt).total_seconds())
+            iso_stamp = last_updated_dt.isoformat().replace("+00:00", "Z")
+            console.print(
+                f"[cyan]Selected Model:[/cyan] {selected_model} [dim](set {age} ago · {iso_stamp})[/dim]"
+            )
+        else:
+            console.print(
+                f"[cyan]Selected Model:[/cyan] {selected_model} [dim](configured {last_updated_raw or 'unknown'})[/dim]"
+            )
+    else:
+        console.print("[dim]No specific model configured (will use default)[/dim]")
+
+    if catalog_source:
+        console.print(f"[dim]Catalog source: {catalog_source}[/dim]")
+
+    if catalog_cached_at:
+        cached_dt = _parse_iso8601(catalog_cached_at)
+        if cached_dt:
+            cache_age = _format_age((datetime.now(timezone.utc) - cached_dt).total_seconds())
+            console.print(
+                f"[dim]Catalog cached: {cache_age} ago ({cached_dt.isoformat().replace('+00:00', 'Z')})[/dim]"
+            )
+
+    scripts_meta = scripts_info or {}
+    if scripts_meta:
+        script_flavor = scripts_meta.get("preferred", "unknown")
+        descriptor = "/".join(filter(None, [scripts_meta.get("folder"), scripts_meta.get("extension")]))
+        last_script_dt = _parse_iso8601(scripts_meta.get("last_updated"))
+        if last_script_dt:
+            script_age = _format_age((datetime.now(timezone.utc) - last_script_dt).total_seconds())
+            console.print(
+                f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'}, updated {script_age} ago)[/dim]"
+            )
+        else:
+            console.print(f"[cyan]Script Flavor:[/cyan] {script_flavor} [dim]({descriptor or 'n/a'})[/dim]")
+
+    _render_workflow_summary(artifact_summary)
+    _render_feature_details(artifact_summary)
+
+    if git_repo:
         console.print("[green]✓ Git repository initialized[/green]")
     else:
         console.print("[dim]No git repository (use 'git init' to initialize)[/dim]")
 
-    # Show available commands
-    if prompts_dir.exists():
-        prompt_files = sorted(prompts_dir.glob("*.md"))
-        if prompt_files:
-            console.print(f"\n[bold]Available Commands ({len(prompt_files)}):[/bold]")
-            for prompt_file in prompt_files:
-                command_name = prompt_file.stem
-                console.print(f"  [cyan]/{command_name}[/cyan]")
+    if prompt_files:
+        console.print(f"\n[bold]Available Commands ({len(prompt_files)}):[/bold]")
+        for name in commands:
+            console.print(f"  [cyan]/{name}[/cyan]")
 
-    cache_meta = _load_models_cache_metadata()
     if cache_meta:
         age_human = _format_age(cache_meta.get("age_seconds"))
         source = cache_meta.get("source", "unknown")
         console.print(
             f"\n[dim]Models cache: {age_human} old (source: {source}). Use 'specify list-models --refresh' to update.[/dim]"
+        )
+    else:
+        console.print(
+            "\n[dim]Models cache: none (will populate after the first successful API call).[/dim]"
         )
 
 

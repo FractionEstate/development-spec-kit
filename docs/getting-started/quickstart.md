@@ -62,6 +62,7 @@ The status command confirms:
 - Script flavor (bash or PowerShell) wired into generated prompts.
 - Age of the cached GitHub Models catalog.
 - A workflow dashboard that shows which stages (constitution → spec → plan → tasks) are complete and surfaces the next recommended slash commands.
+- A feature progress table covering the first few specs with stage checkmarks and suggested next actions (use `specify status --json` to export the full dataset).
 
 ## 6. Iterate with confidence
 
