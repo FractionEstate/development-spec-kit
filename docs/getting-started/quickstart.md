@@ -11,13 +11,13 @@ Follow the [installation guide](installation.md) to install `specify` with a sin
 Pick a directory name and let the CLI scaffold everything for GitHub Models + VS Code.
 
 ```bash
-specify init my-first-spec --model gpt-4.1
+specify init my-first-spec --model gpt-4o
 ```
 
 During initialization you will:
 
-1. Select a script flavor (bash or PowerShell).
-2. Optionally pick a GitHub Model from the live catalog.
+1. Select a script flavor (bash or PowerShell), or use `--script sh` or `--script ps` to skip the prompt.
+2. Optionally pick a GitHub Model from the live catalog, or use `--model <model-id>` to preselect.
 3. Receive next-step instructions tailored for GitHub Copilot Chat.
 
 > Need to work in the current directory? Use `specify init --here` (add `--force` to merge into non-empty directories).
@@ -63,6 +63,7 @@ The status command confirms:
 - Age of the cached GitHub Models catalog.
 - A workflow dashboard that shows which stages (constitution → spec → plan → tasks) are complete and surfaces the next recommended slash commands.
 - A feature progress table covering the first few specs with stage checkmarks and suggested next actions (use `specify status --json` to export the full dataset).
+- A highlighted next-step callout so you always know which slash command to trigger next. For automation-friendly output, run `specify status --agent` for plain text or `--json` for structured data.
 
 ## 6. Iterate with confidence
 

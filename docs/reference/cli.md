@@ -51,7 +51,7 @@ specify list-models --refresh  # bypass cache
 specify list-models --no-cache # fetch live catalog without writing cache
 ```
 
-### Helpful flags
+### Helpful flags for `status`
 
 | Flag | Description |
 | ---- | ----------- |
@@ -79,13 +79,15 @@ Outputs include:
 - Age of the cached model catalog with a reminder command to refresh it.
 - A "Workflow Artifacts" dashboard summarizing constitution/spec/plan/task coverage with suggested next slash commands.
 - A feature progress table (first five features) with stage completion indicators and next recommended action.
+- A highlighted "Next step" callout distilled from the dashboard follow-ups.
 - Git repository status for the current directory.
 
 ### Helpful flags
 
 | Flag | Description |
 | ---- | ----------- |
-| `--json` | Print the entire status payload as JSON (includes workflow summary, feature states, prompts, scripts, and cache metadata). |
+| `--json` | Print the entire status payload as JSON (includes workflow summary, feature states, prompts, scripts, cache metadata, and next-step suggestions). |
+| `--agent` | Emit a compact, plain-text summary tailored for automation agents (no banner, includes next step, feature matrix, and follow-up list). |
 
 Use the JSON output when integrating with automation or when you need to inspect every feature beyond the first five shown in the table.
 

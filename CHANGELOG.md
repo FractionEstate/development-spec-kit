@@ -13,19 +13,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Claude Sonnet 4.5 Support**: Added full support for Claude Sonnet 4.5 and all Anthropic Claude models (Sonnet 4, 3.7, 3.5, 3, Opus, Haiku) in GitHub Copilot
+- **Expanded Model Catalog**: Updated fallback model list to include 60+ models across all major AI providers (OpenAI, Anthropic, Meta, Mistral, DeepSeek, Microsoft, xAI, Cohere, AI21)
+- **New Reasoning Models**: Added support for OpenAI o1, o3, o4-mini reasoning models and GPT-5 series (GPT-5, GPT-5-mini, GPT-5-nano, GPT-5-chat preview)
+- **Model API Fix**: Switched from Azure AI Models API to official GitHub Models API (`https://models.github.ai/catalog/models`) for accurate model availability
+- **BYOK Documentation**: Added instructions for using "Bring Your Own Key" (BYOK) to access Claude models with personal Anthropic API keys
+- **Agent Integration Guide**: Comprehensive documentation for using `specify status --agent` and `--json` outputs in automation and CI/CD pipelines
+- **Non-Interactive Mode**: Full support for running CLI in non-TTY environments (CI/CD, scripts, containers)
 - Documentation: "Agent tools & capabilities" sections across Copilot collateral (README, instructions, context) and an `agent-tools` snippet
 - Documentation: "Try it: 5‑minute tour" to exercise search/read/terminal/TODO/snippet tools
 - Documentation: References upgrades with Agent Tools quick reference and VS Code Tasks cheat sheet
-- CI: Link checker workflow using lycheeverse/lychee, with Markdown report artifact and job summary
+- CLI: Link checker workflow using lycheeverse/lychee, with Markdown report artifact and job summary
 - CLI: `status` command now reports GitHub Models catalog freshness, catalog source, and the configured script flavor with friendly timestamps
+- CLI: `--agent` and `--json` flags for machine-readable status output
 
 ### Changed
 
+- **Model Fetching**: Now fetches from `https://models.github.ai/catalog/models` instead of `https://models.inference.ai.azure.com/models`
+- **Model Filtering**: Improved model ID parsing to filter out invalid entries and only process properly formatted model IDs
+- **Fallback Strategy**: Enhanced fallback model list to ensure Copilot-exclusive models (like Claude Sonnet 4.5) are always available even when API is unreachable
+- **Interactive Selection**: `select_with_arrows()` now gracefully falls back to default selection when stdin/stdout is not a TTY
+- **Error Messages**: Improved validation messages for invalid models with helpful suggestions and similar model name matching
 - README: Added stable anchors for Agent Tools and Try It sections; linked to the Tasks Cheat Sheet in references
 - Documentation: Rewrote root README plus docs homepage, quickstart, installation, and local development guides for the GitHub Models–first workflow (60-second start, one-liners, agent capabilities)
 - CLI: Trimmed fallback catalog to GitHub Models, fixed API ID normalization, and improved caching behavior for offline scenarios
 - CLI: Command template generation now resolves POSIX vs PowerShell scripts to the correct folders/extensions
 - Installers: Added post-install guidance that points users at GitHub Copilot Chat slash commands after bootstrapping the CLI
+
+### Fixed
+
+- **Claude Model Availability**: Claude models (including Sonnet 4.5) now correctly appear in `specify list-models` and model selection
+- **Model Count**: Model catalog now shows 60+ models instead of limited subset
+- **CLI Hanging**: Fixed CLI getting stuck in non-interactive environments when waiting for keyboard input
+- **TTY Detection**: Proper detection and handling of non-TTY terminals for model and script type selection
+- **Default Selection**: Script type and model selection now use sensible defaults when running in automation/CI
 
 ## [0.1.0] - 2025-09-28
 
@@ -145,7 +166,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated command instructions in the CLI.
 - Cleaned up the code to not render agent-specific information when it's generic.
-
 
 ## [0.0.6] - 2025-09-17
 

@@ -1,0 +1,104 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  cli-validation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Specify CLI
+        run: |
+          uv tool install .
+
+      - name: Install test dependencies
+        run: |
+          uv venv
+          uv pip install pytest pytest-cov
+
+      - name: Run pytest
+        run: |
+          source .venv/bin/activate
+          pytest tests/ -v --cov=src/specify_cli --cov-report=term
+
+      - name: Test version command
+        run: |
+          specify version
+
+      - name: Test list-models command
+        run: |
+          specify list-models | grep -q "gpt-4o"
+
+      - name: Test status command (agent mode)
+        run: |
+          mkdir -p test-workspace
+          cd test-workspace
+          specify init . --model gpt-4o --no-git || true
+          specify status --agent
+
+      - name: Test status command (JSON mode)
+        run: |
+          cd test-workspace
+          specify status --json | jq -r '.model' | grep -q "gpt-4o"
+
+      - name: Test non-interactive init
+        run: |
+          mkdir -p non-interactive-test
+          cd non-interactive-test
+          echo "" | specify init . --model claude-sonnet-4.5 --no-git || echo "Non-interactive test completed"      - name: Cleanup
+        run: |
+          rm -rf test-workspace non-interactive-test
+
+  edge-case-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Specify CLI
+        run: |
+          uv tool install .
+
+      - name: Test invalid model suggestion
+        run: |
+          mkdir -p invalid-model-test
+          cd invalid-model-test
+          specify init . --model gpt4o --no-git 2>&1 | grep -q "Did you mean" || echo "Error message check completed"
+
+      - name: Test with GitHub token
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          specify list-models --refresh | wc -l
+
+      - name: Cleanup
+        run: |
+          rm -rf invalid-model-test

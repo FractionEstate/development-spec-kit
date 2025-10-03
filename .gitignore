@@ -42,4 +42,16 @@ env/
 # Spec Kit-specific files
 .genreleases/
 *.zip
+archive/
+models_cache.json
+.specify/
+
+# Test directories
+tmp/
+test-*/
+*-test/
+
+# Documentation builds
+_site/
+.docfx/
 sdd-*/

@@ -30,7 +30,6 @@ import sys
 import zipfile
 import tempfile
 import shutil
-import shlex
 import json
 import importlib.metadata
 import time
@@ -90,48 +89,34 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
 
     try:
         with httpx.Client(verify=ssl_context, timeout=10.0) as client:
-            # Try the GitHub Models marketplace API first
-            try:
-                response = client.get(
-                    "https://api.github.com/marketplace_listing/plans",
-                    headers=_github_auth_headers(github_token)
-                )
-                if response.status_code == 200:
-                    # This would be for GitHub Marketplace, but models are likely different API
-                    pass
-            except Exception:
-                pass
-
-            # Try Azure AI Models API
+            # Fetch from GitHub Models catalog API
             response = client.get(
-                "https://models.inference.ai.azure.com/models",
-                headers=_github_auth_headers(github_token)
+                "https://models.github.ai/catalog/models",
+                headers={
+                    "Accept": "application/vnd.github+json",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                    **_github_auth_headers(github_token)
+                }
             )
             if response.status_code == 200:
                 models_data = response.json()
 
-                # Combine API results with known GitHub Models
+                # Combine API results with known GitHub Copilot models
                 api_models = {}
 
                 # Parse the models response and create a clean mapping
-                if isinstance(models_data, dict) and "data" in models_data:
-                    for model in models_data["data"]:
-                        model_id = model.get("id", "")
-                        model_name = model.get("name", model_id)
-                        if model_id:
-                            # Simplify model IDs for better usability
-                            simple_id = model_id.split("/")[-1] if "/" in model_id else model_id
-                            api_models[simple_id] = model_name
-                elif isinstance(models_data, list):
-                    # Handle direct list format
+                if isinstance(models_data, list):
                     for model in models_data:
                         model_id = model.get("id", "")
                         model_name = model.get("name", model_id)
-                        if model_id:
-                            simple_id = model_id.split("/")[-1] if "/" in model_id else model_id
-                            api_models[simple_id] = model_name
+                        if model_id and "/" in model_id:  # Only process valid model IDs with publisher prefix
+                            # Simplify model IDs (e.g., "openai/gpt-4o" -> "gpt-4o")
+                            simple_id = model_id.split("/")[-1]
+                            # Only add if it looks like a valid model ID (contains letters)
+                            if simple_id and any(c.isalpha() for c in simple_id):
+                                api_models[simple_id] = model_name
 
-                # Merge with fallback known models (fallback takes precedence for known models)
+                # Merge: API models first, then add fallback models (so Copilot-exclusive models are included)
                 fallback_models = get_fallback_github_models()
                 combined_models = {**api_models, **fallback_models}
 
@@ -190,19 +175,48 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
         return fallback_only
 
 GITHUB_MODEL_FALLBACKS: dict[str, str] = {
+    # OpenAI GPT-4.1 series
     "gpt-4.1": "GPT-4.1",
     "gpt-4.1-mini": "GPT-4.1 Mini",
+    "gpt-4.1-nano": "GPT-4.1 Nano",
+
+    # OpenAI GPT-4o series
     "gpt-4o": "GPT-4o",
     "gpt-4o-mini": "GPT-4o Mini",
     "gpt-4o-audio-preview": "GPT-4o Audio Preview",
     "gpt-4o-realtime-preview": "GPT-4o Realtime Preview",
     "gpt-4o-realtime-mini": "GPT-4o Realtime Mini",
     "gpt-4o-mini-transcribe": "GPT-4o Mini Transcribe",
+
+    # OpenAI GPT-5 series (preview)
+    "gpt-5": "GPT-5",
+    "gpt-5-mini": "GPT-5 Mini",
+    "gpt-5-nano": "GPT-5 Nano",
+    "gpt-5-chat": "GPT-5 Chat (Preview)",
+
+    # OpenAI o-series (reasoning models)
+    "o1": "OpenAI o1",
+    "o1-mini": "OpenAI o1-mini",
+    "o1-preview": "OpenAI o1-preview",
+    "o3": "OpenAI o3",
+    "o3-mini": "OpenAI o3-mini",
+    "o4-mini": "OpenAI o4-mini",
+
+    # Anthropic Claude models (available in GitHub Copilot via native access or BYOK)
+    # Model IDs match what appears in VS Code Copilot Chat model picker
+    "claude-sonnet-4.5": "Claude Sonnet 4.5",
+    "claude-4-sonnet": "Claude Sonnet 4",
+    "claude-3-7-sonnet": "Claude Sonnet 3.7",
+    "claude-3-5-sonnet": "Claude Sonnet 3.5",
+    "claude-3-5-sonnet-20241022": "Claude 3.5 Sonnet (20241022)",
+    "claude-3-opus": "Claude 3 Opus",
+    "claude-3-sonnet": "Claude 3 Sonnet",
+    "claude-3-haiku": "Claude 3 Haiku",
+
+    # OpenAI embeddings
     "text-embedding-3-large": "Text Embedding 3 Large",
     "text-embedding-3-small": "Text Embedding 3 Small",
 }
-
-
 def get_fallback_github_models() -> dict:
     """Return a curated GitHub Models-only fallback list when the live catalog is unavailable."""
     return dict(GITHUB_MODEL_FALLBACKS)
@@ -275,7 +289,27 @@ def _read_first_markdown_heading(path: Path) -> str | None:
 
 
 def _collect_workflow_artifacts(specify_dir: Path) -> dict:
-    """Inspect key workflow artifacts in a Specify workspace."""
+    """
+    Inspect key workflow artifacts in a Specify workspace.
+
+    Scans the .specify directory structure for constitution, specs, plans,
+    and tasks, returning a comprehensive summary of workflow progress.
+
+    Args:
+        specify_dir: Path to the .specify directory
+
+    Returns:
+        Dictionary containing:
+            - constitution (bool): Whether constitution.md exists
+            - features (list[dict]): List of feature metadata
+            - feature_total (int): Total number of features
+            - specs_ready (int): Count of complete specs
+            - plans_ready (int): Count of complete plans
+            - tasks_ready (int): Count of complete tasks
+            - waiting_plan (list[dict]): Features needing plans
+            - waiting_tasks (list[dict]): Features needing tasks
+            - missing_spec (list[dict]): Features without specs
+    """
     constitution_path = specify_dir / "memory" / "constitution.md"
     constitution_exists = constitution_path.exists()
 
@@ -338,6 +372,15 @@ def _collect_workflow_artifacts(specify_dir: Path) -> dict:
 
 
 def _feature_display_name(feature: dict) -> str:
+    """
+    Format a feature name for display, combining slug and title.
+
+    Args:
+        feature: Feature metadata dict with 'slug' and 'title' keys
+
+    Returns:
+        Formatted display name (e.g., "my-feature · My Feature Title")
+    """
     title = feature.get("title") or ""
     slug = feature.get("slug") or ""
     if title and title.lower() != slug.lower():
@@ -346,6 +389,16 @@ def _feature_display_name(feature: dict) -> str:
 
 
 def _format_stage_progress(completed: int, total: int) -> str:
+    """
+    Format a progress indicator for workflow stages.
+
+    Args:
+        completed: Number of completed items
+        total: Total number of items
+
+    Returns:
+        Colored rich-formatted progress string
+    """
     if total == 0:
         if completed == 0:
             return "[yellow]Not started[/yellow]"
@@ -356,7 +409,92 @@ def _format_stage_progress(completed: int, total: int) -> str:
     return f"[yellow]{completed}/{total} ready[/yellow] ([red]{missing} pending[/red])"
 
 
+def _derive_followups(summary: dict) -> list[str]:
+    """
+    Derive actionable follow-up suggestions based on workflow state.
+
+    Analyzes the current state of constitution, features, specs, plans, and tasks
+    to generate prioritized suggestions for the next workflow steps.
+
+    Args:
+        summary: Workflow artifact summary with keys:
+            - constitution (bool): Whether constitution exists
+            - specs_ready (int): Number of complete specs
+            - missing_spec (list): Features without specs
+            - waiting_plan (list): Features needing plans
+            - waiting_tasks (list): Features needing tasks
+            - features (list): All feature metadata
+
+    Returns:
+        List of formatted follow-up suggestions in priority order
+    """
+    followups: list[str] = []
+    specs_ready = summary.get("specs_ready", 0)
+
+    if not summary.get("constitution"):
+        followups.append("Record guardrails with [magenta]/constitution[/magenta].")
+    if specs_ready == 0:
+        followups.append("Kick off your first feature with [magenta]/specify[/magenta].")
+    if summary.get("missing_spec"):
+        missing = summary["missing_spec"]
+        names = ", ".join(_feature_display_name(feature) for feature in missing[:3])
+        if len(missing) > 3:
+            names += ", …"
+        followups.append(f"Finish draft specs for: {names}.")
+    if summary.get("waiting_plan"):
+        waiting_plan = summary["waiting_plan"]
+        names = ", ".join(_feature_display_name(feature) for feature in waiting_plan[:3])
+        if len(waiting_plan) > 3:
+            names += ", …"
+        followups.append(f"Plan next steps with [magenta]/plan[/magenta] → {names}.")
+    if summary.get("waiting_tasks"):
+        waiting_tasks = summary["waiting_tasks"]
+        names = ", ".join(_feature_display_name(feature) for feature in waiting_tasks[:3])
+        if len(waiting_tasks) > 3:
+            names += ", …"
+        followups.append(f"Create execution tasks via [magenta]/tasks[/magenta] → {names}.")
+
+    ready_for_impl = [feature for feature in summary.get("features", []) if feature.get("ready_for_implementation")]
+    if ready_for_impl:
+        names = ", ".join(_feature_display_name(feature) for feature in ready_for_impl[:3])
+        if len(ready_for_impl) > 3:
+            names += ", …"
+        followups.append(f"Move into delivery with [magenta]/implement[/magenta] → {names}.")
+
+    return followups
+
+
+def _pick_primary_suggestion(summary: dict) -> str | None:
+    """
+    Select the single most important next action from workflow state.
+
+    Returns the highest-priority suggestion for what the user should do next,
+    based on completeness of constitution, specs, plans, and tasks.
+
+    Args:
+        summary: Workflow artifact summary dictionary
+
+    Returns:
+        Formatted suggestion string, or None if no suggestion available
+    """
+    followups = _derive_followups(summary)
+    if followups:
+        return followups[0]
+    if summary.get("feature_total"):
+        return "All core artifacts are ready. Consider running [magenta]/implement[/magenta] or opening a pull request."
+    return "Start your first feature with [magenta]/specify[/magenta]."
+
+
 def _render_workflow_summary(summary: dict) -> None:
+    """
+    Display formatted workflow artifacts summary table.
+
+    Shows the status of constitution, specs, plans, and tasks with
+    next-step guidance for incomplete stages.
+
+    Args:
+        summary: Workflow artifact summary containing stage completion data
+    """
     console.print()
     table = Table(
         title="Workflow Artifacts",
@@ -432,27 +570,7 @@ def _render_workflow_summary(summary: dict) -> None:
 
     console.print(table)
 
-    followups: list[str] = []
-    if not summary["constitution"]:
-        followups.append("Record guardrails with [magenta]/constitution[/magenta].")
-    if specs_ready == 0:
-        followups.append("Kick off your first feature with [magenta]/specify[/magenta].")
-    if summary["missing_spec"]:
-        names = ", ".join(_feature_display_name(feature) for feature in summary["missing_spec"][:3])
-        if len(summary["missing_spec"]) > 3:
-            names += ", …"
-        followups.append(f"Finish draft specs for: {names}.")
-    if summary["waiting_plan"]:
-        names = ", ".join(_feature_display_name(feature) for feature in summary["waiting_plan"][:3])
-        if len(summary["waiting_plan"]) > 3:
-            names += ", …"
-        followups.append(f"Plan next steps with [magenta]/plan[/magenta] → {names}.")
-    if summary["waiting_tasks"]:
-        names = ", ".join(_feature_display_name(feature) for feature in summary["waiting_tasks"][:3])
-        if len(summary["waiting_tasks"]) > 3:
-            names += ", …"
-        followups.append(f"Create execution tasks via [magenta]/tasks[/magenta] → {names}.")
-
+    followups = _derive_followups(summary)
     if followups:
         console.print()
         console.print("[dim]Next suggestions:[/dim]")
@@ -461,10 +579,28 @@ def _render_workflow_summary(summary: dict) -> None:
 
 
 def _format_stage_cell(flag: bool) -> str:
+    """
+    Format a table cell showing stage completion status.
+
+    Args:
+        flag: Whether the stage is complete
+
+    Returns:
+        Colored checkmark (✓) for complete, circle (○) for incomplete
+    """
     return "[green]✓[/green]" if flag else "[yellow]○[/yellow]"
 
 
 def _next_action_label(feature: dict) -> str:
+    """
+    Generate a formatted label for the next required action on a feature.
+
+    Args:
+        feature: Feature metadata dict with 'next_command' key
+
+    Returns:
+        Formatted command suggestion or em dash if none needed
+    """
     mapping = {
         "specify": "Draft with [magenta]/specify[/magenta]",
         "plan": "Plan via [magenta]/plan[/magenta]",
@@ -475,6 +611,15 @@ def _next_action_label(feature: dict) -> str:
 
 
 def _render_feature_details(summary: dict) -> None:
+    """
+    Display detailed feature progress table.
+
+    Shows up to 5 features with their spec/plan/tasks completion status
+    and suggested next action for each feature.
+
+    Args:
+        summary: Workflow artifact summary with feature list
+    """
     features = summary.get("features") or []
     if not features:
         console.print()
@@ -671,6 +816,8 @@ def select_with_arrows(options: dict, prompt_text: str = "Select an option", def
     """
     Interactive selection using arrow keys with Rich Live display.
 
+    Falls back to default selection if not running in an interactive terminal.
+
     Args:
         options: Dict with keys as option keys and values as descriptions
         prompt_text: Text to show above the options
@@ -679,6 +826,16 @@ def select_with_arrows(options: dict, prompt_text: str = "Select an option", def
     Returns:
         Selected option key
     """
+    # Check if we're in an interactive terminal
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        # Non-interactive mode: return default or first option
+        if default_key and default_key in options:
+            console.print(f"[dim]Non-interactive mode: using default '{default_key}'[/dim]")
+            return default_key
+        first_key = list(options.keys())[0]
+        console.print(f"[dim]Non-interactive mode: using '{first_key}'[/dim]")
+        return first_key
+
     option_keys = list(options.keys())
     if default_key and default_key in option_keys:
         selected_index = option_keys.index(default_key)
@@ -1559,26 +1716,46 @@ def init(
     if selected_ai == "copilot":
         if model:
             # Validate the provided model exists
+            console.print(f"[cyan]Validating model '{model}'...[/cyan]")
             available_models = fetch_github_models(github_token)
             if model not in available_models:
-                console.print(f"[red]Error:[/red] Model '{model}' not found.")
-                console.print(f"[yellow]Available models:[/yellow] {', '.join(sorted(available_models.keys()))}")
-                console.print(f"[dim]Use 'specify list-models' to see all available models[/dim]")
+                console.print(f"[red]Error:[/red] Model '{model}' not found in GitHub Models catalog.")
+                console.print(f"\n[yellow]Did you mean one of these?[/yellow]")
+                # Show similar model names
+                similar = [m for m in available_models.keys() if model.lower() in m.lower() or m.lower() in model.lower()]
+                if similar:
+                    for m in sorted(similar)[:10]:
+                        console.print(f"  • {m}")
+                else:
+                    # Show first 20 models as examples
+                    console.print(f"[yellow]Available models (showing first 20):[/yellow]")
+                    for m in sorted(available_models.keys())[:20]:
+                        console.print(f"  • {m}")
+                console.print(f"\n[dim]Use 'specify list-models' to see all {len(available_models)} available models[/dim]")
                 raise typer.Exit(1)
             selected_model = model
+            console.print(f"[green]✓[/green] Model '{model}' validated")
         else:
-            # Fetch and select from available models
+            # Fetch and select from available models (interactive or default)
             console.print("[cyan]Fetching available GitHub Models...[/cyan]")
             available_models = fetch_github_models(github_token)
             if available_models:
-                # Show interactive model selection
-                selected_model = select_with_arrows(
-                    available_models,
-                    "Choose a GitHub Model:",
-                    "gpt-4o" if "gpt-4o" in available_models else list(available_models.keys())[0]
-                )
+                # Check if we're in an interactive terminal
+                if sys.stdin.isatty() and sys.stdout.isatty():
+                    # Show interactive model selection
+                    selected_model = select_with_arrows(
+                        available_models,
+                        "Choose a GitHub Model:",
+                        "gpt-4o" if "gpt-4o" in available_models else list(available_models.keys())[0]
+                    )
+                else:
+                    # Non-interactive: use gpt-4o as default
+                    default_model = "gpt-4o" if "gpt-4o" in available_models else list(available_models.keys())[0]
+                    selected_model = default_model
+                    console.print(f"[dim]Non-interactive mode: using default model '{default_model}'[/dim]")
             else:
                 console.print("[yellow]Warning: Could not fetch models from API, using default configuration[/yellow]")
+                selected_model = "gpt-4o"  # Fallback default
 
     # GitHub Models (copilot) doesn't require CLI tools - no checks needed
     if not ignore_agent_tools:
@@ -1605,13 +1782,18 @@ def init(
             raise typer.Exit(1)
         selected_script = script_type
     else:
-        # Auto-detect default
+        # Auto-detect default based on OS
         default_script = "ps" if os.name == "nt" else "sh"
-        # Provide interactive selection similar to AI if stdin is a TTY
-        if sys.stdin.isatty():
-            selected_script = select_with_arrows(SCRIPT_TYPE_CHOICES, "Choose script type (or press Enter)", default_script)
+        # Provide interactive selection if in a TTY, otherwise use default
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            selected_script = select_with_arrows(
+                SCRIPT_TYPE_CHOICES,
+                "Choose script type (or press Enter for default)",
+                default_script
+            )
         else:
             selected_script = default_script
+            console.print(f"[dim]Non-interactive mode: using default script type '{default_script}'[/dim]")
 
     console.print(f"[cyan]Selected AI assistant:[/cyan] {selected_ai}")
     if selected_model:
@@ -1859,9 +2041,33 @@ def status(
         False,
         "--json",
         help="Output status information as JSON instead of formatted text.",
-    )
+    ),
+    agent_mode: bool = typer.Option(
+        False,
+        "--agent",
+        help="Emit a minimal, plain-text summary optimized for automation agents.",
+    ),
 ):
-    """Show current project configuration and status."""
+    """
+    Show current project configuration and status.
+
+    Displays comprehensive information about:
+    - Specify project detection (.specify directory)
+    - Workflow artifact completion (constitution, specs, plans, tasks)
+    - Feature progress with next-step guidance
+    - Configured GitHub Models and prompts
+    - Git repository status
+
+    Output Modes:
+    - Default: Rich formatted tables and colored output
+    - --json: Machine-readable JSON structure
+    - --agent: Plain-text format optimized for AI agents
+
+    Examples:
+        specify status              # Interactive formatted output
+        specify status --json       # JSON for scripting
+        specify status --agent      # Agent-friendly plain text
+    """
 
     current_dir = Path.cwd()
     specify_dir = current_dir / ".specify"
@@ -1919,6 +2125,8 @@ def status(
     commands = [path.stem for path in prompt_files]
     git_repo = is_git_repo(current_dir)
     cache_meta = _load_models_cache_metadata()
+    followups = _derive_followups(artifact_summary)
+    primary_suggestion = _pick_primary_suggestion(artifact_summary)
 
     status_payload = {
         "current_directory": str(current_dir),
@@ -1934,11 +2142,60 @@ def status(
         "workflow": artifact_summary,
         "git": {"is_repo": git_repo},
         "models_cache": cache_meta,
+        "followups": followups,
+        "next_suggestion": primary_suggestion,
         "config_error": config_error,
     }
 
     if output_json:
         console.print(json.dumps(status_payload, indent=2))
+        return
+
+    if agent_mode:
+        # Agent mode: minimal, structured, easy-to-parse output
+        if not is_specify_project:
+            console.print("ERROR: Not a Specify project (missing .specify directory). Run 'specify init .' first.")
+            raise typer.Exit(1)
+
+        # Primary next step (always present)
+        next_step_text = primary_suggestion or "All core artifacts ready."
+        console.print(f"NEXT_STEP: {next_step_text}")
+
+        # Constitution status
+        console.print(
+            f"CONSTITUTION: {'ready' if artifact_summary.get('constitution') else 'missing'}"
+        )
+
+        # Feature breakdown
+        if artifact_summary["features"]:
+            console.print("FEATURES:")
+            for feature in artifact_summary["features"]:
+                console.print(
+                    "- {slug}: spec={spec} plan={plan} tasks={tasks} next={next_cmd}".format(
+                        slug=feature.get("slug", "unknown"),
+                        spec="done" if feature.get("spec") else "todo",
+                        plan="done" if feature.get("plan") else "todo",
+                        tasks="done" if feature.get("tasks") else "todo",
+                        next_cmd=feature.get("next_command", "unknown"),
+                    )
+                )
+        else:
+            console.print("FEATURES: none (run /specify to create one)")
+
+        # Available commands
+        if commands:
+            console.print(
+                "COMMANDS: " + ", ".join(f"/{name}" for name in commands[:10]) + (
+                    " …" if len(commands) > 10 else ""
+                )
+            )
+
+        # Additional followup suggestions
+        if followups:
+            console.print("FOLLOWUPS:")
+            for item in followups[:5]:
+                console.print(f"- {item}")
+
         return
 
     show_banner()
@@ -1952,6 +2209,9 @@ def status(
         return
 
     console.print("[green]✓ Specify project detected[/green]")
+
+    if primary_suggestion:
+        console.print(f"[bold magenta]Next step:[/bold magenta] {primary_suggestion}")
 
     if prompt_files:
         console.print(f"[cyan]AI Assistant:[/cyan] GitHub Models ({len(prompt_files)} prompts configured)")

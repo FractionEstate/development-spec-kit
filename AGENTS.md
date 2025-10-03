@@ -8,33 +8,41 @@ The FractionEstate Development Spec Kit is now dedicated to a single, opinionate
 
 When you run `specify init`, the CLI:
 
-- Fetches the latest GitHub Models catalog (with caching to `~/.specify/models_cache.json`).
-- Falls back to a curated list in `src/specify_cli/__init__.py` when the API is unavailable.
+- Fetches the latest GitHub Models catalog (with caching to `~/.specify/models_cache.json`), which includes models from OpenAI, Anthropic (Claude), Meta (Llama), Mistral, DeepSeek, Microsoft (Phi), and others.
+- Falls back to a curated list in `src/specify_cli/__init__.py` when the API is unavailable, ensuring Copilot-exclusive models like Claude Sonnet 4.5 are always available.
 - Installs the `.github/prompts/` command set plus GitHub Copilot guidance files under `.github/`.
 - Configures VS Code settings and tasks for Copilot-first development.
 - Surfaces the selected model inside generated prompts so the agent stays anchored on your choice.
 
-Only GitHub Models are supported. Legacy scripts and docs for other assistants (Claude, Gemini, Cursor, etc.) were archived with the multi-agent release packages for historical reference.
+All major model families available in GitHub Copilot are supported, including:
+
+- **OpenAI**: GPT-4.1, GPT-4o, GPT-5, o1, o3, o4-mini (reasoning models)
+- **Anthropic**: Claude Sonnet 4.5, Claude Sonnet 4, Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3 Opus/Sonnet/Haiku
+- **Meta**: Llama 4 (Scout, Maverick), Llama 3.3, Llama 3.2 (Vision), Llama 3.1
+- **Mistral**: Mistral Large, Mistral Medium, Mistral Small, Ministral, Codestral
+- **DeepSeek**: DeepSeek-R1, DeepSeek-V3
+- **Microsoft**: Phi-4 (standard, mini, reasoning, multimodal)
+- **Others**: xAI Grok, Cohere Command, AI21 Jamba, and embedding models
 
 ## Model Selection Flow
 
 1. **Token handling** – The CLI checks the `--github-token` flag, then `GH_TOKEN`/`GITHUB_TOKEN` environment variables, and finally proceeds unauthenticated if no token is supplied.
-2. **Catalog lookup** – `fetch_github_models()` retrieves models from `https://models.inference.ai.azure.com/models`, storing the normalized mapping `{model_id: display_name}`.
-3. **Fallback safety net** – If the network call fails or returns no entries, the CLI calls `get_fallback_github_models()` for the curated map.
-4. **Interactive selection** – `select_with_arrows()` renders the available models so you can choose the default for the generated project.
+2. **Catalog lookup** – `fetch_github_models()` retrieves models from `https://models.github.ai/catalog/models`, storing the normalized mapping `{model_id: display_name}`.
+3. **Fallback safety net** – If the network call fails or returns no entries, the CLI calls `get_fallback_github_models()` for the curated map, which includes Copilot-exclusive models like Claude Sonnet 4.5.
+4. **Interactive selection** – `select_with_arrows()` renders the available models (60+ at last count) so you can choose the default for the generated project.
 5. **Template injection** – The chosen model ID is written to GitHub Copilot prompt files (e.g., `.github/copilot-instructions.md`) and surfaced by status commands.
 
 The same catalog powers:
 
-- `specify init --model <model_id>` – Skip the interactive picker.
+- `specify init --model <model_id>` – Skip the interactive picker. For example: `specify init --model claude-sonnet-4.5`
 - `specify status` – Show the configured model for the current workspace.
-- `specify list-models` – Display cached or live GitHub Models data.
+- `specify list-models` – Display cached or live GitHub Models data (60+ models available).
 
 ## Customizing the Catalog
 
 The curated fallback list lives in `get_fallback_github_models()` inside `src/specify_cli/__init__.py`. When GitHub announces new generally available models:
 
-1. Add or update the mapping entry `{ "model-id": "Friendly Display Name" }`.
+1. Add or update the mapping entry `{ "model-id": "Friendly Display Name" }` in the `GITHUB_MODEL_FALLBACKS` dictionary.
 2. Bump the CLI version in `pyproject.toml`.
 3. Record the change in `CHANGELOG.md` (under an "Added" or "Changed" section).
 4. Run `uv build` or the release workflow to distribute the update.
@@ -45,7 +53,7 @@ If you need to patch the local cache quickly during development, delete `~/.spec
 
 | Flag | Purpose |
 |------|---------|
-| `--model` | Preselect the GitHub Model during `specify init`. |
+| `--model` | Preselect the GitHub Model during `specify init`. Example: `--model claude-sonnet-4.5` |
 | `--github-token` | Provide a short-lived or PAT token to access private/preview models. |
 | `--ignore-agent-tools` | Skip checks for VS Code/GitHub Copilot (useful in CI). |
 | `specify list-models --refresh` | Force a new fetch and replace the local cache. |
@@ -60,6 +68,23 @@ If you need to patch the local cache quickly during development, delete `~/.spec
 | `.github/prompts/*.md` | Slash-command style prompts tailored for GitHub Models. |
 
 When adjusting any of these files via the CLI, remember to keep the Spec Driven Development templates consistent (plan/spec/tasks) so Copilot conversations align with the curated workflow.
+
+## Enabling Claude Sonnet 4.5
+
+Claude Sonnet 4.5 is available in GitHub Copilot for Pro, Pro+, Business, and Enterprise plans.
+
+**For Business and Enterprise users**: Your administrator must enable the Claude Sonnet 4.5 policy in your organization's Copilot settings before it appears in the model picker.
+
+**For Free, Pro, and Pro+ users**: Claude Sonnet 4.5 is available through:
+
+- Native Copilot access (if enabled in your plan)
+- BYOK (Bring Your Own Key) - Add your Anthropic API key via the "Manage Models" option in the Copilot Chat model picker
+
+Once enabled, you can:
+
+1. Select `claude-sonnet-4.5` from the model picker in VS Code Copilot Chat
+2. Initialize a Specify project with: `specify init --model claude-sonnet-4.5`
+3. Use it in chat, ask, edit, and agent modes
 
 ## Historical Context
 
