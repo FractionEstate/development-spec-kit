@@ -1,3 +1,5 @@
+# Update Specify Command
+
 ---
 
 description: Update an existing feature specification with new requirements or changes.

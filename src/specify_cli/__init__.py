@@ -57,6 +57,11 @@ import truststore
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
 
+# Configuration constants
+CACHE_TTL_SECONDS = 3600  # Cache lifetime: 1 hour
+HTTP_CHUNK_SIZE = 8192    # Standard 8KB chunks for HTTP streaming downloads
+HTTP_TIMEOUT_SECONDS = 30  # Default timeout for HTTP requests
+
 
 def _github_token(cli_token: str | None = None) -> str | None:
     """Return sanitized GitHub token (cli arg takes precedence) or None."""
@@ -69,6 +74,30 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
     return {"Authorization": f"Bearer {token}"} if token else {}
 
 
+def _save_models_cache(cache_file: Path, models: dict, source: str) -> None:
+    """
+    Centralized cache saving with proper error handling.
+
+    Args:
+        cache_file: Path to the cache file
+        models: Dictionary of model_id -> model_name mappings
+        source: Source of the models ("api" or "fallback")
+    """
+    try:
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        cache_data = {
+            "models": models,
+            "timestamp": time.time(),
+            "source": source,
+        }
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(cache_data, f, indent=2)
+    except (IOError, OSError, PermissionError):
+        # Silently ignore cache write failures - not critical for functionality
+        # In debug mode, this could be logged
+        pass
+
+
 def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dict:
     """Fetch available GitHub Models from the API with optional caching."""
     cache_file = _models_cache_path()
@@ -77,14 +106,15 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
     if use_cache and cache_file.exists():
         try:
             cache_stat = cache_file.stat()
-            # Use cache if less than 1 hour old
-            if time.time() - cache_stat.st_mtime < 3600:  # 1 hour
-                with open(cache_file, 'r') as f:
+            # Use cache if less than CACHE_TTL_SECONDS old
+            if time.time() - cache_stat.st_mtime < CACHE_TTL_SECONDS:
+                with open(cache_file, 'r', encoding='utf-8') as f:
                     cached_data = json.load(f)
                     if cached_data.get("models"):
                         return cached_data["models"]
-        except Exception:  # nosec B110 - cache read errors should be silently ignored
-            pass  # Ignore cache errors, continue with API fetch
+        except (json.JSONDecodeError, IOError, OSError):
+            # Cache read errors should be silently ignored, continue with API fetch
+            pass
 
     try:
         with httpx.Client(verify=ssl_context, timeout=10.0) as client:
@@ -121,56 +151,20 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
 
                 # Save to cache for future use
                 if use_cache:
-                    try:
-                        cache_file.parent.mkdir(parents=True, exist_ok=True)
-                        cache_data = {
-                            "models": combined_models,
-                            "timestamp": time.time(),
-                            "source": "api" if api_models else "fallback",
-                        }
-                        with open(cache_file, 'w') as f:
-                            json.dump(cache_data, f, indent=2)
-                    except Exception:  # nosec B110 - cache write errors should be silently ignored
-                        pass  # Ignore cache save errors
+                    _save_models_cache(cache_file, combined_models, "api" if api_models else "fallback")
 
                 return combined_models
             else:
                 # Fallback to known models if API fails
                 fallback_only = get_fallback_github_models()
                 if use_cache:
-                    try:
-                        cache_file.parent.mkdir(parents=True, exist_ok=True)
-                        cache_file.write_text(
-                            json.dumps(
-                                {
-                                    "models": fallback_only,
-                                    "timestamp": time.time(),
-                                    "source": "fallback",
-                                },
-                                indent=2,
-                            )
-                        )
-                    except Exception:  # nosec B110 - cache write errors should be silently ignored
-                        pass
+                    _save_models_cache(cache_file, fallback_only, "fallback")
                 return fallback_only
-    except Exception:
-        # Fallback to known models if any error occurs
+    except (httpx.RequestError, httpx.HTTPStatusError, json.JSONDecodeError):
+        # Fallback to known models if any error occurs during API call
         fallback_only = get_fallback_github_models()
         if use_cache:
-            try:
-                cache_file.parent.mkdir(parents=True, exist_ok=True)
-                cache_file.write_text(
-                    json.dumps(
-                        {
-                            "models": fallback_only,
-                            "timestamp": time.time(),
-                            "source": "fallback",
-                        },
-                        indent=2,
-                    )
-                )
-            except Exception:  # nosec B110 - cache write errors should be silently ignored
-                pass
+            _save_models_cache(cache_file, fallback_only, "fallback")
         return fallback_only
 
 GITHUB_MODEL_FALLBACKS: dict[str, str] = {
@@ -234,7 +228,8 @@ def _load_models_cache_metadata() -> dict | None:
         data["path"] = str(cache_file)
         data["age_seconds"] = max(time.time() - cache_file.stat().st_mtime, 0)
         return data
-    except Exception:
+    except (json.JSONDecodeError, IOError, OSError):
+        # Return minimal info if cache is corrupted or unreadable
         return {"path": str(cache_file), "age_seconds": None, "corrupt": True}
 
 
@@ -265,7 +260,8 @@ def _parse_iso8601(value: str | None) -> datetime | None:
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.astimezone(timezone.utc)
-    except Exception:
+    except (ValueError, TypeError):
+        # Invalid ISO format or type error
         return None
 
 
@@ -282,7 +278,8 @@ def _read_first_markdown_heading(path: Path) -> str | None:
                 stripped = line.strip()
                 if stripped.startswith("#"):
                     return stripped.lstrip("# ").strip()
-    except Exception:
+    except (IOError, OSError, UnicodeDecodeError):
+        # File read errors or encoding issues
         return None
     return None
 
@@ -729,7 +726,9 @@ class StepTracker:
         if self._refresh_cb:
             try:
                 self._refresh_cb()
-            except Exception:  # nosec B110 - UI refresh errors should not crash the application
+            except (RuntimeError, ValueError):
+                # UI refresh errors should not crash the application
+                # Common errors: Live context already stopped, display issues
                 pass
 
     def render(self):
@@ -1112,7 +1111,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
             total_size = int(response.headers.get('content-length', 0))
             with open(zip_path, 'wb') as f:
                 if total_size == 0:
-                    for chunk in response.iter_bytes(chunk_size=8192):
+                    for chunk in response.iter_bytes(chunk_size=HTTP_CHUNK_SIZE):
                         f.write(chunk)
                 else:
                     if show_progress:
@@ -1124,14 +1123,14 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
                         ) as progress:
                             task = progress.add_task("Downloading...", total=total_size)
                             downloaded = 0
-                            for chunk in response.iter_bytes(chunk_size=8192):
+                            for chunk in response.iter_bytes(chunk_size=HTTP_CHUNK_SIZE):
                                 f.write(chunk)
                                 downloaded += len(chunk)
                                 progress.update(task, completed=downloaded)
                     else:
-                        for chunk in response.iter_bytes(chunk_size=8192):
+                        for chunk in response.iter_bytes(chunk_size=HTTP_CHUNK_SIZE):
                             f.write(chunk)
-    except Exception as e:
+    except (httpx.RequestError, httpx.HTTPStatusError, IOError, OSError) as e:
         console.print("[red]Error downloading template[/red]")
         detail = str(e)
         if zip_path.exists():
@@ -1248,7 +1247,8 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
         if config_file.exists():
             try:
                 existing = json.loads(config_file.read_text())
-            except Exception:
+            except (json.JSONDecodeError, IOError, OSError):
+                # Config file is corrupted or unreadable, start fresh
                 existing = {}
 
         config_payload = existing.copy()
@@ -1270,7 +1270,9 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
             try:
                 cached_dt = datetime.fromtimestamp(catalog_meta["timestamp"], tz=timezone.utc)
                 github_meta["catalog_cached_at"] = cached_dt.isoformat()
-            except Exception:  # nosec B110 - timestamp parsing errors should not crash status command
+            except (ValueError, OSError, OverflowError):
+                # Timestamp parsing errors should not crash status command
+                # Invalid timestamp, out of range, or OS-specific errors
                 pass
         config_payload["github_models"] = github_meta
 
@@ -1484,7 +1486,8 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
                 with script.open("rb") as f:
                     if f.read(2) != b"#!":
                         continue
-            except Exception:  # nosec B112 - file read errors should skip the file
+            except (IOError, OSError):
+                # File read errors should skip the file
                 continue
             st = script.stat()
             mode = st.st_mode
@@ -1823,43 +1826,44 @@ def init(
             # Create a httpx client with verify based on skip_tls
             verify = not skip_tls
             local_ssl_context = ssl_context if verify else False
-            local_client = httpx.Client(verify=local_ssl_context)
 
-            if local:
-                copy_local_template(project_path, selected_ai, selected_script, selected_model, here, verbose=False, tracker=tracker)
-            else:
-                download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
-
-            tracker.start("workspace")
-            try:
-                synced, detail = sync_workspace_config(project_path, current_dir)
-            except Exception as sync_error:
-                tracker.error("workspace", str(sync_error))
-            else:
-                if synced:
-                    tracker.complete("workspace", detail)
+            # Use context manager to ensure proper resource cleanup
+            with httpx.Client(verify=local_ssl_context) as local_client:
+                if local:
+                    copy_local_template(project_path, selected_ai, selected_script, selected_model, here, verbose=False, tracker=tracker)
                 else:
-                    tracker.skip("workspace", detail)
+                    download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
-            # Ensure scripts are executable (POSIX)
-            ensure_executable_scripts(project_path, tracker=tracker)
-
-            # Git step
-            if not no_git:
-                tracker.start("git")
-                if is_git_repo(project_path):
-                    tracker.complete("git", "existing repo detected")
-                elif should_init_git:
-                    if init_git_repo(project_path, quiet=True):
-                        tracker.complete("git", "initialized")
+                tracker.start("workspace")
+                try:
+                    synced, detail = sync_workspace_config(project_path, current_dir)
+                except (IOError, OSError, RuntimeError) as sync_error:
+                    tracker.error("workspace", str(sync_error))
+                else:
+                    if synced:
+                        tracker.complete("workspace", detail)
                     else:
-                        tracker.error("git", "init failed")
-                else:
-                    tracker.skip("git", "git not available")
-            else:
-                tracker.skip("git", "--no-git flag")
+                        tracker.skip("workspace", detail)
 
-            tracker.complete("final", "project ready")
+                # Ensure scripts are executable (POSIX)
+                ensure_executable_scripts(project_path, tracker=tracker)
+
+                # Git step
+                if not no_git:
+                    tracker.start("git")
+                    if is_git_repo(project_path):
+                        tracker.complete("git", "existing repo detected")
+                    elif should_init_git:
+                        if init_git_repo(project_path, quiet=True):
+                            tracker.complete("git", "initialized")
+                        else:
+                            tracker.error("git", "init failed")
+                    else:
+                        tracker.skip("git", "git not available")
+                else:
+                    tracker.skip("git", "--no-git flag")
+
+                tracker.complete("final", "project ready")
         except Exception as e:
             tracker.error("final", str(e))
             console.print(Panel(f"Initialization failed: {e}", title="Failure", border_style="red"))
@@ -2289,8 +2293,8 @@ def version():
     try:
         import importlib.metadata
         pkg_version = importlib.metadata.version("specify-cli")
-    except Exception:
-        # Fallback version if package not installed
+    except (importlib.metadata.PackageNotFoundError, ImportError):
+        # Fallback version if package not installed or importlib unavailable
         pkg_version = "development"
 
     console.print(f"[bold]Specify CLI Version:[/bold] {pkg_version}")
@@ -2303,7 +2307,7 @@ def version():
         import time
         cache_stat = cache_file.stat()
         cache_age = time.time() - cache_stat.st_mtime
-        if cache_age < 3600:
+        if cache_age < CACHE_TTL_SECONDS:
             console.print(f"[dim]Models cache: ✓ (fresh, {int(cache_age/60)} minutes old)[/dim]")
         else:
             console.print(f"[dim]Models cache: ⚠ (stale, {int(cache_age/3600)} hours old)[/dim]")

@@ -1,3 +1,5 @@
+# Specify Command
+
 ---
 
 description: Turn your feature idea into a detailed specification document with requirements and user stories.

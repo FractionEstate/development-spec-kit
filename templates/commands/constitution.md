@@ -1,3 +1,5 @@
+# Constitution Command
+
 ---
 
 description: Define project principles and governance rules that guide all development decisions.

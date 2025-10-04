@@ -1,3 +1,5 @@
+# Plan Command
+
 ---
 
 description: Create technical architecture and implementation roadmap from your feature specification.

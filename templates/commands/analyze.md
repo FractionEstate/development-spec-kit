@@ -1,3 +1,5 @@
+# Analyze Command
+
 ---
 
 description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
@@ -52,7 +54,7 @@ Execution steps:
    B. Ambiguity detection:
 
       - Flag vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria.
-      - Flag unresolved placeholders (TODO, TKTK, ???, <placeholder>, etc.).
+      - Flag unresolved placeholders (TODO, TKTK, ???, `<placeholder>`, etc.).
 
    C. Underspecification:
 
@@ -86,38 +88,38 @@ Execution steps:
 
 6. Produce a Markdown report (no file writes) with sections:
 
-   ### Specification Analysis Report
+## Specification Analysis Report
 
-   | ID | Category | Severity | Location(s) | Summary | Recommendation |
-   |----|----------|----------|-------------|---------|----------------|
-   | A1 | Duplication | HIGH | spec.md:L120-134 | Two similar requirements ... | Merge phrasing; keep clearer version |
+| ID | Category | Severity | Location(s) | Summary | Recommendation |
+|----|----------|----------|-------------|---------|----------------|
+| A1 | Duplication | HIGH | spec.md:L120-134 | Two similar requirements ... | Merge phrasing; keep clearer version |
 
    (Add one row per finding; generate stable IDs prefixed by category initial.)
 
    Additional subsections:
 
-   - Coverage Summary Table:
+- Coverage Summary Table:
 
      | Requirement Key | Has Task? | Task IDs | Notes |
 
-   - Constitution Alignment Issues (if any)
-   - Unmapped Tasks (if any)
-   - Metrics:
-     - Total Requirements
-     - Total Tasks
-     - Coverage % (requirements with >=1 task)
-     - Ambiguity Count
-     - Duplication Count
-     - Critical Issues Count
+- Constitution Alignment Issues (if any)
+- Unmapped Tasks (if any)
+- Metrics:
+  - Total Requirements
+  - Total Tasks
+  - Coverage % (requirements with >=1 task)
+  - Ambiguity Count
+  - Duplication Count
+  - Critical Issues Count
 
-7. At end of report, output a concise Next Actions block:
+1. At end of report, output a concise Next Actions block:
    - If CRITICAL issues exist: Recommend resolving before `/implement`.
    - If only LOW/MEDIUM: User may proceed, but provide improvement suggestions.
    - Provide explicit command suggestions: e.g., "Run /specify with refinement", "Run /plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'".
 
-8. Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
+2. Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
 
-9. Conclude with a short Markdown summary that highlights highest-severity findings, coverage metrics, prioritized follow-ups, a ready-to-copy `@workspace` prompt tailored to the recommended next command (e.g., `/specify`, `/plan`, `/tasks`, `/clarify`, or manual edits), and the suggested next command itself.
+3. Conclude with a short Markdown summary that highlights highest-severity findings, coverage metrics, prioritized follow-ups, a ready-to-copy `@workspace` prompt tailored to the recommended next command (e.g., `/specify`, `/plan`, `/tasks`, `/clarify`, or manual edits), and the suggested next command itself.
 
 Behavior rules:
 

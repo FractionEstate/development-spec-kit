@@ -1,6 +1,6 @@
-Thanks for helping keep the Spec Kit ecosystem safe for everyone.
-
 # Security
+
+Thanks for helping keep the Spec Kit ecosystem safe for everyone.
 
 FractionEstate maintains this project and takes the security of our users, contributors, and downstream adopters seriously. Spec Kit is optimized for GitHub Models and GitHub Copilot workflows, so we rely on GitHub's coordinated disclosure program to receive and triage reported vulnerabilities.
 

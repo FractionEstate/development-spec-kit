@@ -1,3 +1,5 @@
+# Update Constitution Command
+
 ---
 
 description: Update existing project constitution with new principles or governance changes.
