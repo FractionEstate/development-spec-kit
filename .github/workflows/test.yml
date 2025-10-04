@@ -64,7 +64,9 @@ jobs:
         run: |
           mkdir -p non-interactive-test
           cd non-interactive-test
-          echo "" | specify init . --model claude-sonnet-4.5 --no-git || echo "Non-interactive test completed"      - name: Cleanup
+          echo "" | specify init . --model claude-sonnet-4.5 --no-git || echo "Non-interactive test completed"
+
+      - name: Cleanup
         run: |
           rm -rf test-workspace non-interactive-test
 
