@@ -196,13 +196,15 @@ git commit -m "feat: Add CI/CD pipelines and automated tests
 - Add deployment validation script
 - Clean up workspace and organize files
 - Update .gitignore with comprehensive rules"
-```
+
+```text
 
 ### 2. Push to GitHub
 
 ```bash
 git push origin main
-```
+
+```text
 
 CI/CD workflows will automatically run on push.
 
@@ -211,7 +213,8 @@ CI/CD workflows will automatically run on push.
 ```bash
 git tag v1.0.3
 git push --tags
-```
+
+```text
 
 Package will automatically publish to PyPI when release is created.
 

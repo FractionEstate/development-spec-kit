@@ -23,7 +23,8 @@ Persisted when you run `specify init`.
     "last_updated": "2025-10-02T15:12:48Z"
   }
 }
-```
+
+```text
 
 - `selected_model` mirrors the GitHub Model chosen during initialization.
 - `last_updated` records when the selection was made (UTC).

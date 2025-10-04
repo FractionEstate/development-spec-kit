@@ -10,7 +10,8 @@ Prerequisite: .NET SDK (for the DocFX global tool).
 dotnet tool install -g docfx
 cd docs
 docfx docfx.json --serve
-```
+
+```text
 
 Open `http://localhost:8080` to preview the site.
 

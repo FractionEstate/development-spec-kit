@@ -1,10 +1,13 @@
 ---
+
 description: Update the task breakdown with new development steps or priority changes.
+
 ---
 
 <!-- prompt-scripts
 sh: scripts/bash/check-prerequisites.sh --json
 ps: scripts/powershell/check-prerequisites.ps1 -Json
+
 -->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).

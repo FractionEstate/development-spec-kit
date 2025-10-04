@@ -1,0 +1,34 @@
+# Markdownlint configuration for Specify Development Spec Kit
+#
+# These rules are relaxed for template files because they prioritize
+# readability and instructional clarity over strict markdown style.
+
+# Configuration for all markdown files
+config:
+  # MD022: Headings should be surrounded by blank lines
+  # Disabled: Templates use compact heading styles for clarity
+  MD022: false
+
+  # MD026: Trailing punctuation in heading
+  # Disabled: Some instruction headings use colons for emphasis
+  MD026: false
+
+  # MD031: Fenced code blocks should be surrounded by blank lines
+  # Disabled: Templates show inline examples without extra spacing
+  MD031: false
+
+  # MD032: Lists should be surrounded by blank lines
+  # Disabled: Templates use compact list formatting
+  MD032: false
+
+  # MD040: Fenced code blocks should have a language specified
+  # Disabled: Many template examples show generic command/prompt patterns
+  MD040: false
+
+  # MD047: Files should end with a single newline character
+  # Keep this enabled for consistency
+  MD047: true
+
+  # MD058: Tables should be surrounded by blank lines
+  # Disabled: Templates use compact table formatting
+  MD058: false

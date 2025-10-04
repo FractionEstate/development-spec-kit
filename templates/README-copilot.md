@@ -14,7 +14,7 @@ GitHub Copilot is the primary partner in this repository. The playbook below dis
 
 ## �️ Workspace Layout
 
-```
+```text
 project-root/
 ├── .specify/
 │   ├── memory/
@@ -37,7 +37,8 @@ project-root/
     ├── settings.json                       # Copilot-optimized editor configuration
     ├── tasks.json                          # Workflow wiring for VS Code tasks
     └── spec-driven-dev.code-snippets       # Context-aware template snippets
-```
+
+```text
 
 ## 🧭 Workflow Phases
 
@@ -76,25 +77,34 @@ Use this loop for every feature: intent → spec → clarifications → plan →
 ### @workspace Templates
 
 **Specification Upgrade**
-```
+
+```text
+
 @workspace I'm refining .specify/specs/<feature>/spec.md.
 Current state: [summarize sections or gaps].
 Request: Tighten acceptance criteria for [specific area] while honoring constitution.md requirements.
-```
+
+```text
 
 **Implementation Session**
-```
+
+```text
+
 @workspace Implementing [component] for .specify/specs/<feature>/tasks.md step [ID].
 Plan reference: .specify/specs/<feature>/plan.md section [anchor].
 Request: Generate code that satisfies [requirement] with tests outlined in tasks.md.
-```
+
+```text
 
 **Debugging & Analysis**
-```
+
+```text
+
 @workspace Investigating [issue] in [file or module].
 Compare against: spec.md expectations + plan.md architecture for <feature>.
 Request: Identify likely discrepancies and recommend updates to spec/plan/tasks if needed.
-```
+
+```text
 
 ### Quick Context Snippets
 
@@ -125,6 +135,7 @@ Request: Identify likely discrepancies and recommend updates to spec/plan/tasks 
 Tip: For a full list of task labels mapped to slash commands, see the “VS Code Tasks Cheat Sheet” in `.github/copilot-references.md`.
 
 <a id="agent-tools--capabilities"></a>
+
 ## 🧰 Agent tools & capabilities
 
 Your chat agent can use a focused toolkit to operate on this workspace. Mention the capability explicitly in your prompt when you need it.
@@ -142,52 +153,63 @@ Your chat agent can use a focused toolkit to operate on this workspace. Mention 
 | Session TODO tracking | Maintain a visible plan during multi-step work | "Start a TODO list with items A/B/C and mark A in-progress" | Keeps one item in progress at a time |
 
 Tips
+
 - Say what tool to use: "use the terminal", "edit the file", "search the workspace".
 - Point to exact files/paths and desired outcomes.
 - Ask for summaries and diffs to keep context tight.
 
 <a id="try-it-5-minute-tour"></a>
+
 ## ⏱️ Try it: 5‑minute tour
 
 Use these bite‑size prompts to exercise the most useful agent tools right away:
 
 1) Workspace search → summary
+
 - Prompt: "Search the workspace for 'Feature Bootstrap Walkthrough' and list files and headings where it appears. Then suggest any missing cross‑links."
 - Outcome: A quick map of where the walkthrough lives and if more links are needed.
 
 2) Targeted file read → extraction
+
 - Prompt: "Open `templates/.github/copilot-instructions.md` and summarize the 'Prompt Quick Reference' table into 3 bullets."
 - Outcome: A concise distillation you can paste into planning notes.
 
 3) Terminal check → repo status
+
 - Prompt: "Run `git status -sb` from the repo root and report any modified files grouped by directory."
 - Outcome: A short status with zero noise; long outputs are auto‑truncated.
 
 4) Session TODO tracking → visible plan
+
 - Prompt: "Start a TODO list for today's session with: A) Review README sections, B) Add a demo clip link, C) Open a docs issue. Mark A in‑progress."
 - Outcome: A structured plan with exactly one item in progress at a time.
 
 5) Snippet insertion → instant scaffolding
+
 - Prompt: "Insert the `agent-tools` snippet right below this line to show capabilities inline."
 - Outcome: A reusable tools overview appears in place.
 
 Notes
+
 - Keep prompts explicit: name the tool, the file path(s), and the exact output you want.
 - For notebook or browser preview actions, mention them explicitly (only if your repo includes those assets).
 
 ## �️ Quality Guardrails
 
 ### Code & Implementation
+
 - Respect testing directives from `constitution.md` and `tasks.md`.
 - Implement only what `spec.md` mandates; capture stretch ideas in `research.md`.
 - Bake in logging, error handling, and observability defined in the plan.
 
 ### Documentation & Alignment
+
 - Keep `plan.md` synchronized with architectural decisions made during implementation.
 - Update `tasks.md` as progress unfolds—mark done, add blockers, track dependencies.
 - Ensure terminology stays consistent across spec, plan, tasks, and code.
 
 ### Governance & Reviews
+
 - Reference constitution excerpts when negotiating trade-offs.
 - Run `/analyze` before handoffs to surface mismatches early.
 - Record follow-up actions in the relevant artifact, not ad-hoc notes.
@@ -195,28 +217,40 @@ Notes
 ## 🧪 Troubleshooting Patterns
 
 **Specification Ambiguity**
-```
+
+```text
+
 @workspace .specify/specs/<feature>/spec.md leaves [scenario] undefined.
 Help me propose acceptance criteria and edge cases that satisfy constitution.md.
-```
+
+```text
 
 **Implementation Drift**
-```
+
+```text
+
 @workspace Compare current [component] implementation against spec.md + plan.md for <feature>.
 Flag any mismatches and suggest updates to tasks.md to realign.
-```
+
+```text
 
 **Integration or Contract Breakage**
-```
+
+```text
+
 @workspace Validate [API integration] against .specify/specs/<feature>/contracts/[name].
 Highlight contract clauses my current implementation violates and how to fix them.
-```
+
+```text
 
 **Task Hygiene**
-```
+
+```text
+
 @workspace Review .specify/specs/<feature>/tasks.md.
 Mark [completed items], reprioritize remaining work, and note any blockers requiring clarification.
-```
+
+```text
 
 ## 📚 Resource Hub
 

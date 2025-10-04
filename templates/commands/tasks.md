@@ -1,10 +1,13 @@
 ---
+
 description: Break down your implementation plan into step-by-step development tasks with clear dependencies.
+
 ---
 
 <!-- prompt-scripts
 sh: scripts/bash/check-prerequisites.sh --json
 ps: scripts/powershell/check-prerequisites.ps1 -Json
+
 -->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
@@ -22,6 +25,7 @@ $ARGUMENTS
    - IF EXISTS: Read quickstart.md for test scenarios
 
    Note: Not all projects have all documents. For example:
+
    - CLI tools might not have contracts/
    - Simple libraries might not need data-model.md
    - Generate tasks based on what's available
@@ -29,11 +33,11 @@ $ARGUMENTS
 3. Generate tasks following the template:
    - Use `/templates/tasks-template.md` as the base
    - Replace example tasks with actual tasks based on:
-     * **Setup tasks**: Project init, dependencies, linting
-     * **Test tasks [P]**: One per contract, one per integration scenario
-     * **Core tasks**: One per entity, service, CLI command, endpoint
-     * **Integration tasks**: DB connections, middleware, logging
-     * **Polish tasks [P]**: Unit tests, performance, docs
+     - **Setup tasks**: Project init, dependencies, linting
+     - **Test tasks [P]**: One per contract, one per integration scenario
+     - **Core tasks**: One per entity, service, CLI command, endpoint
+     - **Integration tasks**: DB connections, middleware, logging
+     - **Polish tasks [P]**: Unit tests, performance, docs
 
 4. Task generation rules:
    - Each contract file → contract test task marked [P]
@@ -62,8 +66,8 @@ $ARGUMENTS
    - Dependency notes
    - Parallel execution guidance
 
-Context for task generation: {ARGS}
+   Context for task generation: {ARGS}
 
-The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
+   The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
 
 8. End your response with a Markdown summary that calls out the branch (if provided), the tasks file path, total task count, high-priority dependencies, unresolved inputs (if any), a ready-to-copy `@workspace` prompt for `/implement` (or `/clarify` if blockers remain), and the recommended next command.

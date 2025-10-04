@@ -14,7 +14,7 @@ This document primes GitHub Copilot for the Spec-Driven Development (SDD) workfl
 
 ## Workspace Layout
 
-```
+```text
 project-root/
 ├── .specify/
 │   ├── memory/
@@ -37,11 +37,13 @@ project-root/
     ├── settings.json                       # Copilot-optimized configuration
     ├── tasks.json                          # SDD slash-command wiring
     └── spec-driven-dev.code-snippets       # Context-aware template snippets
-```
+
+```text
 
 ## Development Workflow
 
 ### Phase Overview
+
 1. **Constitution** (`/constitution`) – Define or refine project principles and standards.
 2. **Specify** (`/specify`) – Capture requirements and acceptance criteria in `spec.md`.
 3. **Clarify** (`/clarify`) – Resolve outstanding questions before planning begins.
@@ -79,12 +81,14 @@ Every command writes to `.specify/specs/<feature>/`, maintaining a single source
 ### Code Generation Guidelines
 
 #### For Specifications (`.md` files)
+
 - Use clear, unambiguous language
 - Include concrete acceptance criteria
 - Specify edge cases and error conditions
 - Reference project constitution requirements
 
 #### For Implementation Code
+
 - Follow the technical stack defined in `plan.md`
 - Implement only features specified in `spec.md`
 - Include appropriate error handling
@@ -92,6 +96,7 @@ Every command writes to `.specify/specs/<feature>/`, maintaining a single source
 - Follow code style from constitution
 
 #### For Documentation
+
 - Keep consistency with existing docs
 - Update related files when making changes
 - Include examples and usage scenarios
@@ -99,14 +104,18 @@ Every command writes to `.specify/specs/<feature>/`, maintaining a single source
 
 ### VSCode Chat Optimization
 
-#### Best Practices for @workspace conversations:
+#### Best Practices for @workspace conversations
+
 1. **Use context markers:**
-   ```
+
+```text
+
    @workspace Working on [feature-name] in the [phase] phase
    Current files: .specify/specs/<feature>/spec.md, .specify/specs/<feature>/plan.md, .specify/specs/<feature>/tasks.md
 
    Question: [Your specific question]
-   ```
+
+```text
 
 2. **Request structured outputs:**
    - "Generate code that follows the plan.md architecture"
@@ -118,28 +127,37 @@ Every command writes to `.specify/specs/<feature>/`, maintaining a single source
    - Ask for cross-file consistency checks
    - Request impact analysis of proposed changes
 
-#### Common Chat Patterns:
+#### Common Chat Patterns
 
 **For Specification Writing:**
-```
+
+```text
+
 @workspace I'm working on the [feature] specification.
 Current file: .specify/specs/<feature>/spec.md shows [current state].
 Please help me [specific need] while following our constitution.md principles.
-```
+
+```text
 
 **For Implementation:**
-```
+
+```text
+
 @workspace I need to implement [specific task] from .specify/specs/<feature>/tasks.md.
 .specify/specs/<feature>/plan.md specifies [technical approach].
 Please generate code that [specific requirement].
-```
+
+```text
 
 **For Debugging:**
-```
+
+```text
+
 @workspace I'm having an issue with [component].
 Based on .specify/specs/<feature>/spec.md requirements and .specify/specs/<feature>/plan.md architecture,
 what could be causing [problem description]?
-```
+
+```text
 
 ## Prompt Quick Reference
 
@@ -158,7 +176,9 @@ Keep this table visible; it anchors when to run each command and how to prime Co
 ## Integration Features
 
 ### Available VSCode Tasks
+
 Use Ctrl+Shift+P → "Tasks: Run Task" to access:
+
 - **Specify: Create Feature** - Launch `/specify` command
 - **Plan: Generate Implementation Plan** - Launch `/plan` command
 - **Tasks: Generate Task Breakdown** - Launch `/tasks` command
@@ -168,14 +188,18 @@ Use Ctrl+Shift+P → "Tasks: Run Task" to access:
 - **Analyze: Cross-Artifact Analysis** - Launch `/analyze` command
 
 ### Code Snippets
+
 Type these prefixes in markdown files for quick templates:
+
 | `spec-template` - Complete feature specification template
 | `copilot-context` - Structured context for Copilot Chat
 | `sdd-chat` - Enhanced chat request template
 | `feature-bootstrap` - Drop-in walkthrough table for end-to-end command flow
 
 ### File Organization
+
 The project uses file nesting in VS Code:
+
 - `spec.md` groups with related files (`plan.md`, `tasks.md`, etc.)
 - `constitution.md` groups with memory files
 - Enhanced search excludes build artifacts and dependencies
@@ -197,6 +221,7 @@ Use these capabilities explicitly in prompts to guide high-quality actions:
 Provide exact file paths, expected outcomes, and any guardrails (e.g., "change only the table, leave intro untouched").
 
 ### Guardrails & limits
+
 - Terminal: one-line commands only; large outputs may be truncated.
 - File reads: prefer large meaningful ranges over many tiny reads.
 - Edits: minimal diffs; avoid unrelated reformatting unless asked.
@@ -206,18 +231,21 @@ Provide exact file paths, expected outcomes, and any guardrails (e.g., "change o
 ## Quality Standards
 
 ### Code Quality
+
 - Follow the testing requirements from `constitution.md`
 - Implement comprehensive error handling
 - Include appropriate logging and monitoring
 - Maintain clean, readable code structure
 
 ### Documentation Quality
+
 - Keep specifications current with implementation
 - Update plans when making architectural changes
 - Maintain task progress in `tasks.md`
 - Document decisions in appropriate files
 
 ### Consistency Standards
+
 - Ensure spec-to-implementation alignment
 - Maintain consistent terminology across files
 - Follow established patterns and conventions

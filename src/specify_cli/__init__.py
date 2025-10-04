@@ -25,13 +25,12 @@ Or install globally:
 """
 
 import os
-import subprocess
+import subprocess  # nosec B404 - subprocess is required for CLI tool functionality
 import sys
 import zipfile
 import tempfile
 import shutil
 import json
-import importlib.metadata
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -84,7 +83,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                     cached_data = json.load(f)
                     if cached_data.get("models"):
                         return cached_data["models"]
-        except Exception:
+        except Exception:  # nosec B110 - cache read errors should be silently ignored
             pass  # Ignore cache errors, continue with API fetch
 
     try:
@@ -131,7 +130,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                         }
                         with open(cache_file, 'w') as f:
                             json.dump(cache_data, f, indent=2)
-                    except Exception:
+                    except Exception:  # nosec B110 - cache write errors should be silently ignored
                         pass  # Ignore cache save errors
 
                 return combined_models
@@ -151,7 +150,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                                 indent=2,
                             )
                         )
-                    except Exception:
+                    except Exception:  # nosec B110 - cache write errors should be silently ignored
                         pass
                 return fallback_only
     except Exception:
@@ -170,7 +169,7 @@ def fetch_github_models(github_token: str = None, use_cache: bool = True) -> dic
                         indent=2,
                     )
                 )
-            except Exception:
+            except Exception:  # nosec B110 - cache write errors should be silently ignored
                 pass
         return fallback_only
 
@@ -730,7 +729,7 @@ class StepTracker:
         if self._refresh_cb:
             try:
                 self._refresh_cb()
-            except Exception:
+            except Exception:  # nosec B110 - UI refresh errors should not crash the application
                 pass
 
     def render(self):
@@ -950,14 +949,14 @@ def callback(ctx: typer.Context):
         console.print()
 
 
-def run_command(cmd: list[str], check_return: bool = True, capture: bool = False, shell: bool = False) -> Optional[str]:
+def run_command(cmd: list[str], check_return: bool = True, capture: bool = False) -> Optional[str]:
     """Run a shell command and optionally capture output."""
     try:
         if capture:
-            result = subprocess.run(cmd, check=check_return, capture_output=True, text=True, shell=shell)
+            result = subprocess.run(cmd, check=check_return, capture_output=True, text=True)  # nosec B603 - cmd is a list, shell=False
             return result.stdout.strip()
         else:
-            subprocess.run(cmd, check=check_return, shell=shell)
+            subprocess.run(cmd, check=check_return)  # nosec B603 - cmd is a list, shell=False
             return None
     except subprocess.CalledProcessError as e:
         if check_return:
@@ -997,7 +996,7 @@ def is_git_repo(path: Path = None) -> bool:
 
     try:
         # Use git command to check if inside a work tree
-        subprocess.run(
+        subprocess.run(  # nosec B603,B607 - git is a required dependency, input is controlled
             ["git", "rev-parse", "--is-inside-work-tree"],
             check=True,
             capture_output=True,
@@ -1017,9 +1016,9 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(project_path)
         if not quiet:
             console.print("[cyan]Initializing git repository...[/cyan]")
-        subprocess.run(["git", "init"], check=True, capture_output=True)
-        subprocess.run(["git", "add", "."], check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit from Specify template"], check=True, capture_output=True)
+        subprocess.run(["git", "init"], check=True, capture_output=True)  # nosec B603,B607 - git is required, no user input
+        subprocess.run(["git", "add", "."], check=True, capture_output=True)  # nosec B603,B607 - git is required, no user input
+        subprocess.run(["git", "commit", "-m", "Initial commit from Specify template"], check=True, capture_output=True)  # nosec B603,B607 - git is required, hardcoded message
         if not quiet:
             console.print("[green]✓[/green] Git repository initialized")
         return True
@@ -1066,7 +1065,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     try:
         release_data = fetch_latest_release_metadata(client, github_token, debug)
     except Exception as e:
-        console.print(f"[red]Error fetching release information[/red]")
+        console.print("[red]Error fetching release information[/red]")
         console.print(Panel(str(e), title="Fetch Error", border_style="red"))
         raise typer.Exit(1)
 
@@ -1097,7 +1096,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
 
     zip_path = download_dir / filename
     if verbose:
-        console.print(f"[cyan]Downloading template...[/cyan]")
+        console.print("[cyan]Downloading template...[/cyan]")
 
     try:
         with client.stream(
@@ -1133,7 +1132,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
                         for chunk in response.iter_bytes(chunk_size=8192):
                             f.write(chunk)
     except Exception as e:
-        console.print(f"[red]Error downloading template[/red]")
+        console.print("[red]Error downloading template[/red]")
         detail = str(e)
         if zip_path.exists():
             zip_path.unlink()
@@ -1271,7 +1270,7 @@ def setup_agent_commands(project_path: Path, ai_assistant: str, script_type: str
             try:
                 cached_dt = datetime.fromtimestamp(catalog_meta["timestamp"], tz=timezone.utc)
                 github_meta["catalog_cached_at"] = cached_dt.isoformat()
-            except Exception:
+            except Exception:  # nosec B110 - timestamp parsing errors should not crash status command
                 pass
         config_payload["github_models"] = github_meta
 
@@ -1384,7 +1383,7 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
                             tracker.add("flatten", "Flatten nested directory")
                             tracker.complete("flatten")
                         elif verbose:
-                            console.print(f"[cyan]Found nested directory structure[/cyan]")
+                            console.print("[cyan]Found nested directory structure[/cyan]")
 
                     # Copy contents to current directory
                     for item in source_dir.iterdir():
@@ -1407,7 +1406,7 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
                                 console.print(f"[yellow]Overwriting file:[/yellow] {item.name}")
                             shutil.copy2(item, dest_path)
                     if verbose and not tracker:
-                        console.print(f"[cyan]Template files merged into current directory[/cyan]")
+                        console.print("[cyan]Template files merged into current directory[/cyan]")
             else:
                 # Extract directly to project directory (original behavior)
                 zip_ref.extractall(project_path)
@@ -1437,7 +1436,7 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
                         tracker.add("flatten", "Flatten nested directory")
                         tracker.complete("flatten")
                     elif verbose:
-                        console.print(f"[cyan]Flattened nested directory structure[/cyan]")
+                        console.print("[cyan]Flattened nested directory structure[/cyan]")
 
     except Exception as e:
         if tracker:
@@ -1485,15 +1484,19 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
                 with script.open("rb") as f:
                     if f.read(2) != b"#!":
                         continue
-            except Exception:
+            except Exception:  # nosec B112 - file read errors should skip the file
                 continue
-            st = script.stat(); mode = st.st_mode
+            st = script.stat()
+            mode = st.st_mode
             if mode & 0o111:
                 continue
             new_mode = mode
-            if mode & 0o400: new_mode |= 0o100
-            if mode & 0o040: new_mode |= 0o010
-            if mode & 0o004: new_mode |= 0o001
+            if mode & 0o400:
+                new_mode |= 0o100
+            if mode & 0o040:
+                new_mode |= 0o010
+            if mode & 0o004:
+                new_mode |= 0o001
             if not (new_mode & 0o100):
                 new_mode |= 0o100
             os.chmod(script, new_mode)
@@ -1570,7 +1573,7 @@ def resolve_workspace_root(start: Path) -> Path:
     """Return git workspace root if inside a repo, otherwise the starting path."""
     if is_git_repo(start):
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603,B607 - git is required, input is controlled
                 ["git", "rev-parse", "--show-toplevel"],
                 check=True,
                 capture_output=True,
@@ -1720,7 +1723,7 @@ def init(
             available_models = fetch_github_models(github_token)
             if model not in available_models:
                 console.print(f"[red]Error:[/red] Model '{model}' not found in GitHub Models catalog.")
-                console.print(f"\n[yellow]Did you mean one of these?[/yellow]")
+                console.print("\n[yellow]Did you mean one of these?[/yellow]")
                 # Show similar model names
                 similar = [m for m in available_models.keys() if model.lower() in m.lower() or m.lower() in model.lower()]
                 if similar:
@@ -1728,7 +1731,7 @@ def init(
                         console.print(f"  • {m}")
                 else:
                     # Show first 20 models as examples
-                    console.print(f"[yellow]Available models (showing first 20):[/yellow]")
+                    console.print("[yellow]Available models (showing first 20):[/yellow]")
                     for m in sorted(available_models.keys())[:20]:
                         console.print(f"  • {m}")
                 console.print(f"\n[dim]Use 'specify list-models' to see all {len(available_models)} available models[/dim]")
@@ -1758,22 +1761,9 @@ def init(
                 selected_model = "gpt-4o"  # Fallback default
 
     # GitHub Models (copilot) doesn't require CLI tools - no checks needed
-    if not ignore_agent_tools:
-        agent_tool_missing = False
-
-        if agent_tool_missing:
-            error_panel = Panel(
-                f"[cyan]{selected_ai}[/cyan] not found\n"
-                f"Install with: [cyan]{install_url}[/cyan]\n"
-                f"{AI_CHOICES[selected_ai]} is required to continue with this project type.\n\n"
-                "Tip: Use [cyan]--ignore-agent-tools[/cyan] to skip this check",
-                title="[red]Agent Detection Error[/red]",
-                border_style="red",
-                padding=(1, 2)
-            )
-            console.print()
-            console.print(error_panel)
-            raise typer.Exit(1)
+    # Note: Previously, this section checked for agent CLI tools, but GitHub Copilot
+    # integration is built into VS Code and doesn't require external CLI validation.
+    # The `ignore_agent_tools` flag is preserved for backwards compatibility.
 
     # Determine script type (explicit, interactive, or OS default)
     if script_type:
@@ -1934,8 +1924,8 @@ def init(
     enhancement_lines = [
         "Optional commands that you can use for your specs [bright_black](improve quality & confidence)[/bright_black]",
         "",
-        f"○ [cyan]/clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/plan[/] if used)",
-        f"○ [cyan]/analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/tasks[/], before [cyan]/implement[/])"
+        "○ [cyan]/clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/plan[/] if used)",
+        "○ [cyan]/analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/tasks[/], before [cyan]/implement[/])"
     ]
     enhancements_panel = Panel("\n".join(enhancement_lines), title="Enhancement Commands", border_style="cyan", padding=(1,2))
     console.print()
@@ -2021,7 +2011,7 @@ def list_models(
     console.print(table)
 
     if verbose:
-        console.print(f"\n[dim]API endpoint: https://models.inference.ai.azure.com/models[/dim]")
+        console.print("\n[dim]API endpoint: https://models.inference.ai.azure.com/models[/dim]")
         console.print(f"[dim]Auth: {'✓ Token provided' if _github_token(github_token) else '⚠ No token (may have limited access)'}[/dim]")
 
     cache_meta = _load_models_cache_metadata()
@@ -2148,7 +2138,7 @@ def status(
     }
 
     if output_json:
-        console.print(json.dumps(status_payload, indent=2))
+        print(json.dumps(status_payload, indent=2))
         return
 
     if agent_mode:
@@ -2318,7 +2308,7 @@ def version():
         else:
             console.print(f"[dim]Models cache: ⚠ (stale, {int(cache_age/3600)} hours old)[/dim]")
     else:
-        console.print(f"[dim]Models cache: none[/dim]")
+        console.print("[dim]Models cache: none[/dim]")
 
 
 def main():

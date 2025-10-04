@@ -20,7 +20,8 @@ Slash commands rely on helper scripts stored in `.specify/scripts/`. Each script
     ├── install-specify.ps1
     ├── setup-plan.ps1
     └── update-agent-context.ps1
-```
+
+```text
 
 ## Core scripts
 
@@ -38,12 +39,16 @@ Slash commands rely on helper scripts stored in `.specify/scripts/`. Each script
 Scripts live in `.specify/scripts/<flavor>/`. Invoke them directly when debugging or extending the workflow:
 
 ```bash
+
 # Bash example
+
 .specify/scripts/bash/check-prerequisites.sh --json
 
 # PowerShell example
+
 .specify/scripts/powershell/check-prerequisites.ps1 -Json
-```
+
+```text
 
 All scripts are designed to be idempotent and safe to rerun. They emit structured JSON when invoked with `--json`/`-Json`, making it easy to pipe into other tooling.
 

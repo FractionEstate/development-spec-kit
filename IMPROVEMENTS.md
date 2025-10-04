@@ -21,10 +21,13 @@ Comprehensive improvements to make the Specify CLI perfect for both human users 
 **Testing**:
 
 ```bash
-# Works without hanging:
+
+# Works without hanging
+
 echo "" | specify init . --model gpt-4o
 cd /tmp/test && specify init . --model claude-sonnet-4.5 < /dev/null
-```
+
+```text
 
 ### 2. Claude Sonnet 4.5 Fully Supported ✅
 
@@ -42,12 +45,16 @@ cd /tmp/test && specify init . --model claude-sonnet-4.5 < /dev/null
 
 ```bash
 specify list-models | grep -i claude
+
 # Shows all 8 Claude models
 
 specify init test-claude --model claude-sonnet-4.5
+
 # Successfully validates and uses Claude
+
 ```bash
-```
+
+```text
 
 ### 3. Improved Error Messages ✅
 
@@ -56,7 +63,8 @@ specify init test-claude --model claude-sonnet-4.5
 ```text
 Error: Model 'gpt4o' not found.
 Available models: gpt-4o, gpt-4o-mini, claude-sonnet-4.5, ... [58 more]
-```
+
+```text
 
 **After**:
 
@@ -67,7 +75,8 @@ Did you mean one of these?
   • gpt-4o
   • gpt-4o-mini
   • gpt-4o-audio-preview
-```
+
+```text
 
 Use 'specify list-models' to see all 61 available models
 
@@ -89,13 +98,17 @@ Added three output modes:
 NEXT_STEP: Kick off your first feature with /specify.
 CONSTITUTION: ready
 FEATURES:
+
 - user-auth: spec=done plan=todo tasks=todo next=plan
 - payment: spec=done plan=done tasks=done next=implement
+
 COMMANDS: /constitution, /specify, /plan, /tasks, /implement
 FOLLOWUPS:
+
 - Plan next steps with /plan → user-auth.
 - Move into delivery with /implement → payment.
-```
+
+```text
 
 **Example `--json` output**:
 
@@ -113,7 +126,8 @@ FOLLOWUPS:
   "next_suggestion": "Plan next steps with /plan → user-auth.",
   "followups": [...]
 }
-```
+
+```text
 
 ### Documentation Additions
 
@@ -143,6 +157,7 @@ def _derive_followups(summary: dict) -> list[str]:
 
     Args:
         summary: Workflow artifact summary with keys:
+
             - constitution (bool): Whether constitution exists
             - specs_ready (int): Number of complete specs
             - missing_spec (list): Features without specs
@@ -153,7 +168,8 @@ def _derive_followups(summary: dict) -> list[str]:
     Returns:
         List of formatted follow-up suggestions in priority order
     """
-```
+
+```javascript
 
 ### Improved Type Hints
 
@@ -250,26 +266,34 @@ None! All changes are backward-compatible additions and improvements.
 ## Validation Commands
 
 ```bash
+
 # Validate syntax
+
 python -m compileall src/specify_cli/__init__.py
 
 # Test non-interactive mode
+
 echo "" | specify init test --model gpt-4o
 
 # Test invalid model
+
 specify init test --model invalid-xyz
 
 # Test Claude support
+
 specify list-models | grep claude
 
 # Test status modes
+
 specify status
 specify status --json
 specify status --agent
 
 # Clean up
+
 rm -rf test test-*
-```
+
+```text
 
 ## Success Criteria
 

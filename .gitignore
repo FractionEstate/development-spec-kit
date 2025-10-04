@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.ruff_cache/
 
 # Virtual environments
 venv/
@@ -45,6 +46,7 @@ env/
 archive/
 models_cache.json
 .specify/
+fix_markdown.py
 
 # Test directories
 tmp/

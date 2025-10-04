@@ -25,15 +25,20 @@ Quick guide to the GitHub Actions workflows for Specify CLI.
 #### Commands to run locally
 
 ```bash
+
 # Markdown linting
+
 markdownlint-cli2 **/*.md
 
 # Python linting
+
 ruff check src/
 
 # Type checking
+
 pyright src/
-```
+
+```text
 
 ### 2. Test Workflow
 
@@ -47,15 +52,20 @@ pyright src/
 #### Commands to run locally
 
 ```bash
+
 # Run pytest
+
 pytest tests/ -v
 
 # Run specific test
+
 pytest tests/test_cli_core.py::test_version_command -v
 
 # Test with coverage
+
 pytest tests/ --cov=src/specify_cli --cov-report=term
-```
+
+```text
 
 ### 3. Build Workflow
 
@@ -69,16 +79,21 @@ pytest tests/ --cov=src/specify_cli --cov-report=term
 #### Commands to run locally
 
 ```bash
+
 # Build package
+
 uv build
 
 # Check package contents
+
 tar -tzf dist/*.tar.gz | head -20
 
 # Test installation
+
 uv tool install dist/*.whl
 specify version
-```
+
+```text
 
 ### 4. Security Workflow
 
@@ -92,18 +107,24 @@ specify version
 #### Commands to run locally
 
 ```bash
+
 # Install security tools
+
 uv pip install bandit safety pip-audit
 
 # Run Bandit
+
 bandit -r src/
 
 # Run pip-audit
+
 pip-audit --desc
 
 # Check for vulnerabilities
+
 safety check
-```
+
+```text
 
 ## Deployment Validation
 
@@ -112,11 +133,14 @@ safety check
 Runs comprehensive validation before deployment.
 
 ```bash
+
 # Run validation
+
 bash scripts/validate-deployment.sh
 
 # Expected output: All 23 checks passing
-```
+
+```text
 
 ### Validation Checks
 
@@ -147,69 +171,94 @@ bash scripts/validate-deployment.sh
 ### Before Committing
 
 ```bash
+
 # 1. Run linting
+
 markdownlint-cli2 **/*.md
 ruff check src/
 
 # 2. Run tests
+
 pytest tests/ -v
 
 # 3. Build package
+
 uv build
 
 # 4. Run deployment validation
+
 bash scripts/validate-deployment.sh
-```
+
+```text
 
 ### Creating a Release
 
 ```bash
+
 # 1. Update version in pyproject.toml
+
 # 2. Update CHANGELOG.md
+
 # 3. Commit changes
+
 git add .
 git commit -m "chore: Prepare release v1.0.3"
 
 # 4. Create and push tag
+
 git tag v1.0.3
 git push origin main --tags
 
 # 5. Monitor GitHub Actions
+
 # Build workflow will auto-publish to PyPI
-```
+
+```text
 
 ### Debugging Failed Workflows
 
 #### Lint Failures
 
 ```bash
+
 # Fix markdown
+
 markdownlint-cli2 --fix **/*.md
 
 # Fix Python
+
 ruff check --fix src/
-```
+
+```text
 
 #### Test Failures
 
 ```bash
+
 # Run failed test with verbose output
+
 pytest tests/test_cli_core.py::test_name -vv
 
 # Debug with print statements (captured with -s)
+
 pytest tests/ -s
-```
+
+```text
 
 #### Build Failures
 
 ```bash
+
 # Clean and rebuild
+
 rm -rf dist/ build/
 uv build
 
 # Validate package
+
 twine check dist/*
-```
+
+```text
 
 ## Monitoring
 
@@ -227,7 +276,8 @@ Add to README.md:
 [![Lint](https://github.com/{org}/{repo}/workflows/Lint/badge.svg)](https://github.com/{org}/{repo}/actions/workflows/lint.yml)
 [![Test](https://github.com/{org}/{repo}/workflows/Test/badge.svg)](https://github.com/{org}/{repo}/actions/workflows/test.yml)
 [![Build](https://github.com/{org}/{repo}/workflows/Build/badge.svg)](https://github.com/{org}/{repo}/actions/workflows/build.yml)
-```
+
+```text
 
 ## Secrets Configuration
 
@@ -273,25 +323,33 @@ Configure at: `https://pypi.org/manage/account/publishing/`
 ## Quick Commands Reference
 
 ```bash
+
 # Lint
+
 markdownlint-cli2 **/*.md
 ruff check src/
 
 # Test
+
 pytest tests/ -v
 
 # Build
+
 uv build
 
 # Validate
+
 bash scripts/validate-deployment.sh
 
 # Install
+
 uv tool install dist/*.whl
 
 # Release
+
 git tag v1.0.3 && git push --tags
-```
+
+```text
 
 ## Resources
 

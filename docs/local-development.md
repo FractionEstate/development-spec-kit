@@ -15,7 +15,8 @@ This guide shows how to iterate on the Specify CLI, regenerate documentation, an
 git clone https://github.com/FractionEstate/development-spec-kit.git
 cd development-spec-kit
 git checkout -b feature/my-change
-```
+
+```text
 
 ## 2. Run the CLI straight from source
 
@@ -25,13 +26,15 @@ Use the module entry point for the fastest feedback loop:
 python -m src.specify_cli --help
 python -m src.specify_cli list-models --no-cache
 python -m src.specify_cli init demo --model gpt-4.1 --ignore-agent-tools
-```
+
+```text
 
 You can also invoke the script file directly:
 
 ```bash
 python src/specify_cli/__init__.py status
-```
+
+```text
 
 ## 3. Editable install (uv)
 
@@ -42,7 +45,8 @@ uv pip install -e .
 
 specify --help
 specify status
-```
+
+```text
 
 Editable mode allows you to modify the CLI and re-run commands without reinstalling.
 
@@ -52,14 +56,16 @@ Editable mode allows you to modify the CLI and re-run commands without reinstall
 
 ```bash
 uvx --from . specify init demo-uvx --model gpt-4.1 --ignore-agent-tools
-```
+
+```text
 
 You can target a remote branch once pushed:
 
 ```bash
 git push origin feature/my-change
 uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@feature/my-change specify list-models --refresh
-```
+
+```text
 
 ## 5. Validate code changes
 
@@ -77,7 +83,8 @@ uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@featur
    cd docs
    dotnet tool install -g docfx  # first time only
    docfx docfx.json --serve
-   ```
+
+```text
 
 3. Visit `http://localhost:8080` to review the site.
 4. Run `specify status` and capture new behaviors in the docs if the CLI output changed.
@@ -87,7 +94,8 @@ uvx --from git+https://github.com/FractionEstate/development-spec-kit.git@featur
 ```bash
 uv build
 ls dist/
-```
+
+```text
 
 Install the resulting wheel in a fresh environment when you need to validate packaging.
 
@@ -95,7 +103,8 @@ Install the resulting wheel in a fresh environment when you need to validate pac
 
 ```bash
 rm -rf .venv dist build *.egg-info
-```
+
+```text
 
 ## 9. Preparing a pull request
 

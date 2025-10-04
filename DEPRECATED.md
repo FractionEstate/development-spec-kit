@@ -21,7 +21,8 @@ The `.genreleases/` directory contains packaged releases from when Specify suppo
 
 ```bash
 specify init . --model claude-sonnet-4.5
-```
+
+```text
 
 ---
 

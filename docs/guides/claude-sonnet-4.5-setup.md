@@ -48,7 +48,8 @@ If you have an Anthropic API key, you can add it to VS Code:
 
 ```bash
 specify init my-project --model claude-sonnet-4.5
-```
+
+```text
 
 This will:
 
@@ -60,7 +61,8 @@ This will:
 
 ```bash
 specify list-models
-```
+
+```text
 
 This will show all 60+ available models, including:
 

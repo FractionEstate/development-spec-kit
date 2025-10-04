@@ -22,8 +22,10 @@ CONSTITUTION: ready
 FEATURES: none (run /specify to create one)
 COMMANDS: /analyze.prompt, /clarify.prompt, /constitution.prompt, /implement.prompt, /plan.prompt, /specify.prompt, /tasks.prompt, /update-constitution.prompt, /update-implement.prompt, /update-plan.prompt …
 FOLLOWUPS:
+
 - Kick off your first feature with /specify.
-```
+
+```text
 
 ### With Features
 
@@ -33,15 +35,19 @@ When features exist, the output includes detailed state for each:
 NEXT_STEP: Plan next steps with /plan → user-auth.
 CONSTITUTION: ready
 FEATURES:
+
 - user-auth: spec=done plan=todo tasks=todo next=plan
 - payment-flow: spec=done plan=done tasks=todo next=tasks
 - dashboard: spec=done plan=done tasks=done next=implement
+
 COMMANDS: /analyze.prompt, /clarify.prompt, /constitution.prompt, /implement.prompt, /plan.prompt, /specify.prompt, /tasks.prompt …
 FOLLOWUPS:
+
 - Plan next steps with /plan → user-auth.
 - Create execution tasks via /tasks → payment-flow.
 - Move into delivery with /implement → dashboard.
-```
+
+```text
 
 ### Parsing Agent Output
 
@@ -50,14 +56,18 @@ The format is designed for line-based parsing:
 **Bash example:**
 
 ```bash
+
 #!/bin/bash
+
 output=$(specify status --agent)
 
 # Extract next step
+
 next_step=$(echo "$output" | grep "^NEXT_STEP:" | cut -d: -f2- | xargs)
 echo "Next action: $next_step"
 
 # Check constitution
+
 constitution=$(echo "$output" | grep "^CONSTITUTION:" | cut -d: -f2 | xargs)
 if [ "$constitution" = "ready" ]; then
     echo "✓ Constitution is recorded"
@@ -66,14 +76,18 @@ else
 fi
 
 # Count features
+
 feature_count=$(echo "$output" | grep "^- " | grep -c "spec=")
 echo "Total features: $feature_count"
-```
+
+```text
 
 **Python example:**
 
 ```python
+
 #!/usr/bin/env python3
+
 import subprocess
 import re
 
@@ -128,6 +142,7 @@ def parse_agent_status():
     return status
 
 # Usage
+
 if __name__ == '__main__':
     status = parse_agent_status()
     print(f"Next step: {status['next_step']}")
@@ -137,7 +152,8 @@ if __name__ == '__main__':
     for feature in status['features']:
         if feature['next'] == 'implement':
             print(f"✓ Ready to implement: {feature['slug']}")
-```
+
+```text
 
 ## JSON Mode (`--json`)
 
@@ -145,7 +161,8 @@ For complex integrations, use JSON mode to get complete structured data:
 
 ```bash
 specify status --json
-```
+
+```text
 
 ### Example JSON Structure
 
@@ -208,25 +225,32 @@ specify status --json
   "next_suggestion": "Plan next steps with /plan → user-auth.",
   "config_error": null
 }
-```
+
+```text
 
 ### JSON Parsing Example
 
 **jq example:**
 
 ```bash
+
 # Get next suggestion
+
 specify status --json | jq -r '.next_suggestion'
 
 # List all features needing plans
+
 specify status --json | jq -r '.workflow.waiting_plan[].slug'
 
 # Check if constitution exists
+
 specify status --json | jq -r 'if .workflow.constitution then "ready" else "missing" end'
 
 # Count ready-to-implement features
+
 specify status --json | jq '.workflow.features | map(select(.ready_for_implementation)) | length'
-```
+
+```text
 
 **Node.js example:**
 
@@ -254,7 +278,8 @@ if (needsPlan.length > 0) {
 if (needsTasks.length > 0) {
     console.log(`Needs tasks: ${needsTasks.join(', ')}`);
 }
-```
+
+```text
 
 ## CI/CD Integration
 
@@ -271,13 +296,16 @@ jobs:
   validate-specs:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Install Specify CLI
+
         run: |
           curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
 
       - name: Check project status
+
         run: |
           specify status --agent
 
@@ -292,12 +320,15 @@ jobs:
           if [ "$incomplete" -gt 0 ]; then
             echo "⚠️ $incomplete feature(s) have incomplete artifacts"
           fi
-```
+
+```text
 
 ### Pre-commit Hook Example
 
 ```bash
+
 #!/bin/bash
+
 # .git/hooks/pre-commit
 
 specify status --agent > /dev/null 2>&1
@@ -307,19 +338,22 @@ if [ $? -ne 0 ]; then
 fi
 
 # Ensure constitution exists
+
 if specify status --agent | grep -q "CONSTITUTION: missing"; then
     echo "❌ Constitution is required. Run /constitution in Copilot Chat."
     exit 1
 fi
 
 # Warn about incomplete specs
+
 incomplete=$(specify status --json | jq '.workflow.missing_spec | length')
 if [ "$incomplete" -gt 0 ]; then
     echo "⚠️ $incomplete feature(s) missing specs. Consider running /specify."
 fi
 
 exit 0
-```
+
+```text
 
 ## AI Agent Recommendations
 
@@ -362,7 +396,8 @@ def suggest_next_action(status_output: str) -> str:
         return next_step
 
     return "Check 'specify status' for detailed project state."
-```
+
+```text
 
 ## Error Handling
 
@@ -370,7 +405,8 @@ def suggest_next_action(status_output: str) -> str:
 
 ```text
 ERROR: Not a Specify project (missing .specify directory). Run 'specify init .' first.
-```
+
+```text
 
 Exit code: 1
 

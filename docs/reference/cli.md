@@ -8,7 +8,8 @@ Create a new workspace or refresh the current directory with the latest template
 
 ```bash
 specify init <project-name>
-```
+
+```text
 
 ### Key options
 
@@ -37,7 +38,8 @@ Validates local prerequisites (Git, VS Code/VS Code Insiders, and GitHub Models 
 
 ```bash
 specify check
-```
+
+```text
 
 Use this command after installing the CLI or when setting up a new workstation.
 
@@ -49,7 +51,8 @@ Displays the available GitHub Models.
 specify list-models
 specify list-models --refresh  # bypass cache
 specify list-models --no-cache # fetch live catalog without writing cache
-```
+
+```text
 
 ### Helpful flags for `status`
 
@@ -68,7 +71,8 @@ Summarizes the current workspace.
 
 ```bash
 specify status
-```
+
+```text
 
 Outputs include:
 
@@ -97,7 +101,8 @@ Displays version metadata and cache information.
 
 ```bash
 specify version
-```
+
+```text
 
 Shows the CLI version (or `development` if running from source), Python runtime, platform, and cache status (fresh/stale/none).
 
@@ -118,7 +123,8 @@ Shows the CLI version (or `development` if running from source), Python runtime,
   "timestamp": 1748451200.123,
   "source": "api"
 }
-```
+
+```text
 
 - Cache is reused for 60 minutes by default.
 - `specify list-models --refresh` rebuilds it immediately.

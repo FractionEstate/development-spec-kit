@@ -10,31 +10,36 @@ Automated test suite for the Specify CLI using pytest.
 uv venv
 source .venv/bin/activate
 uv pip install pytest pytest-cov
-```
+
+```text
 
 ### Run all tests
 
 ```bash
 pytest tests/
-```
+
+```text
 
 ### Run with coverage
 
 ```bash
 pytest tests/ --cov=src/specify_cli --cov-report=html --cov-report=term
-```
+
+```text
 
 ### Run specific test file
 
 ```bash
 pytest tests/test_init.py -v
-```
+
+```text
 
 ### Run specific test
 
 ```bash
 pytest tests/test_init.py::test_init_with_model_flag -v
-```
+
+```text
 
 ## Test Structure
 
@@ -102,7 +107,8 @@ tests/test_models.py .....         [ 65%]
 tests/test_validation.py .......   [100%]
 
 ===================== 20 passed in 5.23s =======================
-```
+
+```text
 
 ## Adding New Tests
 
@@ -126,4 +132,5 @@ def test_new_feature(temp_workspace):
 
     assert result.returncode == 0
     assert "expected output" in result.stdout
-```
+
+```text

@@ -25,23 +25,29 @@ Every step is guided by GitHub Copilot Chat, powered by your choice of GitHub Mo
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
-```
+
+```text
 
 **PowerShell:**
 
 ```powershell
 irm https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 | iex
-```
+
+```text
 
 ### Initialize project
 
 ```bash
+
 # Create new project
+
 specify init my-project --model claude-sonnet-4.5
 
 # Or initialize current directory
+
 specify init . --model gpt-4o
-```
+
+```text
 
 ### Check status
 
@@ -49,7 +55,8 @@ specify init . --model gpt-4o
 specify status              # Rich formatted output
 specify status --json       # Machine-readable JSON
 specify status --agent      # Plain text for AI agents
-```
+
+```text
 
 ## 📋 Available models
 
@@ -71,7 +78,8 @@ View all models:
 
 ```bash
 specify list-models
-```
+
+```text
 
 ## 🔧 CLI commands
 
@@ -116,7 +124,8 @@ my-project/
 └── .vscode/                     # VS Code settings
     ├── settings.json
     └── tasks.json
-```
+
+```text
 
 ## 🤖 For AI agents and automation
 
@@ -127,13 +136,17 @@ $ specify status --agent
 NEXT_STEP: Plan next steps with /plan → user-auth.
 CONSTITUTION: ready
 FEATURES:
+
 - user-auth: spec=done plan=todo tasks=todo next=plan
 - dashboard: spec=done plan=done tasks=done next=implement
+
 COMMANDS: /constitution, /specify, /plan, /tasks, /implement
 FOLLOWUPS:
+
 - Plan next steps with /plan → user-auth.
 - Move into delivery with /implement → dashboard.
-```
+
+```text
 
 For complex integrations, use `--json` for structured data.
 
@@ -180,29 +193,39 @@ Specify exclusively targets GitHub Models within GitHub Copilot:
 ## 🚀 Workflow example
 
 ```bash
+
 # 1. Create project
+
 specify init todo-app --model claude-sonnet-4.5
 
 # 2. Open in VS Code
+
 cd todo-app
 code .
 
-# 3. In GitHub Copilot Chat:
+# 3. In GitHub Copilot Chat
+
 @workspace /constitution
+
 # Define project principles
 
 @workspace /specify
+
 # Create feature: user-authentication
 
 @workspace /plan
+
 # Break down implementation approach
 
 @workspace /tasks
+
 # Generate actionable work items
 
 @workspace /implement
+
 # Start coding with full context
-```
+
+```text
 
 ## 🔐 Security
 

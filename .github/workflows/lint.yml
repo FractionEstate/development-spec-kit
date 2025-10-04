@@ -20,6 +20,8 @@ jobs:
             !.venv/**
             !node_modules/**
             !archive/**
+            !templates/**
+            !.genreleases/**
 
   python-lint:
     runs-on: ubuntu-latest

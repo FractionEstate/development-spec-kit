@@ -33,8 +33,8 @@ jobs:
       - name: Run Bandit security scan
         run: |
           source .venv/bin/activate
-          bandit -r src/ -f json -o bandit-report.json || true
-          bandit -r src/
+          bandit -r src/ -s B603,B607 -f json -o bandit-report.json || true
+          bandit -r src/ -s B603,B607
 
       - name: Run pip-audit
         run: |

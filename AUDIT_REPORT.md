@@ -83,16 +83,22 @@
 ### Validated Scenarios
 
 ```bash
+
 # Empty model (tested) ✅
+
 specify init . --model ""
 
 # Non-interactive (tested) ✅
+
 echo "" | specify init . --model gpt-4o
 
 # Network fetch (tested) ✅
+
 specify list-models --no-cache
+
 # Result: "Found 61 available models" including 8 Claude variants
-```
+
+```text
 
 ## 4. Edge Case Testing ✅
 

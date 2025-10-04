@@ -1,10 +1,13 @@
 ---
+
 description: "Implementation plan template for feature development"
+
 ---
 
 <!-- prompt-scripts
 sh: scripts/bash/update-agent-context.sh __AGENT__
 ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
+
 -->
 
 # Implementation Plan: [FEATURE]
@@ -13,35 +16,50 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 **Input**: Feature specification from `/.specify/specs/[###-feature-name]/spec.md`
 
 ## Execution Flow (/plan command scope)
-```
+
+```javascript
+
 1. Load feature spec from Input path
+
    → If not found: ERROR "No feature spec at {path}"
+
 2. Fill Technical Context (scan for NEEDS CLARIFICATION)
+
    → Detect Project Type from file system structure or context (web=frontend+backend, mobile=app+api)
    → Set Structure Decision based on project type
+
 3. Fill the Constitution Check section based on the content of the constitution document.
 4. Evaluate Constitution Check section below
+
    → If violations exist: Document in Complexity Tracking
    → If no justification possible: ERROR "Simplify approach first"
    → Update Progress Tracking: Initial Constitution Check
+
 5. Execute Phase 0 → research.md
+
    → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
+
 6. Execute Phase 1 → contracts, data-model.md, quickstart.md, and refresh GitHub Models guidance files (e.g., `.github/copilot-instructions.md`, `.github/copilot-context.md`).
 7. Re-evaluate Constitution Check section
+
    → If new violations: Refactor design, return to Phase 1
    → Update Progress Tracking: Post-Design Constitution Check
+
 8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
 9. STOP - Ready for /tasks command
-```
+
+```text
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
+
 [Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
+
 **Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
@@ -53,6 +71,7 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
+
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 [Gates determined based on constitution file]
@@ -60,7 +79,8 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ## Project Structure
 
 ### Documentation (this feature)
-```
+
+```text
 .specify/specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
 ├── research.md          # Phase 0 output (/plan command)
@@ -68,17 +88,23 @@ ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ├── quickstart.md        # Phase 1 output (/plan command)
 ├── contracts/           # Phase 1 output (/plan command)
 └── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
-```
+
+```text
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
   real paths (e.g., apps/admin, packages/something). The delivered plan must
   not include Option labels.
+
 -->
-```
+
+```text
+
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+
 src/
 ├── models/
 ├── services/
@@ -91,6 +117,7 @@ tests/
 └── unit/
 
 # [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+
 backend/
 ├── src/
 │   ├── models/
@@ -106,29 +133,36 @@ frontend/
 └── tests/
 
 # [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+
 api/
 └── [same as backend above]
 
 ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+
+```text
 
 **Structure Decision**: [Document the selected structure and reference the real
+
 directories captured above]
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
-   ```
+
+```javascript
+
    For each unknown in Technical Context:
      Task: "Research {unknown} for {feature context}"
    For each technology choice:
      Task: "Find best practices for {tech} in {domain}"
-   ```
+
+```text
 
 3. **Consolidate findings** in `research.md` using format:
    - Decision: [what was chosen]
@@ -138,6 +172,7 @@ directories captured above]
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
+
 *Prerequisites: research.md complete*
 
 1. **Extract entities from feature spec** → `data-model.md`:
@@ -171,6 +206,7 @@ directories captured above]
 **Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
 
 ## Phase 2: Task Planning Approach
+
 *This section describes what the /tasks command will do - DO NOT execute during /plan*
 
 **Task Generation Strategy**:
@@ -191,6 +227,7 @@ directories captured above]
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
+
 *These phases are beyond the scope of the /plan command*
 
 **Phase 3**: Task execution (/tasks command creates tasks.md)
@@ -198,6 +235,7 @@ directories captured above]
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking
+
 *Fill ONLY if Constitution Check has violations that must be justified*
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
@@ -207,6 +245,7 @@ directories captured above]
 
 
 ## Progress Tracking
+
 *This checklist is updated during execution flow*
 
 **Phase Status**:

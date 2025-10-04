@@ -12,7 +12,8 @@ Pick a directory name and let the CLI scaffold everything for GitHub Models + VS
 
 ```bash
 specify init my-first-spec --model gpt-4o
-```
+
+```text
 
 During initialization you will:
 
@@ -26,7 +27,8 @@ During initialization you will:
 
 ```bash
 code my-first-spec
-```
+
+```text
 
 Inside VS Code:
 
@@ -52,7 +54,8 @@ Each command writes to `.specify/` and keeps the artifacts synchronized with the
 
 ```bash
 specify status
-```
+
+```text
 
 The status command confirms:
 

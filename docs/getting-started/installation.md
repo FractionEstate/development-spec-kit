@@ -19,13 +19,15 @@ Choose the script that matches your shell. Both scripts install or upgrade the C
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/bash/install-specify.sh | bash
-```
+
+```text
 
 ### PowerShell (Windows, macOS, or Linux)
 
 ```powershell
 iwr https://raw.githubusercontent.com/FractionEstate/development-spec-kit/main/scripts/powershell/install-specify.ps1 -UseBasicParsing | iex
-```
+
+```text
 
 ## Manual installation with uv
 
@@ -33,26 +35,30 @@ If you prefer to manage tools manually or to pin to a branch, install directly w
 
 ```bash
 uv tool install specify-cli --from git+https://github.com/FractionEstate/development-spec-kit.git
-```
+
+```text
 
 Upgrade to the latest release at any time with:
 
 ```bash
 uv tool upgrade specify-cli
-```
+
+```text
 
 Remove the tool when you are done experimenting:
 
 ```bash
 uv tool uninstall specify-cli
-```
+
+```text
 
 ## Verify your setup
 
 ```bash
 specify version
 specify check
-```
+
+```text
 
 `specify version` prints the CLI version, Python runtime, platform, and cache status. `specify check` confirms Git, VS Code, and GitHub Models prerequisites.
 

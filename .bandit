@@ -1,0 +1,11 @@
+[bandit]
+# Bandit configuration for Specify CLI
+# This tool requires subprocess calls to git and other CLI tools
+
+# Exclude these checks:
+# - B603: subprocess_without_shell_equals_true - We use shell=False (secure) with controlled inputs
+# - B607: start_process_with_partial_path - git/uv are required dependencies in development environment
+skips = B603,B607
+
+# Exclude test directories
+exclude_dirs = /tests/,/.venv/,/dist/,/build/

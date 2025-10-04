@@ -1,10 +1,13 @@
 ---
+
 description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
+
 ---
 
 <!-- prompt-scripts
 sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+
 -->
 
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
@@ -25,6 +28,7 @@ Execution steps:
    - SPEC = FEATURE_DIR/spec.md
    - PLAN = FEATURE_DIR/plan.md
    - TASKS = FEATURE_DIR/tasks.md
+
    Abort with an error message if any required file is missing (instruct the user to run missing prerequisite command).
 
 2. Load artifacts:
@@ -40,23 +44,35 @@ Execution steps:
    - Constitution rule set: Extract principle names and any MUST/SHOULD normative statements.
 
 4. Detection passes:
+
    A. Duplication detection:
+
       - Identify near-duplicate requirements. Mark lower-quality phrasing for consolidation.
+
    B. Ambiguity detection:
+
       - Flag vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria.
       - Flag unresolved placeholders (TODO, TKTK, ???, <placeholder>, etc.).
+
    C. Underspecification:
+
       - Requirements with verbs but missing object or measurable outcome.
       - User stories missing acceptance criteria alignment.
       - Tasks referencing files or components not defined in spec/plan.
+
    D. Constitution alignment:
+
       - Any requirement or plan element conflicting with a MUST principle.
       - Missing mandated sections or quality gates from constitution.
+
    E. Coverage gaps:
+
       - Requirements with zero associated tasks.
       - Tasks with no mapped requirement/story.
       - Non-functional requirements not reflected in tasks (e.g., performance, security).
+
    F. Inconsistency:
+
       - Terminology drift (same concept named differently across files).
       - Data entities referenced in plan but absent in spec (or vice versa).
       - Task ordering contradictions (e.g., integration tasks before foundational setup tasks without dependency note).
@@ -71,23 +87,28 @@ Execution steps:
 6. Produce a Markdown report (no file writes) with sections:
 
    ### Specification Analysis Report
+
    | ID | Category | Severity | Location(s) | Summary | Recommendation |
    |----|----------|----------|-------------|---------|----------------|
    | A1 | Duplication | HIGH | spec.md:L120-134 | Two similar requirements ... | Merge phrasing; keep clearer version |
+
    (Add one row per finding; generate stable IDs prefixed by category initial.)
 
    Additional subsections:
+
    - Coverage Summary Table:
+
      | Requirement Key | Has Task? | Task IDs | Notes |
+
    - Constitution Alignment Issues (if any)
    - Unmapped Tasks (if any)
    - Metrics:
-     * Total Requirements
-     * Total Tasks
-     * Coverage % (requirements with >=1 task)
-     * Ambiguity Count
-     * Duplication Count
-     * Critical Issues Count
+     - Total Requirements
+     - Total Tasks
+     - Coverage % (requirements with >=1 task)
+     - Ambiguity Count
+     - Duplication Count
+     - Critical Issues Count
 
 7. At end of report, output a concise Next Actions block:
    - If CRITICAL issues exist: Recommend resolving before `/implement`.
@@ -99,6 +120,7 @@ Execution steps:
 9. Conclude with a short Markdown summary that highlights highest-severity findings, coverage metrics, prioritized follow-ups, a ready-to-copy `@workspace` prompt tailored to the recommended next command (e.g., `/specify`, `/plan`, `/tasks`, `/clarify`, or manual edits), and the suggested next command itself.
 
 Behavior rules:
+
 - NEVER modify files.
 - NEVER hallucinate missing sections—if absent, report them.
 - KEEP findings deterministic: if rerun without changes, produce consistent IDs and counts.

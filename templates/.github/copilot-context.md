@@ -16,7 +16,7 @@ This brief keeps GitHub Copilot grounded in the Spec-Driven Development (SDD) wo
 
 ### Workspace Layout
 
-```
+```text
 project-root/
 ├── .specify/
 │   ├── memory/
@@ -39,16 +39,20 @@ project-root/
     ├── settings.json
     ├── tasks.json
     └── spec-driven-dev.code-snippets
-```
+
+```text
 
 ### File Relationships & Dependencies
-```
+
+```text
 constitution.md  →  spec.md  →  plan.md  →  tasks.md  →  implementation
         ↑             ↑           ↑           ↑
    principles     requirements  architecture  execution
-```
+
+```text
 
 ### Context Hierarchy for Copilot Suggestions
+
 1. **Constitutional Level** – `memory/constitution.md`
 2. **Specification Level** – `.specify/specs/<feature>/spec.md`
 3. **Planning Level** – `.specify/specs/<feature>/plan.md`
@@ -58,33 +62,40 @@ constitution.md  →  spec.md  →  plan.md  →  tasks.md  →  implementation
 ### Enhanced Chat Patterns
 
 #### Context-Rich Specification Requests
-```
+
+```text
 @workspace Working on user authentication feature.
 Context files: memory/constitution.md (security principles), .specify/specs/001-user-auth/spec.md
 Requirements: Secure login, password reset, 2FA support
 Help me: Complete the specification following our SDD template structure
 Consider: GDPR compliance from constitution, existing user model patterns
-```
+
+```text
 
 #### Architecture-Aware Planning Requests
-```
+
+```text
 @workspace Planning microservices architecture for e-commerce.
 Context files: .specify/specs/00X-feature/spec.md (requirements), memory/constitution.md (principles)
 Tech stack preference: Node.js, PostgreSQL, Redis, Docker
 Help me: Generate technical implementation plan with data model and API contracts
 Consider: Scalability requirements from spec, performance standards from constitution
-```
+
+```text
 
 #### Implementation with Full Context
-```
+
+```text
 @workspace Implementing UserService from task T014.
 Context files: .specify/specs/001-user-auth/plan.md (architecture), .specify/specs/001-user-auth/data-model.md (User entity), .specify/specs/001-user-auth/tasks.md (current task)
 Current task: Create UserService with CRUD operations and validation
 Help me: Generate the service class following our established patterns
 Consider: Error handling patterns from plan, validation rules from data model
-```
+
+```text
 
 ### Cross-Reference Validation Patterns
+
 - Validate implementations against specification requirements
 - Ensure architectural decisions align with project principles
 - Check task completion against acceptance criteria
@@ -92,6 +103,7 @@ Consider: Error handling patterns from plan, validation rules from data model
 - Confirm documentation stays current with implementation
 
 ### Slash Command Quick Reference
+
 | Command | Purpose | Copilot Prompt Tips |
 |---------|---------|---------------------|
 | `/specify` | Generate or evolve a feature specification | Feed raw intent plus blockers; resolve `[NEEDS CLARIFICATION]` markers before planning. |
@@ -103,6 +115,7 @@ Consider: Error handling patterns from plan, validation rules from data model
 | `/constitution` | Establish or revise project principles | Use during inception or governance refreshes; cite sections when making trade-offs. |
 
 ### Resource Hub
+
 - **Primary Instructions** – `.github/copilot-instructions.md`
 - **Conversation Playbook** – `.github/copilot-context.md`
 - **Reference Library** – `.github/copilot-references.md`
@@ -112,6 +125,7 @@ Consider: Error handling patterns from plan, validation rules from data model
 - **Snippet: Feature Bootstrap** – `templates/.vscode/spec-driven-dev.code-snippets` (`feature-bootstrap`)
 
 ### Agent tools (quick reference)
+
 - Edits & creates files on request
 - Searches and reads files by path or pattern
 - Runs one-line terminal commands and summarizes
@@ -123,6 +137,7 @@ Consider: Error handling patterns from plan, validation rules from data model
 See `templates/README-copilot.md#agent-tools--capabilities` for details and prompt examples.
 
 ### Quick start prompts
+
 - "Search for 'Agent tools & capabilities' and confirm it appears in README + instructions + context."
 - "Read `copilot-references.md` and list the SDD Methodology table rows."
 - "Insert the `agent-tools` snippet into this doc under Resources."
